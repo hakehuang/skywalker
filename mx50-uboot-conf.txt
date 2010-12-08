@@ -1,0 +1,1 @@
+bootcmd=bootp ${loadaddr} 10.192.225.218:mx50_asrc;autosrc ${loadaddr}

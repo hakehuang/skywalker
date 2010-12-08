@@ -1,0 +1,2 @@
+for mx50
+	dd if=<output config image> of=/dev/<sd card> bs=1024 seek=768 count=256
