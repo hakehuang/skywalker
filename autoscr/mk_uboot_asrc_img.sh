@@ -1,4 +1,4 @@
-bin_prog=./mkimage
+bin_prog=mkimage
 PERFIX=
 PLATFORM="25 31 35 37 51 50 53"
 
