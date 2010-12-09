@@ -1,0 +1,49 @@
+#!/bin/sh
+###################################################################################################
+#
+#    @file   vte
+#
+#    @brief  shell script to mount the vte test suite for different platform from nfs 
+#
+###################################################################################################
+#
+#   Copyright (C) 2004, Freescale Semiconductor, Inc. All Rights Reserved
+#   THIS SOURCE CODE IS CONFIDENTIAL AND PROPRIETARY AND MAY NOT
+#   BE USED OR DISTRIBUTED WITHOUT THE WRITTEN PERMISSION OF
+#   Freescale Semiconductor, Inc.
+#
+###################################################################################################
+#Revision History:
+#                            Modification     Tracking
+#Author                          Date          Number    Description of Changes
+#-------------------------   ------------    ----------  -------------------------------------------
+#Hake Huang/-----             20081007     N/A          Initial version
+# 
+###################################################################################################
+
+TEST_SERVER=10.192.225.222
+
+start_test()
+{
+TARGET=$(/mnt/nfs/tools/platfm.sh)
+if [ -z "$TARGET" ]; then
+return 1
+fi
+test_flag=$(cat /proc/cmdline | grep daily_test)
+test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vtemx${TARGET}/${test_file} ]; then
+cd /mnt/nfs/vte_mx${TARGET} && ./mytest $test_file
+fi
+}
+
+check_platform
+
+mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
+#check time
+sleep 1
+echo $(hostname -i) > /root/.mounts
+/mnt/nfs/util/ntpdate 10.192.225.222
+/sbin/hwclock -w
+sleep 1
+#/mnt/nfs/vte_mx${TARGET}/mytest
+check_test
