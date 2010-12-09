@@ -1,6 +1,21 @@
-/*generate the u-boot config
- * 
+/*
+ * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +37,7 @@ int main(int argc, char ** argv)
 	char buf[MAX_BUF];
   
 	 if(strcmp(argv[1], "-h") == 0 || argc < 4){
-		 printf("%s, -s,<infile>,<outfile> \n", argv[0]);
+		 printf("%s -s <infile> <outfile> \n", argv[0]);
 		 return 0;
 		 }
 
@@ -49,15 +64,6 @@ int main(int argc, char ** argv)
 	 }
 	 fclose(IN);
 	 printf("env size %d == %d\n", env_size, sizeof(envs.data));
-	 #if 0
-	 while(env_size > 1){
-	 envs.crc = crc32(0,envs.data, env_size);
-	 printf("crc32 %lx, at %d \n", envs.crc, env_size);
-	 env_size--;
-	 if(envs.crc == 0x7d1690a1)
-		  break;
-   }
-#endif
 	 envs.crc = crc32(0,envs.data, env_size);
    /*write to auto src image*/
    OUT = fopen(argv[3],"wb");
@@ -67,17 +73,6 @@ int main(int argc, char ** argv)
 		 }
 	 pdata = envs.data;
 	 printf("data %lx, first line %s \n", envs.crc, envs.data);
-#if 1
-	 {
-		 int i = 0;
-	 while(i < 1024){
-		 printf("%x ", envs.data[i]);
-		 i++;
-     if(i%32 == 0)
-			 printf("\n");
-		 }
-	}
-#endif
    len = fwrite(&envs,sizeof(envs),1, OUT);
 	 fclose(OUT);
    return 0;
