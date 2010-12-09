@@ -1,0 +1,2 @@
+sudo apt-get uboot-mkimage
+mkimage -A ARM -O linux -T script -C none -a 0 -e 0 -n "autoscr example script" -d in.script out.img 

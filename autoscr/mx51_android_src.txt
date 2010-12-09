@@ -1,0 +1,8 @@
+setenv bootcmd 'run bootcmd_SD1 bootcmd_SD2' 
+setenv bootcmd_SD1 'run bootargs_base bootargs_android bootargs_SD'  
+setenv bootcmd_SD2 'mmc read 0 ${loadaddr} 0x800 0x1280;mmc read 0 ${rd_loadaddr} 0x2000 0x258;bootm ${loadaddr} ${rd_loadaddr}'  
+setenv bootargs_base 'setenv bootargs console=ttymxc0,115200'  
+setenv bootargs_SD 'setenv bootargs ${bootargs}'  
+setenv bootargs_android 'setenv bootargs ${bootargs} init=/init androidboot.console=ttymxc0' 
+setenv loadaddr 0x90800000 
+setenv rd_loadaddr 0x90B00000

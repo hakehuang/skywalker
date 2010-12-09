@@ -1,0 +1,4 @@
+setenv serverip 10.192.225.218
+setenv bootargs console=ttymxc0,115200 root=/dev/nfs ip=dhcp nfsroot=10.192.225.22:/rootfs/imx35_rootfs,tcp,ro,wsize=1024,rsize=1024
+tftpboot uImage_mx35
+bootm

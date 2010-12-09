@@ -1,0 +1,8 @@
+setenv netmask 255.255.254.0
+setenv serverip 10.192.225.218
+setenv bootdelay 2 
+setenv bootfile uImage_mx28
+setenv ethaddr 00:04:9f:01:01:e8
+setenv bootargs 'console=ttyAM0,115200n8 root=/dev/nfs nfsroot=10.192.224.219:/rootfs/imx28_rootfs/rootfs rw ip=dhcp MOPTS=nolock,proto=tcp,ro,wsize=256,rsize=256 mem=128M fec_mac=00:08:02:6B:A3:10'
+dhcp
+bootm

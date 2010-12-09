@@ -1,0 +1,30 @@
+printenv
+printenv
+printenv ret_value
+setenv loadaddr 0x90800000
+setenv rd_loadaddr 0x90B00000
+mmcinfo
+printenv ret_value
+mmc read 0 ${loadaddr} 0x800 0x1280
+printenv ret_value
+sf probe 1
+printenv ret_value
+sf read 0x90100000 0 0x4000
+printenv ret_value
+sf erase 0 0x4000
+printenv ret_value
+sf write 0x90100000 0 0x4000
+printenv ret_value
+setenv serverip 10.192.225.218
+printenv ret_value
+dhcp
+printenv ret_value
+mtest 0x90800000 0x90B00000 0xAAAAAAAA 10
+printenv ret_value
+ping 10.192.225.222
+printenv ret_value
+setenv bootargs console=ttymxc0,115200 root=/dev/nfs ip=dhcp nfsroot=10.192.225.22:/rootfs/imx51_rootfs,tcp,ro,wsize=1024,rsize=1024
+printenv ret_value
+tftpboot uImage_mx51
+printenv ret_value
+bootm
