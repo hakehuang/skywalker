@@ -25,18 +25,21 @@ TEST_SERVER=10.192.225.222
 
 start_test()
 {
-TARGET=$(/mnt/nfs/tools/platfm.sh)
+/mnt/nfs/tools/platfm.sh
+TARGET=$?
 if [ -z "$TARGET" ]; then
 return 1
 fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
-if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vtemx${TARGET}/${test_file} ]; then
-cd /mnt/nfs/vte_mx${TARGET} && ./mytest $test_file
+if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
+#enable watchdog here
+echo "start test in 10 seconds, or login then kill the test"
+sleep 30
+insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko
+cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
 fi
 }
-
-check_platform
 
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
@@ -46,4 +49,4 @@ echo $(hostname -i) > /root/.mounts
 /sbin/hwclock -w
 sleep 1
 #/mnt/nfs/vte_mx${TARGET}/mytest
-check_test
+start_test

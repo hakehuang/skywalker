@@ -11,10 +11,10 @@ bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serveri
 bootcmd_net=run bootargs_base bootargs_nfs; tftpboot ${loadaddr} ${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; bootm
-bootcmd=bootp ${loadaddr} 10.192.225.218:mx50_asrc;source ${loadaddr}
+bootcmd=bootp ${loadaddr} 10.192.225.218:mx50_asrc_daily.img;source ${loadaddr}
 stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=mx50_61
+ethaddr=mx50dt
 bootargs=console=ttymxc0,115200 root=/dev/nfs ip=dhcp nfsroot=:/opt/eldk/arm,v3,tcp
