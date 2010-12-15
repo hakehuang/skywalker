@@ -36,7 +36,8 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
 #enable watchdog here
 echo "start test in 10 seconds, or login then kill the test"
 sleep 30
-insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko
+insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
+export CONTINUE=y
 cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
 fi
 }

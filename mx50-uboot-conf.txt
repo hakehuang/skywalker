@@ -4,17 +4,20 @@ loadaddr=0x70800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage
-nfsroot=/opt/eldk/arm
-bootargs_base=setenv bootargs console=ttymxc0,115200
+kernel=uImage_mx50
+nfsroot=/rootfs/imx50_rootfs
+serverip=10.192.224.218
+tftpaddr=10.192.225.218
+bootargs_base=setenv bootargs ${bootargs}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
-bootcmd_net=run bootargs_base bootargs_nfs; tftpboot ${loadaddr} ${kernel}; bootm
+bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
-bootcmd_mmc=run bootargs_base bootargs_mmc; bootm
+bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800
+0x2000;bootm
 bootcmd=bootp ${loadaddr} 10.192.225.218:mx50_asrc_daily.img;source ${loadaddr}
 stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=mx50dt
-bootargs=console=ttymxc0,115200 root=/dev/nfs ip=dhcp nfsroot=:/opt/eldk/arm,v3,tcp
+ethaddr=fec
+bootargs=console=ttymxc0,115200
