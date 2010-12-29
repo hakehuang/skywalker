@@ -1,2 +1,7 @@
+to use:
+1. modify your config file, see the mx50_config sample
+2. generate the image
+./u-config -s <input config file> <output image name>
+3. burn to SD
 for mx50
 	dd if=<output config image> of=/dev/<sd card> bs=1024 seek=768 count=256
