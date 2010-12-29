@@ -43,9 +43,12 @@ cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
 while true;
 do
   sleep 1800;
-  status=$(/mnt/nfs/vte_mx${TARGET}_d/testcases/bin/uclient 10.192.225.222 12500 hello | grep ACK | wc -l)
-	if [ $status -eq 1 ];then
-    reboot
+	lib_version=$(ls /lib/modules | grep daily)
+	if [ $(uname -r) !=  $lib_version ]; then
+  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 hello | grep ACK | wc -l)
+		if [ $status -eq 1 ];then
+    	reboot
+		fi
 	fi
 done
 fi
