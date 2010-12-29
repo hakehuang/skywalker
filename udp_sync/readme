@@ -1,0 +1,25 @@
+####################################
+#what is it
+:server site
+server wait for client to connect
+:client site
+client send server its IP address and mac address, server storage the address and quit
+#client send message to server in 5 mins
+#server track the client status
+
+
+
+#command line
+#for server
+userver &
+
+#for client
+#to set the server in ready mode
+uclient <server IP> 12500 READY
+#to set the server in no ready mode
+uclient <server IP> 12500 NOREADY
+#check status
+uclient <server IP> 12500 hello
+
+
+#hake huang for auto test system
