@@ -25,25 +25,40 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <pthread.h>
-
+#include <ctype.h>
 
 #include "udpsync.h"
 
 #define MAX_SIZE 512
 #define MAX_CLIENT_NUMBER 100
+/*platform name string length*/
+#define PSIZE 32
+
+typedef struct link_node{
+   char platform[PSIZE];
+   int status;
+   struct link_node *next;
+} tlink_node;
+
+typedef struct link_list{
+  tlink_node * node;
+} tlink_list;
+
 
 static char address_tlb[MAX_CLIENT_NUMBER][50];
 static int  status_table[MAX_CLIENT_NUMBER];
 static int acs = 0; /* zero based*/
 static int ilog = 0;
 static int gStatus = eSTART;
-
+static tlink_list mplist;
 
 #if DEBUG
 #define uprintf printf
 #else 
 #define uprintf(a, b ...) 
 #endif
+
+
 
 int check_list(char * in, int port)
 {
@@ -54,9 +69,9 @@ int check_list(char * in, int port)
     {
         if(strcmp(in,address_tlb[i])==0)
         {
-            status_table[i] += 1;
-						uprintf("address table meet %d,%s\n",i, address_tlb[i]);
-            return 1;   
+          status_table[i] += 1;
+          uprintf("address table meet %d,%s\n",i, address_tlb[i]);
+          return 1;   
         }
     }
 		printf("add to address table\n");
@@ -127,9 +142,8 @@ void * message_sock(void * in)
         {
             socklen_t addr_len;
             struct sockaddr_in c_addr;
-            
-            addr_len = sizeof(c_addr);
-            
+   
+            addr_len = sizeof(c_addr);            
             memset(mesg,0,MAX_SIZE);
             rlen = recvfrom(sockfd, mesg, sizeof(mesg) - 1, 0,
             (struct sockaddr *) &c_addr, &addr_len);
@@ -244,7 +258,9 @@ void recvUDP(char * name,int sockfd)
         if(FD_ISSET(sockfd,&rdset))
         {
             socklen_t addr_len;
+            char * tmesg;
             struct sockaddr_in c_addr;
+            tlink_node * cnode = mplist.node;
             addr_len = sizeof(c_addr); 
             memset(mesg,0,MAX_SIZE);
             rlen = recvfrom(sockfd, mesg, sizeof(mesg) - 1, 0,
@@ -254,20 +270,77 @@ void recvUDP(char * name,int sockfd)
             exit(errno);
             }
             mesg[rlen] = '\0';
-						if(NULL != strstr("READY",mesg))
-						{
-						  gStatus = eREADY;
-							printf("build image ready.\n");
-						}else if(NULL != strstr("NOREADY",mesg)){
-							gStatus = eSTART;
-							printf("build image in process.\n");
-						}
+            tmesg = strstr(mesg,"_");
+            if(tmesg == NULL)
+                tmesg = mesg;
+            else{
+                while(cnode){
+                  char temp[PSIZE];
+                  strncpy(temp,mesg,tmesg - mesg);
+                  temp[tmesg - mesg] = 0; 
+                  if(strcmp(temp,cnode->platform) == 0)
+                        break;   
+                  if(cnode->next == NULL)
+		  {
+                     /*not found the platform insert one*/
+                     cnode->next =(tlink_node *)malloc(sizeof(tlink_node));
+                     strncpy(cnode->next->platform,temp,PSIZE);
+                     cnode->next->status = eSTART;
+                     break;
+                  }  
+		  cnode = cnode->next;
+                }
+                if(cnode == NULL)
+                {
+                   cnode = (tlink_node *)malloc(sizeof(tlink_node));
+                   strncpy(cnode->platform,mesg,tmesg - mesg);
+                   cnode->platform[tmesg - mesg] = 0;
+                   cnode->status = eSTART;
+                   cnode->next = 0;
+                   printf("inti platform list %s\n", cnode->platform);
+                   mplist.node = cnode;
+                }
+                tmesg++;                 
+                if(NULL != strstr("READY",tmesg)){
+		   gStatus = eREADY;
+                   cnode->status = eREADY; 
+		   printf("build image ready.\n");
+                }else if(NULL != strstr("NOREADY",tmesg)){
+	           gStatus = eSTART;
+                   cnode->status = eSTART; 
+		   printf("build image in process.\n");
+                }else{
+                   gStatus = cnode->status;
+                } 
+                if (gStatus == eREADY)
+		    rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+	        else if(gStatus == eSTART)
+		   rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+           }
+            if(NULL != strstr("FLUSH",tmesg)){
+               while(cnode){
+                   tlink_node * tmp = cnode;
+                   cnode = cnode->next;
+                   free(tmp); 
+               }
+               mplist.node = NULL;
+	      rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+            }else if(NULL != strstr("HELLO",tmesg)){
+               printf("check all data\n");
+               while(cnode){
+		  rlen = sendto(sockfd, cnode->platform, strlen(cnode->platform), 0,(struct sockaddr *) &c_addr, addr_len);
+                  printf("platform %s\n",cnode->platform);
+                  if (cnode->status == eREADY)
+		  	rlen = sendto(sockfd, "ready", 5, 0,(struct sockaddr *) &c_addr, addr_len);
+                  else
+		  	rlen = sendto(sockfd, "no ready", 8, 0,(struct sockaddr *) &c_addr, addr_len);
+                  cnode = cnode->next;
+               }
+	      rlen = sendto(sockfd, "LIST", 4, 0,(struct sockaddr *) &c_addr, addr_len);
+            }else{
+		  rlen = sendto(sockfd, "query format <platform name>_hello",34,0,(struct sockaddr *) &c_addr, addr_len);
+            }
             check_list(inet_ntoa(c_addr.sin_addr), ntohs(c_addr.sin_port));
-						if (gStatus == eREADY)
-							rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-						else if(gStatus == eSTART){
-							rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-						}
             if (rlen < 0) 
                printf("\n\rsend error.\n\r");
             if(ilog)
@@ -301,7 +374,7 @@ int main(int argc, char **argv)
           ilog = 1;
     }
 
-
+    mplist.node = NULL;
     sockfd = socket(AF_INET,SOCK_DGRAM,0); /*create a socket*/
 
     /*init servaddr*/
@@ -333,10 +406,7 @@ int main(int argc, char **argv)
       exit(1);
     }
    */
-    
     recvUDP(argv[1],sockfd);
-
     return 0;
-
 }
 
