@@ -340,6 +340,8 @@ void recvUDP(char * name,int sockfd)
             }else{
 		  rlen = sendto(sockfd, "query format <platform name>_hello",34,0,(struct sockaddr *) &c_addr, addr_len);
             }
+            /*acknowledge client to over*/
+	    rlen = sendto(sockfd, "FNT", 3, 0,(struct sockaddr *) &c_addr, addr_len);
             check_list(inet_ntoa(c_addr.sin_addr), ntohs(c_addr.sin_port));
             if (rlen < 0) 
                printf("\n\rsend error.\n\r");

@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     int addr_len;
     int len;
     char buff[1024];
-		int ack = 0;
+    int ack = 0;
  
     if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1) 
     {
@@ -51,31 +51,35 @@ int main(int argc, char **argv)
 			strcpy(buff, argv[3]);
 		else
 			strcpy(buff,"hello");
-		while(!ack)
+		while(1)
 		{
-			len = sendto(sock, buff, strlen(buff), 0,(struct sockaddr *) &s_addr, addr_len);
-      if (len < 0) 
-      {
-         printf("\n\rsend error.\n\r");
-				 return 3;
-      }
+                  if(ack == 0)
+		  	len = sendto(sock, buff, strlen(buff), 0,(struct sockaddr *) &s_addr, addr_len);
+                  if (len < 0) 
+                  {
+                      perror("send");
+                      printf("\n\rsend error.\n\r");
+		      return 3;
+                  }
 		  if(len == strlen(buff))
-			{
-      ssize_t rlen;
-			socklen_t addr_len;
-      struct sockaddr_in c_addr;      
-      char mesg[512];
-      addr_len = sizeof(c_addr);
-      memset(mesg,0,512);
-      rlen = recvfrom(sock, mesg, sizeof(mesg) - 1, 0,
-            (struct sockaddr *) &c_addr, &addr_len);
-      if (rlen < 0) {
-            perror("recvfrom");
-            exit(errno);
-       }
-			 printf("receiver from server %s\n", mesg);
-			 ack = 1;
-			}
+		  {
+                    ssize_t rlen;
+		    socklen_t addr_len;
+                    struct sockaddr_in c_addr;      
+                    char mesg[512];
+                    addr_len = sizeof(c_addr);
+                    memset(mesg,0,512);
+                    rlen = recvfrom(sock, mesg, sizeof(mesg) - 1, 0,
+                      (struct sockaddr *) &c_addr, &addr_len);
+                    if (rlen < 0) {
+                        perror("recvfrom");
+                        exit(errno);
+                    }
+		    printf("receiver from server %s\n", mesg);
+                    ack=1;
+                    if(NULL != strstr("FNT",mesg))
+			break;
+		 }
 		}
 #if 0
     while(1)
