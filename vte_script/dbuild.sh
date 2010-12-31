@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="50"
+PLATFORM="50 53"
 BUILD=y
 KERNEL_BRH=imx_2.6.35
 UBOOT_BRH=imx_v2009.08
@@ -103,6 +103,20 @@ old_vte_rc=0
 return $ret
 }
 
+sync_server()
+{
+  if [ ! -e $ROOTDIR/skywalker ]
+  git clone git://10.192.225.222/skywalker
+  fi
+  cd $ROOTDIR/skywalker
+  git checkout -b temp || git checkout tmp
+  git branch -D build
+  git fetch origin +master:build && git checkout build || exit -2
+  cd udp_sync
+  CROSS_COMPILER="" make || exit -3
+  ./uclient 10.192.225.222 12500 $1_READY 
+}
+
 #main
 
 old_kernel_config=
@@ -157,6 +171,7 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
+     sync_server $i
    fi
    j=$(expr $j + 1)
   done

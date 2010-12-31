@@ -45,7 +45,7 @@ do
   sleep 1800;
 	lib_version=$(ls /lib/modules | grep daily)
 	if [ $(uname -r) !=  $lib_version ]; then
-  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 hello | grep ACK | wc -l)
+  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_hello | grep ACK | wc -l)
 		if [ $status -eq 1 ];then
     	reboot
 		fi
