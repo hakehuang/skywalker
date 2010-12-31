@@ -3,14 +3,14 @@
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
 PLATFORM="50"
 BUILD=y
+KERNEL_BRH=imx_2.6.35
+UBOOT_BRH=imx_v2009.08
 #PLATFORM="5x"
 VTE_TARGET_PRE=/mnt/vte/
 TARGET_ROOTFS=/mnt/nfs_root/
-
 ROOTDIR=/home/ltib2/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
-KERNEL_BRH=imx_2.6.35
-
+UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
 
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
@@ -19,6 +19,7 @@ RC=0
 
 #below is the matrix for rootfs
 declare -a soc_name;
+declare -a u_boot_configs;
 declare -a kernel_configs;
 declare -a vte_configs;
 # As bash only support 1 dimension array below sequence is our assumption
@@ -28,6 +29,8 @@ declare -a vte_configs;
 #           0     1    2    3    4   5    6    7    8
 soc_name=("233" "25" "28" "31" "35" "37" "50" "51" "53");
 SOC_CNT=9
+#default u-boot kernel configs for each platform
+u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" "mx50_rdp_config" "mx51_bbg_config" "mx53_smd_config")
 #default kernel configs for each platform
 kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" "imx28evk_defconfig" "mx3_defconfig" "mx35_3stack_config" "mx3_defconfig" \
                 "imx5_defconfig" "imx5_defconfig" "imx5_defconfig");
@@ -35,6 +38,16 @@ kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" "imx28evk_defconfi
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
              "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
 
+make_uboot()
+{
+echo "make uboot $2 with $1"
+cd $UBOOT_DIR
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- distclean
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
+scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-mx${2}_d.bin || return 3
+return 0
+}
 
 make_kernel()
 {
@@ -98,13 +111,24 @@ old_vte_config=
 old_vte_rc=0
 
 if [ $BUILD = "y" ]; then
+
+ cd $ROOTDIR
+ if [ ! -e ${UBOOT_DIR} ]; then
+ git clone git://sw-git01-tx30/uboot-imx.git
+ fi
+ cd ${UBOOT_DIR}
+ git checkout -b temp || git checkout temp
+ git branch -D build
+ git fetch origin +$UBOOT_BRH:build && git checkout build || exit -1
+
+ cd $ROOTDIR
  if [ ! -e ${KERNEL_DIR} ]; then
  git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
  fi
  cd ${KERNEL_DIR}
  git checkout -b temp || git checkout temp
  git branch -D build
- git fetch origin +$KERNEL_BRH:build && git checkout build || exit -1
+ git fetch origin +$KERNEL_BRH:build && git checkout build || exit -2
 
  cd $ROOTDIR
  if [ ! -e ${VTE_DIR} ]; then
@@ -113,7 +137,7 @@ if [ $BUILD = "y" ]; then
  cd $VTE_DIR
   git checkout -b temp || git checkout temp
   git branch -D build
- git fetch origin +master:build && git checkout build || exit -2
+ git fetch origin +master:build && git checkout build || exit -3
  chmod -R 777
 fi 
 #end if build
@@ -124,13 +148,14 @@ do
   while [ $j -lt $SOC_CNT ];do
    c_soc=${soc_name[${j}]}
    if [ "$c_soc" = $i ];then
+     make_uboot ${u_boot_configs[${j}]} $c_soc || RC=$(echo $RC uboot_$i)
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 	RC=$(echo $RC $i)
      fi
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
      if [ $old_vte_rc -ne 0 ]; then
-     	RC=$(echo $RC $i)
+     	RC=$(echo $RC vte_$i)
      fi
    fi
    j=$(expr $j + 1)
@@ -140,12 +165,11 @@ done
 echo $RC
 if [ "$RC" = "0" ]; then
 echo "VTE daily build with $RC" | mutt -s "VTE daily build OK" \
-b20222@freescale.com 
+b20222@shlx12.ap.freescale.net 
 echo build success!!
 else
 echo "VTE daily build with $RC" | mutt -s "VTE daily build Fail" \
-b20222@freescale.com 
+b20222@shlx12.ap.freescale.net
 echo build Fail $RC!
-
 fi
 
