@@ -52,6 +52,8 @@ static int ilog = 0;
 static int gStatus = eSTART;
 static tlink_list mplist;
 
+static char cmds[256]="/rootfs/wb/gen-html.sh";
+
 #if DEBUG
 #define uprintf printf
 #else 
@@ -280,15 +282,16 @@ void recvUDP(char * name,int sockfd)
                   temp[tmesg - mesg] = 0; 
                   if(strcmp(temp,cnode->platform) == 0)
                         break;   
-                  if(cnode->next == NULL)
-		  {
+                  if(cnode->next == NULL){
                      /*not found the platform insert one*/
                      cnode->next =(tlink_node *)malloc(sizeof(tlink_node));
                      strncpy(cnode->next->platform,temp,PSIZE);
                      cnode->next->status = eSTART;
+										 cnode=cnode->next;
+										 cnode->next = NULL;
                      break;
                   }  
-		  cnode = cnode->next;
+		  						cnode = cnode->next;
                 }
                 if(cnode == NULL)
                 {
@@ -297,35 +300,38 @@ void recvUDP(char * name,int sockfd)
                    cnode->platform[tmesg - mesg] = 0;
                    cnode->status = eSTART;
                    cnode->next = 0;
-                   printf("inti platform list %s\n", cnode->platform);
                    mplist.node = cnode;
                 }
                 tmesg++;                 
                 if(NULL != strstr("READY",tmesg)){
-		   gStatus = eREADY;
-                   cnode->status = eREADY; 
-		   printf("build image ready.\n");
+		   						gStatus = eREADY;
+                  cnode->status = eREADY;
                 }else if(NULL != strstr("NOREADY",tmesg)){
-	           gStatus = eSTART;
-                   cnode->status = eSTART; 
-		   printf("build image in process.\n");
-                }else{
+	           			gStatus = eSTART;
+                  cnode->status = eSTART; 
+                }else if(NULL != strstr("TESTEND",tmesg)){
+									/*receive test finsih for certain platform*/
+                  char icmd[256];
+									sprintf(icmd,"%s %s",cmds,cnode->platform);
+									uprintf("execute %s\n", icmd);
+									system(icmd);
+								}else{
                    gStatus = cnode->status;
                 } 
                 if (gStatus == eREADY)
-		    rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-	        else if(gStatus == eSTART)
-		   rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-           }
-            if(NULL != strstr("FLUSH",tmesg)){
-               while(cnode){
+		    					rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+	        			else if(gStatus == eSTART)
+		   						rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+           			}
+            		if(NULL != strstr("FLUSH",tmesg)){
+               		while(cnode){
                    tlink_node * tmp = cnode;
                    cnode = cnode->next;
                    free(tmp); 
-               }
-               mplist.node = NULL;
-	      rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-            }else if(NULL != strstr("HELLO",tmesg)){
+               		}
+               	mplist.node = NULL;
+	      				rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+            	}else if(NULL != strstr("HELLO",tmesg)){
                printf("check all data\n");
                while(cnode){
 		  rlen = sendto(sockfd, cnode->platform, strlen(cnode->platform), 0,(struct sockaddr *) &c_addr, addr_len);
@@ -369,12 +375,17 @@ int main(int argc, char **argv)
     struct sockaddr_in servaddr;
     pthread_t  threadA, threadB;
 
-    if(argc == 3)
+    if(argc >= 3)
     {
        printf("log start\n");
        if(strcmp(argv[2],"-l") == 0)
           ilog = 1;
     }
+		if(argc ==4){
+			 printf("execute cmd file %s after test\n",argv[3]);
+       memset(cmds,0,sizeof(cmds));
+			 strcpy(cmds,argv[3]);		   
+		}
 
     mplist.node = NULL;
     sockfd = socket(AF_INET,SOCK_DGRAM,0); /*create a socket*/
