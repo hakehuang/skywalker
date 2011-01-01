@@ -3,7 +3,7 @@
 BASE=/rootfs/wb
 TARGET_OUTPUT_BASE=${BASE}/daily_reports/skywalker
 
-PRJ="vte_mx50"
+#PRJ="vte_mx50"
 MAX_CASES=50
 
 #determinate the year and week
@@ -11,10 +11,13 @@ YEAR=$(date +%Y)
 WEEK=$(date +%U)
 DAY=$(date +%d)
 
+PRJ=$1
+
 for i in $PRJ
 do
-	LTPROOT=$BASE/$i
-  OUT_BASE=${TARGET_OUTPUT_BASE}/${i}/${YEAR}/WW${WEEK}/${DAY}/
+	VTEPATH=vte_mx${i}_d
+	LTPROOT=$BASE/$VTEPATH
+  OUT_BASE=${TARGET_OUTPUT_BASE}/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}/
 	mkdir -p $OUT_BASE
 	if [ -e $LTPROOT/output/latest_test_report ] ; then
 	. $LTPROOT/output/latest_test_report

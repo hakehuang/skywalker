@@ -40,6 +40,7 @@ insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
 export CONTINUE=y
 cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
 #test finished start a process to reset board at
+/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_TESTEND
 while true;
 do
   sleep 1800;
