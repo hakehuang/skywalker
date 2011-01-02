@@ -36,6 +36,7 @@
 
 typedef struct link_node{
    char platform[PSIZE];
+	 char kver[2*PSIZE];
    int status;
    struct link_node *next;
 } tlink_node;
@@ -287,6 +288,7 @@ void recvUDP(char * name,int sockfd)
                      cnode->next =(tlink_node *)malloc(sizeof(tlink_node));
                      strncpy(cnode->next->platform,temp,PSIZE);
                      cnode->next->status = eSTART;
+                     strcpy(cnode->next->kver,"0");
 										 cnode=cnode->next;
 										 cnode->next = NULL;
                      break;
@@ -298,18 +300,27 @@ void recvUDP(char * name,int sockfd)
                    cnode = (tlink_node *)malloc(sizeof(tlink_node));
                    strncpy(cnode->platform,mesg,tmesg - mesg);
                    cnode->platform[tmesg - mesg] = 0;
+                   strcpy(cnode->kver,"0");
                    cnode->status = eSTART;
                    cnode->next = 0;
                    mplist.node = cnode;
                 }
                 tmesg++;                 
-                if(NULL != strstr("READY",tmesg)){
+                if(NULL != strstr(tmesg,"READY")){
+									char * kver;
 		   						gStatus = eREADY;
                   cnode->status = eREADY;
-                }else if(NULL != strstr("NOREADY",tmesg)){
+									kver = strstr(tmesg,"KVER");
+									if(NULL != kver)
+									{
+										memset(cnode->kver, 0, sizeof(cnode->kver));
+										sprintf(cnode->kver,"%s",kver);
+										uprintf("kernel version is %s\n", cnode->kver);
+									}
+                }else if(NULL != strstr(tmesg,"NOREADY")){
 	           			gStatus = eSTART;
                   cnode->status = eSTART; 
-                }else if(NULL != strstr("TESTEND",tmesg)){
+                }else if(NULL != strstr(tmesg,"TESTEND")){
 									/*receive test finsih for certain platform*/
                   char icmd[256];
 									sprintf(icmd,"%s %s",cmds,cnode->platform);
@@ -318,12 +329,13 @@ void recvUDP(char * name,int sockfd)
 								}else{
                    gStatus = cnode->status;
                 } 
-                if (gStatus == eREADY)
+                if (gStatus == eREADY){
 		    					rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-	        			else if(gStatus == eSTART)
+		    					rlen = sendto(sockfd, cnode->kver, strlen(cnode->kver), 0,(struct sockaddr *) &c_addr, addr_len);
+	        			}else if(gStatus == eSTART)
 		   						rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-           			}
-            		if(NULL != strstr("FLUSH",tmesg)){
+           		}
+            		if(NULL != strstr(tmesg,"FLUSH")){
                		while(cnode){
                    tlink_node * tmp = cnode;
                    cnode = cnode->next;
@@ -331,7 +343,7 @@ void recvUDP(char * name,int sockfd)
                		}
                	mplist.node = NULL;
 	      				rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-            	}else if(NULL != strstr("HELLO",tmesg)){
+            	}else if(NULL != strstr(tmesg,"HELLO")){
                printf("check all data\n");
                while(cnode){
 		  rlen = sendto(sockfd, cnode->platform, strlen(cnode->platform), 0,(struct sockaddr *) &c_addr, addr_len);
