@@ -38,15 +38,18 @@ echo "start test in 10 seconds, or login then kill the test"
 sleep 30
 insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
 export CONTINUE=y
+tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
+if [ $tstatus -gt 0 ]; then
 cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
 #test finished start a process to reset board at
 /mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_TESTEND
+fi
 while true;
 do
   sleep 1800;
 	lib_version=$(ls /lib/modules | grep daily)
 	if [ $(uname -r) !=  $lib_version ]; then
-  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_hello | grep ACK | wc -l)
+  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
 		if [ $status -eq 1 ];then
     	reboot
 		fi

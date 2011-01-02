@@ -12,6 +12,7 @@ ROOTDIR=/home/ltib2/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
+TOOLSDIR=${ROOTDIR}/skywalker/udp_sync
 
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
 
@@ -103,18 +104,15 @@ old_vte_rc=0
 return $ret
 }
 
+make_tools()
+{
+ cd $TOOLSDIR
+ CROSS_COMPILER="" make
+}
+
 sync_server()
 {
-  if [ ! -e $ROOTDIR/skywalker ]
-  git clone git://10.192.225.222/skywalker
-  fi
-  cd $ROOTDIR/skywalker
-  git checkout -b temp || git checkout tmp
-  git branch -D build
-  git fetch origin +master:build && git checkout build || exit -2
-  cd udp_sync
-  CROSS_COMPILER="" make || exit -3
-  ./uclient 10.192.225.222 12500 $1_READY 
+ $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
 }
 
 #main
@@ -152,13 +150,24 @@ if [ $BUILD = "y" ]; then
   git checkout -b temp || git checkout temp
   git branch -D build
  git fetch origin +master:build && git checkout build || exit -3
- chmod -R 777
+
+ cd $ROOTDIR
+ if [ ! -e $ROOTDIR/skywalker ]
+  git clone git://10.192.225.222/skywalker
+  fi
+  cd $ROOTDIR/skywalker
+  git checkout -b temp || git checkout tmp
+  git branch -D build
+  git fetch origin +master:build && git checkout build
 fi 
 #end if build
+
+make_tools
 
 for i in $PLATFORM;
 do
   j=0
+	sync_server $i NOREADY
   while [ $j -lt $SOC_CNT ];do
    c_soc=${soc_name[${j}]}
    if [ "$c_soc" = $i ];then
@@ -171,7 +180,7 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-     sync_server $i
+     sync_server $i READY
    fi
    j=$(expr $j + 1)
   done
