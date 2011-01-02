@@ -180,7 +180,7 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-     sync_server $i READY
+     sync_server $i READY_KVER$(cat $KERNEL_DIR/localversion)
    fi
    j=$(expr $j + 1)
   done

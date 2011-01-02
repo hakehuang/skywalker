@@ -314,7 +314,7 @@ void recvUDP(char * name,int sockfd)
 									if(NULL != kver)
 									{
 										memset(cnode->kver, 0, sizeof(cnode->kver));
-										sprintf(cnode->kver,"%s",kver);
+										sprintf(cnode->kver,"KVER %s",kver+4);
 										uprintf("kernel version is %s\n", cnode->kver);
 									}
                 }else if(NULL != strstr(tmesg,"NOREADY")){

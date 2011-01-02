@@ -47,8 +47,12 @@ fi
 while true;
 do
   sleep 1800;
-	lib_version=$(ls /lib/modules | grep daily)
-	if [ $(uname -r) !=  $lib_version ]; then
+#if no command can execute guess the rootfs is changed then reboot
+	ls / || reboot
+  kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep KVER | cut -f 5 -d " ")
+	kh=$(uname -r | cut -d - -f 1)
+	if [ $(uname -r) !=  $kh$kver ]; then
+#kernel changed restart test
   	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
 		if [ $status -eq 1 ];then
     	reboot
