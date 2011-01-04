@@ -152,7 +152,7 @@ if [ $BUILD = "y" ]; then
  git fetch origin +master:build && git checkout build || exit -3
 
  cd $ROOTDIR
- if [ ! -e $ROOTDIR/skywalker ]
+ if [ ! -e $ROOTDIR/skywalker ]; then
   git clone git://10.192.225.222/skywalker
   fi
   cd $ROOTDIR/skywalker
