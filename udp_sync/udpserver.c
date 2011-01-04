@@ -239,13 +239,11 @@ void recvUDP(char * name,int sockfd)
     {
         tv.tv_sec = 1;
         tv.tv_usec = 0;
-
         FD_ZERO(&rdset);
         FD_SET(sockfd,&rdset);
 
 	if(gStatus == eSTOP)
-	    break;
-       
+	    break; 
         ret = select(sockfd+1,&rdset,NULL,NULL,&tv);
         if(ret == -1)
         {
@@ -258,6 +256,7 @@ void recvUDP(char * name,int sockfd)
             /* now check the status of client*/     
             continue;
         }
+				printf("open connenction\n");
         if(FD_ISSET(sockfd,&rdset))
         {
             socklen_t addr_len;
@@ -383,6 +382,19 @@ EXIT:
         close(fd);
 }
 
+int daemon_init(void)   
+{   
+     pid_t pid;   
+   if((pid = fork()) < 0)   
+     return(-1);   
+   else if(pid != 0)   
+     exit(0); /* parent exit */   
+ /* child continues */   
+   setsid(); /* become session leader */   
+   umask(0); /* clear file mode creation mask */   
+   close(0); /* close stdin */   
+   return(0);   
+}  
 
 
 int main(int argc, char **argv)
@@ -392,6 +404,8 @@ int main(int argc, char **argv)
     struct sockaddr_in servaddr;
   /*  pthread_t  threadA, threadB;*/
 
+    daemon_init();
+ 
     if(argc >= 3)
     {
        printf("log start\n");
@@ -406,8 +420,8 @@ int main(int argc, char **argv)
 
     mplist.node = NULL;
     sockfd = socket(AF_INET,SOCK_DGRAM,0); /*create a socket*/
-
-    /*init servaddr*/
+    
+		    /*init servaddr*/
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -419,7 +433,7 @@ int main(int argc, char **argv)
             perror("bind error");
             exit(-1);
     }
-    
+
     gStatus = eSTART;
     r = fcntl(sockfd, F_GETFL, 0);
     fcntl(sockfd, F_SETFL, r & ~O_NONBLOCK);
@@ -436,7 +450,8 @@ int main(int argc, char **argv)
       exit(1);
     }
    */
-    recvUDP(argv[1],sockfd);
+
+		recvUDP(argv[1],sockfd);
 	  /*clean up*/	
 		{
       tlink_node * cnode =  mplist.node; 
