@@ -343,7 +343,10 @@ void recvUDP(char * name,int sockfd)
                		}
                	mplist.node = NULL;
 	      				rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-            	}else if(NULL != strstr(tmesg,"HELLO")){
+            	}else if(NULL != strstr(tmesg,"EXIT")){
+	    rlen = sendto(sockfd, "FNT", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+								goto EXIT;
+				 }else if(NULL != strstr(tmesg,"HELLO")){
                printf("check all data\n");
                while(cnode){
 		  rlen = sendto(sockfd, cnode->platform, strlen(cnode->platform), 0,(struct sockaddr *) &c_addr, addr_len);
@@ -374,6 +377,7 @@ void recvUDP(char * name,int sockfd)
             }       
         }
     }/*while*/
+EXIT:
      if(ilog)
         close(fd);
 }
@@ -385,7 +389,7 @@ int main(int argc, char **argv)
     int sockfd;
     int r;
     struct sockaddr_in servaddr;
-    pthread_t  threadA, threadB;
+  /*  pthread_t  threadA, threadB;*/
 
     if(argc >= 3)
     {
@@ -432,6 +436,15 @@ int main(int argc, char **argv)
     }
    */
     recvUDP(argv[1],sockfd);
+	  /*clean up*/	
+		{
+      tlink_node * cnode =  mplist.node; 
+		  while(cnode){
+         tlink_node * tmp = cnode;
+         cnode = cnode->next;
+         free(tmp); 
+		  }
+		}
     return 0;
 }
 
