@@ -64,7 +64,7 @@ return $old_kenel_rc
 fi
 old_kernel_config=$1
 make distclean
-lv=$(git-log | head -n 1 | cut -d " " -f 2 | cut -c 1-8)
+lv=$(git log | head -n 1 | cut -d " " -f 2 | cut -c 1-8)
 echo "-g${lv}-daily"  > localversion
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 || return 2
