@@ -47,6 +47,7 @@ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- distclean
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
 scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-mx${2}_d.bin || return 3
+scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-mx${2}_d.bin || return 3
 return 0
 }
 
@@ -59,6 +60,7 @@ if [ "$old_kernel_rc" -eq 0 ]; then
 rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily
 sudo make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi-  modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
+scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
 fi
 return $old_kenel_rc
 fi
@@ -71,6 +73,7 @@ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 || return 2
 rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily
 sudo make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi-  modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
+scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
 old_kernel_rc=0
 return 0
 }
