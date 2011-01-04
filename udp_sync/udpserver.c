@@ -305,8 +305,11 @@ void recvUDP(char * name,int sockfd)
                    cnode->next = 0;
                    mplist.node = cnode;
                 }
-                tmesg++;                 
-                if(NULL != strstr(tmesg,"READY")){
+                tmesg++;
+                if(NULL != strstr(tmesg,"NOREADY")){
+	           			gStatus = eSTART;
+                  cnode->status = eSTART; 
+                }else if(NULL != strstr(tmesg,"READY")){
 									char * kver;
 		   						gStatus = eREADY;
                   cnode->status = eREADY;
@@ -317,9 +320,6 @@ void recvUDP(char * name,int sockfd)
 										sprintf(cnode->kver,"KVER %s",kver+4);
 										uprintf("kernel version is %s\n", cnode->kver);
 									}
-                }else if(NULL != strstr(tmesg,"NOREADY")){
-	           			gStatus = eSTART;
-                  cnode->status = eSTART; 
                 }else if(NULL != strstr(tmesg,"TESTEND")){
 									/*receive test finsih for certain platform*/
                   char icmd[256];
@@ -345,6 +345,7 @@ void recvUDP(char * name,int sockfd)
 	      				rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
             	}else if(NULL != strstr(tmesg,"EXIT")){
 	    rlen = sendto(sockfd, "FNT", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+			         uprintf("exit program\n");
 								goto EXIT;
 				 }else if(NULL != strstr(tmesg,"HELLO")){
                printf("check all data\n");
