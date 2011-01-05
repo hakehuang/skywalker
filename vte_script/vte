@@ -30,6 +30,12 @@ TARGET=$?
 if [ -z "$TARGET" ]; then
 return 1
 fi
+status=0
+while [ $status -eq 0 ]
+do
+sleep 30
+status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
+done
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
