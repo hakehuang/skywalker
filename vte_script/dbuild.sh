@@ -66,8 +66,8 @@ return $old_kenel_rc
 fi
 old_kernel_config=$1
 make distclean
-lv=$(git log | head -n 1 | cut -d " " -f 2 | cut -c 1-8)
-echo "-g${lv}-daily"  > localversion
+echo "-daily"  > localversion
+KERNEL_VER=$(./scripts/setlocalversion)
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 uImage|| return 2
 rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily
@@ -126,6 +126,7 @@ old_kernel_config=
 old_kernel_rc=0
 old_vte_config=
 old_vte_rc=0
+KERNEL_VER=
 
 if [ $BUILD = "y" ]; then
 
@@ -185,7 +186,7 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-     sync_server $i READY_KVER$(cat $KERNEL_DIR/localversion)
+     sync_server $i READY_KVER${KERNEL_VER}
    fi
    j=$(expr $j + 1)
   done
