@@ -94,6 +94,7 @@ old_vte_config=$1
 make distclean
 source  $1
 ./armconfig
+make
 make vte || return 1
 make apps || ret=1
 #make ltp tests
