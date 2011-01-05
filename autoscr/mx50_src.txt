@@ -1,3 +1,3 @@
 setenv bootargs console=ttymxc0,115200 root=/dev/nfs ip=dhcp nfsroot=10.192.224.218:/rootfs/imx50_rootfs,tcp,v3 daily_test=exec_table gpmi:nand
-bootp 10.192.225.218:uImage_mx50
+bootp 10.192.225.218:uImage_mx50_d
 bootm
