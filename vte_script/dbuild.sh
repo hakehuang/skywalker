@@ -13,6 +13,7 @@ KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
 TOOLSDIR=${ROOTDIR}/skywalker/udp_sync
+UCONFDIR=${ROOTDIR}/skywalker/uboot-env
 
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
 
@@ -39,6 +40,15 @@ kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" "imx28evk_defconfi
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
              "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
 
+make_uboot_config()
+{
+echo "make uboot config $1"
+cd $UCONFDIR
+sed -i "/UVERSION/s/^.*/UVERSION=$2/g" mx${1}-uboot-conf.txt
+./u-config -s mx${1}-uboot-conf.txt uboot_mx${1}_config.bin
+sudo cp uboot_mx${1}_config.bin /mnt/nfs_root/imx${1}_rootfs/root/u-boot-mx${1}_d.bin || return 3
+}
+
 make_uboot()
 {
 echo "make uboot $2 with $1"
@@ -48,6 +58,8 @@ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
 scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-mx${2}_d.bin || return 3
 scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-mx${2}_d.bin || return 3
+sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs/root/u-boot-mx${2}_d.bin || return 3
+make_uboot_config $2 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) 
 return 0
 }
 
