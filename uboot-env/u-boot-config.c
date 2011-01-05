@@ -51,7 +51,7 @@ int main(int argc, char ** argv)
 		 else
 			pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,0);
      crcv = (uint32_t)pstr;
-		 printf("crc is %lx\n",crcv);
+		 printf("crc is %lx\n",(long)crcv);
 		 buf = pstr + 4;/*skip the crc nubber*/
      printf("env is:\n");
 		 printf("%s\n",buf);
@@ -107,7 +107,7 @@ int main(int argc, char ** argv)
 		 return 1;
 		 }
 	 pdata = envs.data;
-	 printf("data %lx, first line %s \n", envs.crc, envs.data);
+	 printf("data %lx, first line %s \n", (long)envs.crc, envs.data);
    len = fwrite(&envs,sizeof(envs),1, OUT);
 	 fclose(OUT);
    return 0;
