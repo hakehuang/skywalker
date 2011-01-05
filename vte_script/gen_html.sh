@@ -63,6 +63,6 @@ do
 		fi
 	fi
   echo "see http://shlx12.ap.freescale.net/test_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
-  | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net
+  | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net b20222@freescale.com
 	
 	done

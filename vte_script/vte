@@ -36,6 +36,15 @@ do
 sleep 30
 status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
 done
+#chekc the uboot
+crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
+crc2=$(/mnt/nfs/tools/u-config -g /root/uboot_mx${TARGET}_config.bin| cut -d " " -f 3)
+if [ "$crc1" != "$crc2" ];then
+ echo "need update uboot"
+ dd if=/root/u-boot-mx${TARGET}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+ dd if=/root/u-boot-mx${TARGET}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
+ reboot
+fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
