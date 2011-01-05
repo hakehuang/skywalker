@@ -62,5 +62,5 @@ do
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
 	fi
-  mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net < see http://shlx12.ap.freescale.net/test_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}
+  mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net < "see http://shlx12.ap.freescale.net/test_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}"
 done
