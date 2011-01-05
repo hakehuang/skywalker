@@ -36,12 +36,47 @@ int main(int argc, char ** argv)
 	env_t envs;
 	char buf[MAX_BUF];
   
+	if(strcmp(argv[1],"-g") == 0 && argc == 3){
+		 int bfd;
+		 unsigned char * buf, * pstr;
+		 uint32_t crcv;
+		 printf("get the envs at %s \n",argv[2]);
+     bfd=open(argv[2],O_RDONLY);
+		 if(bfd < 0){
+			 perror("open");
+			 return 1;
+		 }
+		 if(NULL != strstr(argv[2],"dev"))
+			 pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,768*1024);
+		 else
+			pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,0);
+     crcv = (uint32_t)pstr;
+		 printf("crc is %lx\n",crcv);
+		 buf = pstr + 4;/*skip the crc nubber*/
+     printf("env is:\n");
+		 printf("%s\n",buf);
+		 while(*buf != '\0')
+		 {
+		 		while(*buf != '\0')
+				{
+			 		buf++;
+				}
+				buf++;
+				if(*buf == '\0')
+					break;
+				printf("%s\n",buf);
+		 }
+		 munmap(pstr,256*1024);
+		 return 0;
+	 }
+
 	 if(strcmp(argv[1], "-h") == 0 || argc < 4){
-		 printf("%s -s <infile> <outfile> \n", argv[0]);
+		 printf("%s -s <infile> <outfile> : to create the env binary\n", argv[0]);
+		 printf("%s -g /dev/<device node> : to get the env from device\n", argv[0]);
+		 printf("%s -g filename : to get the env from file\n", argv[0]);
 		 return 0;
 		 }
-
-   memset(&envs,0,sizeof(envs));
+      memset(&envs,0,sizeof(envs));
    /*read from config file*/
    IN = fopen(argv[2],"r");
 	 if(IN == NULL){
