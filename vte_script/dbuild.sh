@@ -174,7 +174,7 @@ if [ $BUILD = "y" ]; then
   git clone git://10.192.225.222/skywalker
   fi
   cd $ROOTDIR/skywalker
-  git checkout -b temp || git checkout tmp
+  git checkout -b temp || git checkout temp
   git branch -D build
   git fetch origin +master:build && git checkout build
 fi 
