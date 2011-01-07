@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int main(int argc, char ** argv)
+{
+  char device[512] = "/dev/mmcblk0";
+  int i = 1,ct = argc - 1i;
+	char * penv = NULL;
+	int bfd;
+	unsigned char * buf, * pstr;
+  uint32_t crcv;
+  while(1)
+  {
+   if(strcmp(argv[i],"-d")){
+		   if(i == ct)
+			 {
+				 printf("-d give a device node\n");
+				 return -1;
+			 }
+        memset(device,0,sizeof(device));
+        sprintf(device,"%s",argv[++i]);
+    }else if(argv[i] != NULL){
+      penv=argv[i];
+    }
+   i++;
+   if(i >= ct)
+     break;
+  } 
+  
+	bfd=open(device,O_RDONLY);
+	if(bfd < 0){
+			 perror("open");
+			 return 1;
+	}
+	pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,768*1024);
+  if (pstr < 0)
+	{
+	  perror("mmap");
+		return 2;
+	}
+	crcv = (uint32_t)pstr;
+	buf = pstr + 4;/*skip the crc nubber*/
+  while(*buf != '\0')
+	{
+		if(penv && 0 == strncmp(buf,penv,strlen(penv)))
+		{
+			char * pdata = buf + strlen(penv) + 1; 
+			printf("%s\n", pdata);
+			break;
+		}
+		printf("%s\n",buf);
+		while(*buf != '\0')
+		{
+				buf++;
+		}
+		buf++;
+		if(*buf == '\0')
+					break;
+	}
+OUT:
+	munmap(pstr,256*1024);
+	return 0;
+}
+
