@@ -27,6 +27,7 @@ start_test()
 {
 /mnt/nfs/tools/platfm.sh
 TARGET=$?
+platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
 fi
@@ -41,8 +42,8 @@ crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
 crc2=$(/mnt/nfs/tools/u-config -g /root/uboot_mx${TARGET}_config.bin| cut -d " " -f 3)
 if [ "$crc1" != "$crc2" ];then
  echo "need update uboot"
- dd if=/root/u-boot-mx${TARGET}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
- dd if=/root/u-boot-mx${TARGET}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
+ dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+ dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
  reboot
 fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
