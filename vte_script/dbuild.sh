@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="50 53"
+PLATFORM="50-evk 53-loco"
 BUILD=y
 KERNEL_BRH=imx_2.6.35
 UBOOT_BRH=imx_v2009.08
@@ -28,17 +28,18 @@ declare -a vte_configs;
 # 0   1  2  3  4  5  6  7  8   
 #(23 25 28 31 35 37 50 51 53)
 #SOC names
-#           0     1    2    3    4   5    6    7    8
-soc_name=("233" "25" "28" "31" "35" "37" "50" "51" "53");
-SOC_CNT=9
+#           0     1    2    3    4   5    6    7    8   9
+plat_name=("23-evk" "25-3ds" "28-evk" "31-3ds" "35-3ds" "37-3ds" "50-rdp" "51-evk" "53-smd" "53-loco");
+soc_name=("233" "25" "28" "31" "35" "37" "50" "51" "53" "53");
+SOC_CNT=10
 #default u-boot kernel configs for each platform
-u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" "mx50_rdp_config" "mx51_bbg_config" "mx53_smd_config")
+u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" "mx50_rdp_config" "mx51_bbg_config" "mx53_smd_config" "mx53_loco_config")
 #default kernel configs for each platform
 kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" "imx28evk_defconfig" "mx3_defconfig" "mx35_3stack_config" "mx3_defconfig" \
-                "imx5_defconfig" "imx5_defconfig" "imx5_defconfig");
+                "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" "imx5_defconfig");
 #vte configs
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
-             "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
+             "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
 
 make_uboot_config()
 {
@@ -187,12 +188,13 @@ do
   j=0
 	sync_server $i NOREADY
   while [ $j -lt $SOC_CNT ];do
-   c_soc=${soc_name[${j}]}
-   if [ "$c_soc" = $i ];then
+   c_plat=${plat_name[${j}]}
+   if [ "$c_plat" = $i ];then
+     c_soc=${soc_name[${j}]}
      make_uboot ${u_boot_configs[${j}]} $c_soc || RC=$(echo $RC uboot_$i)
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
-	RC=$(echo $RC $i)
+				RC=$(echo $RC $i)
      fi
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
      if [ $old_vte_rc -ne 0 ]; then
