@@ -59,8 +59,8 @@ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
 scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-mx${2}_d.bin || return 3
 scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-mx${2}_d.bin || return 3
-sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs/root/u-boot-mx${2}_d.bin || return 3
-make_uboot_config $2 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) 
+sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs/root/u-boot-mx${3}_d.bin || return 3
+make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) 
 return 0
 }
 
@@ -191,7 +191,7 @@ do
    c_plat=${plat_name[${j}]}
    if [ "$c_plat" = $i ];then
      c_soc=${soc_name[${j}]}
-     make_uboot ${u_boot_configs[${j}]} $c_soc || RC=$(echo $RC uboot_$i)
+     make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 				RC=$(echo $RC $i)
