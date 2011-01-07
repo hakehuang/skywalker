@@ -4,7 +4,7 @@ loadaddr=0x70800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx50
+kernel=uImage_mx50_d
 nfsroot=/rootfs/imx50_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
@@ -13,7 +13,7 @@ bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serveri
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800 0x2000;bootm
-bootcmd=bootp ${loadaddr} 10.192.225.218:uImage_mx50_d;source ${loadaddr}
+bootcmd=run bootcmd_net;bootm
 stdin=serial
 stdout=serial
 stderr=serial
