@@ -47,6 +47,7 @@ vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
 "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
 
+
 make_uboot_config()
 {
 echo "make uboot config $1"
@@ -111,7 +112,11 @@ return $old_vte_rc
 fi
 old_vte_config=$1
 make distclean
-source  $1
+source $1
+export KLINUX_SRCDIR=${KERNEL_DIR}
+export KLINUX_BLTDIR=${KERNEL_DIR}
+export CROSS_COMPILER=arm-none-linux-gnueabi-
+export CC=${CROSS_COMPILER}
 ./armconfig
 make
 make vte || return 1
