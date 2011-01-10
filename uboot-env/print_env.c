@@ -74,7 +74,8 @@ int main(int argc, char ** argv)
 			printf("%s\n", pdata);
 			break;
 		}
-		printf("%s\n",buf);
+		if(penv == NULL)
+			printf("%s\n",buf);
 		while(*buf != '\0')
 		{
 				buf++;
