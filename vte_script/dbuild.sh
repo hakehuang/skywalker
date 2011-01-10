@@ -104,14 +104,15 @@ make_vte()
 ret=0
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ]; then
- if [ $old_vte_rc -eq 0 ]; then
-   sudo cp -a bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
-   sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
+ if [ $old_vte_rc -eq 0 ] && [ -e $VTE_DIR/install ]; then
+   sudo cp -a install/bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
+   sudo cp -a install/testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
  fi
 return $old_vte_rc
 fi
 old_vte_config=$1
 make distclean
+sudo rm -rf install
 source $1
 export KLINUX_SRCDIR=${KERNEL_DIR}
 export KLINUX_BLTDIR=${KERNEL_DIR}
@@ -128,7 +129,6 @@ sudo cp -a install/bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
 #sudo scp -r bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/bin
 fi
 sudo cp -a install/testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
-sudo rm -rf install
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
