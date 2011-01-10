@@ -37,9 +37,9 @@ int main(int argc, char ** argv)
   uint32_t crcv;
   while(1)
   {
-   if(i >= ct)
+   if(i > ct)
      break;
-   if(strcmp(argv[i],"-d")){
+   if(0==strcmp(argv[i],"-d")){
 		   if(i == ct)
 			 {
 				 printf("-d give a device node\n");
@@ -58,7 +58,6 @@ int main(int argc, char ** argv)
 			 perror("open");
 			 return 1;
 	}
-	printf("open ok\n");
 	pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,768*1024);
   if (pstr < 0)
 	{
