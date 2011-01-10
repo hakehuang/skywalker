@@ -31,50 +31,50 @@ platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
 fi
-status=0
-while [ $status -eq 0 ]
-do
-sleep 30
-status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
-done
-#chekc the uboot
-crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
-crc2=$(/mnt/nfs/tools/u-config -g /root/uboot_mx${TARGET}_config.bin| cut -d " " -f 3)
-if [ "$crc1" != "$crc2" ];then
- echo "need update uboot"
- dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
- dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
- reboot
-fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
-#enable watchdog here
-echo "start test in 10 seconds, or login then kill the test"
-sleep 30
-insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
-export CONTINUE=y
-tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
-if [ $tstatus -gt 0 ]; then
-cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
-#test finished start a process to reset board at
-/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_TESTEND
-fi
-while true;
-do
+ #enable watchdog here
+ echo "start test in 10 seconds, or login then kill the test"
+ sleep 30
+ status=0
+ while [ $status -eq 0 ]
+ do
+  sleep 30
+  status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+ done
+ #chekc the uboot
+ crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
+ crc2=$(/mnt/nfs/tools/u-config -g /root/uboot_mx${platfm}_config.bin| cut -d " " -f 3)
+ if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
+  echo "need update uboot"
+  dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+  dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
+  reboot
+ fi
+ insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
+ export CONTINUE=y
+ tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+ if [ $tstatus -gt 0 ]; then
+  cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
+  #test finished start a process to reset board at
+  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND
+ fi
+ while true;
+ do
   sleep 1800;
 #if no command can execute guess the rootfs is changed then reboot
 	ls / || reboot
-  kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep KVER | cut -f 5 -d " ")
+  kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
 	kh=$(uname -r | cut -d - -f 1)
 	if [ $(uname -r) !=  $kh$kver ]; then
 #kernel changed restart test
-  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${TARGET}_HELLO | grep ACK | wc -l)
+  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
 		if [ $status -eq 1 ];then
     	reboot
 		fi
 	fi
-done
+ done
 fi
 }
 
