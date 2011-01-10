@@ -20,17 +20,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
 
 int main(int argc, char ** argv)
 {
   char device[512] = "/dev/mmcblk0";
-  int i = 1,ct = argc - 1i;
+  int i = 1,ct = argc - 1;
 	char * penv = NULL;
 	int bfd;
 	unsigned char * buf, * pstr;
   uint32_t crcv;
   while(1)
   {
+   if(i >= ct)
+     break;
    if(strcmp(argv[i],"-d")){
 		   if(i == ct)
 			 {
@@ -43,8 +51,6 @@ int main(int argc, char ** argv)
       penv=argv[i];
     }
    i++;
-   if(i >= ct)
-     break;
   } 
   
 	bfd=open(device,O_RDONLY);
@@ -52,6 +58,7 @@ int main(int argc, char ** argv)
 			 perror("open");
 			 return 1;
 	}
+	printf("open ok\n");
 	pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,768*1024);
   if (pstr < 0)
 	{
