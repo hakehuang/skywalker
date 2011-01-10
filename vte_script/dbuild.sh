@@ -121,13 +121,14 @@ export CC=${CROSS_COMPILER}gcc
 make
 make vte || return 1
 make apps || ret=1
+make install
 #make ltp tests
 if [ $BUILD = "y" ]; then
-make
-sudo cp -a bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
+sudo cp -a install/bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
 #sudo scp -r bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/bin
 fi
-sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
+sudo cp -a install/testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
+sudo rm -rf install
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
