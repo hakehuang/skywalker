@@ -14,6 +14,7 @@ UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
 TOOLSDIR=${ROOTDIR}/skywalker/udp_sync
 UCONFDIR=${ROOTDIR}/skywalker/uboot-env
+SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
 
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
 
@@ -107,8 +108,9 @@ ret=0
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ]; then
  if [ $old_vte_rc -eq 0 ] && [ -e $VTE_DIR/install ]; then
-   sudo cp -a install/bin/* ${VTE_TARGET_PRE}/vte_mx${2}/bin/
-   sudo cp -a install/testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
+   sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}/
+   sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
+	 sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
  fi
 return $old_vte_rc
 fi
@@ -144,6 +146,27 @@ make_tools()
  CROSS_COMPILER="" make || return 7
  cd $UCONFDIR
  make CC=gcc || return 8
+}
+
+update_rootfs()
+{	
+ cd $SCRPTSDIR
+ sudo cp vte ${TARGET_ROOTFS}/imx${1}_rootfs/etc/rc.d/init.d/vte 	
+}
+
+make_target_tools()
+{
+ cd $TOOLSDIR
+ make clean
+ CROSS_COMPILER=arm-none-linux-gnueabi- make || return 10
+ sudo cp uclient ${VTE_TARGET_PRE}/tools/
+ make clean
+ cd $UCONFDIR
+ make clean
+ make CC=arm-none-linux-gnueabi-gcc || return 11
+ sudo cp u-config ${VTE_TARGET_PRE}/tools/
+ sudo cp printenv ${VTE_TARGET_PRE}/tools/
+ make clean
 }
 
 sync_server()
@@ -210,6 +233,7 @@ if [ $BUILD = "y" ]; then
 fi 
 #end if build
 
+make_target_tools || exit -6
 make_tools || exit -5
 
 for i in $PLATFORM;
@@ -226,6 +250,7 @@ do
 				RC=$(echo $RC $i)
      fi
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
+		 update_rootfs $c_soc
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
@@ -237,6 +262,7 @@ do
    j=$(expr $j + 1)
   done
 done
+
 
 echo $RC
 if [ "$RC" = "0" ]; then
