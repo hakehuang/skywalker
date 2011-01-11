@@ -53,7 +53,7 @@ make_uboot_config()
 echo "make uboot config $1"
 cd $UCONFDIR
 sed "/UVERSION/s/^.*/UVERSION=$2/g" u-boot-${1}-conf.txt > ${1}-config.txt
-$UCONFDIR/u-config -s ${1}-conf.txt u-boot-${1}-config.bin
+$UCONFDIR/u-config -s ${1}-config.txt u-boot-${1}-config.bin
 #rm -f ${1}_config.txt
 sudo cp u-boot-${1}-config.bin /mnt/nfs_root/imx${3}_rootfs/root/u-boot-${1}-config.bin || return 3
 rm -rf  u-boot-${1}-config.bin
