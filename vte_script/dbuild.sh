@@ -53,9 +53,10 @@ make_uboot_config()
 echo "make uboot config $1"
 cd $UCONFDIR
 sed "/UVERSION/s/^.*/UVERSION=$2/g" u-boot-${1}-conf.txt > ${1}_config.txt
-./u-config -s ${1}-conf.txt u-boot-${1}-config.bin
+$UCONFDIR/u-config -s ${1}-conf.txt u-boot-${1}-config.bin
 #rm -f ${1}_config.txt
 sudo cp u-boot-${1}-config.bin /mnt/nfs_root/imx${3}_rootfs/root/u-boot-${1}-config.bin || return 3
+rm -rf  u-boot-${1}-config.bin
 }
 
 make_uboot()
@@ -158,12 +159,14 @@ old_vte_rc=0
 KERNEL_VER=
 
 if [ $BUILD = "y" ]; then
-
  cd $ROOTDIR
  if [ ! -e ${UBOOT_DIR} ]; then
  git clone git://sw-git01-tx30/uboot-imx.git
  fi
  cd ${UBOOT_DIR}
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
  git checkout -b temp || git checkout temp
  git branch -D build
  git fetch origin +$UBOOT_BRH:build && git checkout build || exit -1
@@ -173,6 +176,9 @@ if [ $BUILD = "y" ]; then
  git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
  fi
  cd ${KERNEL_DIR}
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
  git checkout -b temp || git checkout temp
  git branch -D build
  git fetch origin +$KERNEL_BRH:build && git checkout build || exit -2
@@ -182,8 +188,11 @@ if [ $BUILD = "y" ]; then
  git clone git://shlx12.ap.freescale.net/vte
  fi
  cd $VTE_DIR
-  git checkout -b temp || git checkout temp
-  git branch -D build
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
+ git checkout -b temp || git checkout temp
+ git branch -D build
  git fetch origin +master:build && git checkout build || exit -3
 
  cd $ROOTDIR
@@ -191,6 +200,9 @@ if [ $BUILD = "y" ]; then
   git clone git://10.192.225.222/skywalker
   fi
   cd $ROOTDIR/skywalker
+  git add . 
+  git commit -s -m"reset"
+  git reset --hard HEAD~1
   git checkout -b temp || git checkout temp
   git branch -D build
   git fetch origin +master:build && git checkout build || exit -4
