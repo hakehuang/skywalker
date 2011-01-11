@@ -120,6 +120,7 @@ export KLINUX_SRCDIR=${KERNEL_DIR}
 export KLINUX_BLTDIR=${KERNEL_DIR}
 export CROSS_COMPILER=arm-none-linux-gnueabi-
 export CC=${CROSS_COMPILER}gcc
+autoreconf -f -i -Wall,no-obsolete
 ./armconfig
 make
 make vte || return 1
