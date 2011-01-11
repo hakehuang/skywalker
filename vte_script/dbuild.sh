@@ -124,7 +124,7 @@ autoreconf -f -i -Wall,no-obsolete
 ./armconfig
 make
 make vte || return 1
-make apps || ret=1
+make apps || ret=2
 make install
 #make ltp tests
 if [ $BUILD = "y" ]; then
