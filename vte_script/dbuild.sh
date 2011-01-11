@@ -137,9 +137,9 @@ return $ret
 make_tools()
 {
  cd $TOOLSDIR
- CROSS_COMPILER="" make
+ CROSS_COMPILER="" make || return 7
  cd $UCONFDIR
- make CC=gcc
+ make CC=gcc || return 8
 }
 
 sync_server()
@@ -191,11 +191,11 @@ if [ $BUILD = "y" ]; then
   cd $ROOTDIR/skywalker
   git checkout -b temp || git checkout temp
   git branch -D build
-  git fetch origin +master:build && git checkout build
+  git fetch origin +master:build && git checkout build || exit -4
 fi 
 #end if build
 
-make_tools
+make_tools || exit -5
 
 for i in $PLATFORM;
 do
@@ -214,7 +214,10 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-     sync_server $i READY_KVER${KERNEL_VER}
+		 if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -gt 0 ]
+			then
+     	sync_server $i READY_KVER${KERNEL_VER}
+		 fi
    fi
    j=$(expr $j + 1)
   done
