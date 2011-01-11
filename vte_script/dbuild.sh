@@ -67,7 +67,7 @@ make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
 scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-${3}_d.bin || return 3
 scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-${3}_d.bin || return 3
 sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs/root/u-boot-${3}_d.bin || return 3
-make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 
+make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 || return 3 
 return 0
 }
 
@@ -138,6 +138,8 @@ make_tools()
 {
  cd $TOOLSDIR
  CROSS_COMPILER="" make
+ cd $UCONFDIR
+ make CC=gcc
 }
 
 sync_server()
