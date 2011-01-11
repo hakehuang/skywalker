@@ -87,9 +87,9 @@ fi
 old_kernel_config=$1
 make distclean
 echo "-daily"  > localversion
-KERNEL_VER=$(./scripts/setlocalversion)
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 uImage|| return 2
+KERNEL_VER=$(./scripts/setlocalversion)
 sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
