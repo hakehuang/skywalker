@@ -1,21 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
 BASE=/rootfs/wb
 TARGET_OUTPUT_BASE=${BASE}/daily_reports/skywalker
 
 #PRJ="vte_mx50"
 MAX_CASES=50
-
+pj=0
 #determinate the year and week
 YEAR=$(date +%Y)
 WEEK=$(date +%U)
 DAY=$(date +%d)
 
+declare -a VTE_PATH;
+declare -a ALL_PLAT;
+
 PRJ=$1
+
+ALL_PLAT=("IMX50RDP" "IMX53LOCO" "IMX53SMD");
+VTE_PATH=("vte_mx50_d" "vte_mx53_d" "vte_mx53_d");
 
 for i in $PRJ
 do
-	VTEPATH=vte_mx${i}_d
+ if [ $i = ${ALL_PLAT[${pj}]} ];then
+	VTEPATH=${VTE_PATH[${pj}]}
 	LTPROOT=$BASE/$VTEPATH
   OUT_BASE=${TARGET_OUTPUT_BASE}/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}/
 	mkdir -p $OUT_BASE
@@ -64,5 +71,6 @@ do
 	fi
   echo "see http://shlx12.ap.freescale.net/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
   | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net b20222@freescale.com
-	
+fi	
+ pj=$(expr $pj + 1)
 	done
