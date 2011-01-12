@@ -16,11 +16,14 @@ declare -a ALL_PLAT;
 
 PRJ=$1
 
+PCONT=3
 ALL_PLAT=("IMX50RDP" "IMX53LOCO" "IMX53SMD");
 VTE_PATH=("vte_mx50_d" "vte_mx53_d" "vte_mx53_d");
 
 for i in $PRJ
 do
+ while [ $pj -lt $PCNT ];
+ do
  if [ $i = ${ALL_PLAT[${pj}]} ];then
 	VTEPATH=${VTE_PATH[${pj}]}
 	LTPROOT=$BASE/$VTEPATH
@@ -71,6 +74,7 @@ do
 	fi
   echo "see http://shlx12.ap.freescale.net/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
   | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net b20222@freescale.com
-fi	
+ fi	
  pj=$(expr $pj + 1)
+done
 	done
