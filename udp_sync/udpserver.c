@@ -37,6 +37,7 @@
 typedef struct link_node{
    char platform[PSIZE];
 	 char kver[2*PSIZE];
+	 char bip[256];
    int status;
    struct link_node *next;
 } tlink_node;
@@ -288,12 +289,14 @@ void recvUDP(char * name,int sockfd)
                      strncpy(cnode->next->platform,temp,PSIZE);
                      cnode->next->status = eSTART;
                      strcpy(cnode->next->kver,"0");
+										 memset(cnode->next->bip,0,256);
 										 cnode=cnode->next;
 										 cnode->next = NULL;
                      break;
                   }  
 		  						cnode = cnode->next;
                 }
+								/*now cnode is the matched board or a new one*/
                 if(cnode == NULL)
                 {
                    cnode = (tlink_node *)malloc(sizeof(tlink_node));
@@ -325,15 +328,19 @@ void recvUDP(char * name,int sockfd)
 									sprintf(icmd,"%s %s",cmds,cnode->platform);
 									uprintf("execute %s\n", icmd);
 									system(icmd);
+								}else if(NULL != strstr(tmesg,"REGIST")){
+									sprintf(cnode->bip,"%s",inet_ntoa(c_addr.sin_addr));
+								}else if(NULL != strstr(tmesg,"UNREGIST")){
+									memset(cnode->bip,0,256);
 								}else{
-                   gStatus = cnode->status;
-                } 
-                if (gStatus == eREADY){
-		    					rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-		    					rlen = sendto(sockfd, cnode->kver, strlen(cnode->kver), 0,(struct sockaddr *) &c_addr, addr_len);
-	        			}else if(gStatus == eSTART)
-		   						rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
-           		}
+									gStatus = cnode->status; 
+                	if (gStatus == eREADY){
+		    						rlen = sendto(sockfd, "ACK", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+		    						rlen = sendto(sockfd, cnode->kver, strlen(cnode->kver), 0,(struct sockaddr *) &c_addr, addr_len);
+									}else if(gStatus == eSTART)
+		   							rlen = sendto(sockfd, "RES", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+								}
+           		}//tmesg == NULL
             		if(NULL != strstr(tmesg,"FLUSH")){
                		while(cnode){
                    tlink_node * tmp = cnode;
@@ -355,10 +362,15 @@ void recvUDP(char * name,int sockfd)
 		  	rlen = sendto(sockfd, "ready", 5, 0,(struct sockaddr *) &c_addr, addr_len);
                   else
 		  	rlen = sendto(sockfd, "no ready", 8, 0,(struct sockaddr *) &c_addr, addr_len);
+		  	rlen = sendto(sockfd, cnode->bip, strlen(cnode->bip), 0,(struct sockaddr *) &c_addr, addr_len);
                   cnode = cnode->next;
                }
 	      rlen = sendto(sockfd, "LIST", 4, 0,(struct sockaddr *) &c_addr, addr_len);
-            }else{
+            }else if(NULL != strstr(tmesg,"REGIST")){
+	      rlen = sendto(sockfd, "REG", 3, 0,(struct sockaddr *) &c_addr, addr_len);
+            }else if(NULL != strstr(tmesg,"UNREGIST")){
+	      rlen = sendto(sockfd, "UREG", 4, 0,(struct sockaddr *) &c_addr, addr_len);
+						}else{
 		  rlen = sendto(sockfd, "query format <platform name>_hello",34,0,(struct sockaddr *) &c_addr, addr_len);
             }
             /*acknowledge client to over*/
