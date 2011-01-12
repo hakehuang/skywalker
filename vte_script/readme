@@ -1,1 +1,2 @@
 in web browser open the gen_report.php
+the php file need manual copy to the /var/www/test_reports folder
