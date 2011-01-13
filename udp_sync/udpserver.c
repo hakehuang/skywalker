@@ -328,10 +328,10 @@ void recvUDP(char * name,int sockfd)
 									sprintf(icmd,"%s %s",cmds,cnode->platform);
 									uprintf("execute %s\n", icmd);
 									system(icmd);
-								}else if(NULL != strstr(tmesg,"REGIST")){
-									sprintf(cnode->bip,"%s",inet_ntoa(c_addr.sin_addr));
 								}else if(NULL != strstr(tmesg,"UNREGIST")){
 									memset(cnode->bip,0,256);
+								}else if(NULL != strstr(tmesg,"REGIST")){
+									sprintf(cnode->bip,"%s",inet_ntoa(c_addr.sin_addr));
 								}else{
 									gStatus = cnode->status; 
                 	if (gStatus == eREADY){
@@ -366,10 +366,10 @@ void recvUDP(char * name,int sockfd)
                   cnode = cnode->next;
                }
 	      rlen = sendto(sockfd, "LIST", 4, 0,(struct sockaddr *) &c_addr, addr_len);
-            }else if(NULL != strstr(tmesg,"REGIST")){
-	      rlen = sendto(sockfd, "REG", 3, 0,(struct sockaddr *) &c_addr, addr_len);
             }else if(NULL != strstr(tmesg,"UNREGIST")){
 	      rlen = sendto(sockfd, "UREG", 4, 0,(struct sockaddr *) &c_addr, addr_len);
+            }else if(NULL != strstr(tmesg,"REGIST")){
+	      rlen = sendto(sockfd, "REG", 3, 0,(struct sockaddr *) &c_addr, addr_len);
 						}else{
 		  rlen = sendto(sockfd, "query format <platform name>_hello",34,0,(struct sockaddr *) &c_addr, addr_len);
             }
