@@ -84,13 +84,16 @@ int main(int argc, char **argv)
              perror("recvfrom");
              exit(errno);
            }
-		    	printf("receiver from server %s\n", mesg);
-					if(NULL != strstr("INIT",mesg))
+		    	printf("receiver from server %s : %d\n", mesg,strlen(mesg));
+					if(NULL != strstr(mesg,"INIT"))
 						ack = 0;
 					else
           	ack = 1;
-          if(NULL != strstr("FNT",mesg))
+          if(NULL != strstr(mesg,"FNT"))
+					{
+						printf("receive end message\n");
 						break;
+					}
 		 		}else{
 				   perror("send");
 					 break;
