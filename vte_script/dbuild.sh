@@ -93,7 +93,7 @@ echo "-daily"  > localversion
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 uImage|| return 2
 KERNEL_VER=$(./scripts/setlocalversion)
-sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily
+sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
