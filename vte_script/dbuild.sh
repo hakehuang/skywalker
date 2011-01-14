@@ -166,6 +166,7 @@ make_target_tools()
  make CC=arm-none-linux-gnueabi-gcc || return 11
  sudo cp u-config ${VTE_TARGET_PRE}/tools/
  sudo cp printenv ${VTE_TARGET_PRE}/tools/
+ sudo cp setenv ${VTE_TARGET_PRE}/tools/
  make clean
 }
 
