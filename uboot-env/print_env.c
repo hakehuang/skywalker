@@ -35,6 +35,7 @@ int main(int argc, char ** argv)
 	int bfd;
 	unsigned char * buf, * pstr;
   uint32_t crcv;
+	int offset = 0;
   while(1)
   {
    if(i > ct)
@@ -47,7 +48,17 @@ int main(int argc, char ** argv)
 			 }
         memset(device,0,sizeof(device));
         sprintf(device,"%s",argv[++i]);
-    }else if(argv[i] != NULL){
+				offset = 768 * 1024;
+    }else if( 0 == strcmp(argv[i], "-f")){
+		   if(i == ct)
+			 {
+				 printf("-d give a path and file name\n");
+				 return -1;
+			 }
+        memset(device,0,sizeof(device));
+        sprintf(device,"%s",argv[++i]);
+				offset = 0;
+		}else if(argv[i] != NULL){
       penv=argv[i];
     }
    i++;
@@ -58,7 +69,7 @@ int main(int argc, char ** argv)
 			 perror("open");
 			 return 1;
 	}
-	pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,768*1024);
+	pstr = (unsigned char *)mmap(NULL,CONFIG_ENV_SIZE,PROT_READ,MAP_SHARED,bfd,offset);
   if (pstr < 0)
 	{
 	  perror("mmap");
@@ -85,7 +96,7 @@ int main(int argc, char ** argv)
 					break;
 	}
 OUT:
-	munmap(pstr,256*1024);
+	munmap(pstr,CONFIG_ENV_SIZE);
 	return 0;
 }
 

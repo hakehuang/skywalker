@@ -15,7 +15,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +29,6 @@ uint32_t  crc32 (uint32_t crc, const unsigned char *buf, unsigned int len);
 
 int main(int argc, char ** argv)
 {
-  char device[512] = "/dev/mmcblk0";
   int i = 1,ct = argc - 1;
 	char * penv = NULL, * pdata = NULL;
 	int bfd;
@@ -38,6 +36,9 @@ int main(int argc, char ** argv)
   uint32_t crcv, crcnv;
 	unsigned int env_size = CONFIG_ENV_SIZE - sizeof(uint32_t);
 	int offset = 0;
+	int need_update = 0;
+  char device[512] = "/dev/mmcblk0";
+	char env_name[256];
   while(1)
   {
    if(i > ct)
@@ -62,68 +63,85 @@ int main(int argc, char ** argv)
 				offset = 0;
 		}else if(argv[i] != NULL){
       penv=argv[i];
+			sprintf(env_name, "%s=", penv);
+			printf("penv is set to %s\n", penv);
 			break;
     }
    i++;
   }
 	if(penv == NULL)
 		return 0;
-	if(i == ct)
-  	pdata = argv[i+1];
+	if(++i == ct){
+  	pdata = argv[i];
+		printf("set to %s\n",pdata);
+	}
 
-	bfd=open(device,O_RDONLY);
+	bfd=open(device,O_RDWR);
 	if(bfd < 0){
 			 perror("open");
 			 return 1;
 	}
-	pstr = (unsigned char *)mmap(NULL,256*1024,PROT_READ,MAP_SHARED,bfd,offset);
+	pstr = (unsigned char *)mmap(NULL,CONFIG_ENV_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED,bfd,offset);
   if (pstr < 0)
 	{
 	  perror("mmap");
 		return 2;
 	}
 	crcv = (uint32_t)pstr;
-	buf = pstr + 4;/*skip the crc nubber*/
+	buf = pstr + sizeof(uint32_t);/*skip the crc nubber*/
   while(*buf != '\0')
 	{
-		if(penv && 0 == strncmp(buf,penv,strlen(penv)))
-		{	
+		if(penv && 0 == strncmp(buf,env_name,strlen(env_name)))
 			break;
-		}
 		while(*buf != '\0')
-		{
 				buf++;
-		}
 		buf++;
 		if(*buf == '\0')
 					break;
 	}
 	if (buf != '\0'){
-	/*exist env remove it first*/	
+		/*exist env remove it first*/	
 	  unsigned char * fstr = buf + strlen(buf);
-		if (*fstr == '\0' && *(fstr + 1) != '\0'){
+		int gsize = 0;
+		if(*(fstr + 1) != '\0'){
+			/*not the last one*/
 			fstr++;
-	  	memcpy(buf,fstr,256 * 1024 + (pstr - fstr));
-			memset(buf + 256*1024 - fstr + pstr, 0, fstr - buf);
-		}
-		while(*buf!='\0' || *(buf+1) != '\0')
+			gsize = CONFIG_ENV_SIZE - (long)(fstr - pstr);
+			printf("the success is %s\n", fstr);
+	  	memcpy(buf,fstr,gsize);
+		  memset(pstr + gsize, '\0', (long)(fstr - buf));
+			printf("next env is %s\n", buf);
+			while(*buf!='\0' || *(buf+1) != '\0')
+				buf++;
 			buf++;
-		buf++;
+		}else{
+			/*is the last one*/
+			printf("the buff is at %s \n", buf);
+		  memset(buf, '\0', CONFIG_ENV_SIZE - (long)(buf - pstr));	
+		}
+		need_update = 1;
 	}
-	if(buf == '\0' && pdata != NULL)
+	if(*buf == '\0' && pdata != NULL)
 	{
 		/*new add env*/
-		strncpy(buf,penv,strlen(penv));
-		buf += strlen(penv);
-		*buf = ' ';
-		buf++;
-		strncpy(buf,pdata,strlen(pdata));
+		char * pp = buf;
+		strncpy(pp,penv,strlen(penv));
+		pp += strlen(penv);
+		*pp = '=';
+		pp++;
+		strncpy(pp,pdata,strlen(pdata));
+		printf("the env set to %s\n",buf);
+		need_update = 1;
 	}
-	crcnv = crc32(0,pstr + 4, env_size);
-	if (crcnv != crcv)
-		*((uint32_t *)pstr) = crcnv;
+	if(need_update){
+		crcnv = crc32(0,pstr + sizeof(uint32_t), env_size);
+		if (crcnv != crcv)
+			*((uint32_t *)pstr) = crcnv;
+	}
 OUT:
-	munmap(pstr,256*1024);
+	munmap(pstr,CONFIG_ENV_SIZE);
+	fsync(bfd);
+	close(bfd);
 	return 0;
 }
 
