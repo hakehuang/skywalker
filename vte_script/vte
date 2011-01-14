@@ -52,13 +52,14 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
   dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
   reboot
  fi
+ /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
  insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
  export CONTINUE=y
  tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  if [ $tstatus -gt 0 ]; then
   cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
   #test finished start a process to reset board at
-  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND
+  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
  fi
  while true;
  do
