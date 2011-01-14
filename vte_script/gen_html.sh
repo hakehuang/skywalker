@@ -16,7 +16,7 @@ declare -a ALL_PLAT;
 
 PRJ=$1
 
-PCONT=3
+PCNT=3
 ALL_PLAT=("IMX50RDP" "IMX53LOCO" "IMX53SMD");
 VTE_PATH=("vte_mx50_d" "vte_mx53_d" "vte_mx53_d");
 
