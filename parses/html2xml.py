@@ -37,6 +37,7 @@ class MyHTMLParser(HTMLParser):
 			self.cur_attr = 'NULL'
 			self.cur_content = ''
 			self.file_name = 'UNKNOWN'
+			self.module_des = 0
 		def handle_starttag(self, tag, attrs):
 			#print "Encountered the beginning of a %s" % tag
 			for k, v in top_dic.iteritems():
@@ -49,26 +50,25 @@ class MyHTMLParser(HTMLParser):
 			for k,v in self.cur_dic.iteritems():
 				if (k == tag):
 					self.cur_attr = v
-					return
 				else:
 					pass
-			if (self.cur_attr == 'RETUEN' and self.cur_dir == subcase_dic):
+			if (self.cur_attr == 'RETURN'):
 				self.cur_content += '\n'
 			else:
 				pass
 		def handle_endtag(self, tag):
 			#print "Encountered the end of a %s tag" % tag
 			if (self.cur_attr == 'CONTENT' and len(self.cur_content)):
-				#print "XMLTAG: " + self.cur_attr
 				print self.cur_content
 			elif (self.cur_attr == 'RETURN'):
 				pass
 			elif (self.cur_attr == 'MODULE_TITLE' and len(self.file_name)):
-				#print "XMLTAG: " + self.cur_attr
 				print self.file_name
 			elif (self.cur_attr == 'TITLE' and len(self.cur_content)):
-				#print "XMLTAG: " + self.cur_attr
-				print "<<<start>>>"
+				if(self.module_des == 0):
+					self.module_des = 1
+				else:
+					print "<<<start>>>"
 				print self.cur_content
 			else:
 				pass
@@ -101,8 +101,6 @@ class MyHTMLParser(HTMLParser):
 			else:
 				pass
 		def handle_data(self, data):
-			#print self._level_stack, data
-			#print self.cur_attr
 			if (self.cur_attr == 'CONTENT' or self.cur_attr == 'TITLE' or self.cur_attr == 'RETURN'):
 				self.cur_content += data
 			elif (self.cur_attr == 'MODULE_TITLE'):
