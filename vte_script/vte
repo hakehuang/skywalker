@@ -27,6 +27,7 @@ start_test()
 {
 /mnt/nfs/tools/platfm.sh
 TARGET=$?
+need_reboot=0
 platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
@@ -42,6 +43,9 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
  do
   sleep 30
   status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+	if [ $status -eq 0 ]; then
+	  need_reboot=1
+	fi
  done
  #chekc the uboot
  crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
@@ -51,6 +55,9 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
   dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
   dd if=/root/u-boot-mx${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
   reboot
+ fi
+ if [ $need_reboot -eq 1 ]; then
+   reboot
  fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
  insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
