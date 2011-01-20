@@ -4,7 +4,11 @@ import sys
 import os
 import getopt
 import urllib
+import string
+
+from types import *
 from HTMLParser import HTMLParser
+
 
 attribute_list = ['NULL','MODULE_TITLE','TITLE','CONTENT','RETURN']
 
@@ -25,11 +29,79 @@ subcase_dic = {'td':'CONTENT',
 }
 
 top_dic = {'html':module_dic,
-           'table':case_dic,	
+           'table':case_dic,
 	         'tr':subcase_dic
 }
 
+output_file_head = [
+'<?xml version="1.0" encoding="UTF-8"?>', 
+'<?xml-stylesheet type="text/xsl" href="testcase.xsl"?>'
+]
+
+void_dic = {
+'0':'NULL'	
+}
+
+formalpara_dic = {
+'0':['<formalpara>'],
+'1':['<title>','CONTENT','</title>'],
+'2':['<para>','CONTENT','</para>'],
+'end':['</formalpara>'],
+'cnt':3,
+'parent':void_dic
+}
+
+screen_dic = {
+'0':['<screen>'],
+'1':['<![CDATA[','CONTENT',']]>'],
+'end':['</screen>'],
+'cnt':2,
+'parent':void_dic
+}
+
+formalpara2_dic = {
+'0':['<formalpara>'],
+'1':['<title>','CONTENT','</title>'],
+'2':screen_dic,
+'end':['</formalpara>'],
+'cnt':3,
+'parent':void_dic
+}
+
+output_case_dic = {
+'0':['<sect1 ','id=','>'],
+'1':['<title>','CONTENT','</title>'],
+'2':formalpara_dic,#name
+'3':formalpara_dic,#Category
+'4':formalpara_dic,#Auto level
+'5':formalpara_dic,#Objective
+'6':formalpara_dic,#Environment
+'7':formalpara2_dic,#Steps
+'8':formalpara_dic,#Expected Result
+'9':formalpara2_dic,#Command Line
+'end':['</sect1>'],
+'cnt':10,
+'parent': void_dic
+}
+
+output_top_dic = {
+'0':['<chapter ','name=','>','CONTENT'],
+'1':['<title>','CONTENT','</title>'],
+'2':['<sect>','CONTENT','</sect>'],
+'3':output_case_dic,
+'*':'3',
+'end':['</chapter>'],
+'cnt':-1
+}
+
 class MyHTMLParser(HTMLParser):
+		def close(self):
+			if (len(self.output_tree)):
+				output_top_dic['cnt'] = self.output_tree[0]
+				while (self.output != output_top_dic ):
+					self.cur_content = ""
+					self.xmlprint()
+			print output_top_dic['end'][0]
 		def reset(self):
 			HTMLParser.reset(self)
 			self._level_stack = []
@@ -38,6 +110,10 @@ class MyHTMLParser(HTMLParser):
 			self.cur_content = ''
 			self.file_name = 'UNKNOWN'
 			self.module_des = 0
+			self.output = output_top_dic
+			self.output_cnt = 0
+			self.output_list_cnt = 0
+			self.output_tree = []
 		def handle_starttag(self, tag, attrs):
 			#print "Encountered the beginning of a %s" % tag
 			for k, v in top_dic.iteritems():
@@ -58,18 +134,22 @@ class MyHTMLParser(HTMLParser):
 				pass
 		def handle_endtag(self, tag):
 			#print "Encountered the end of a %s tag" % tag
-			if (self.cur_attr == 'CONTENT' and len(self.cur_content)):
-				print self.cur_content
+			if (self.cur_attr == 'CONTENT'):
+				##print self.cur_content
+				self.xmlprint()
 			elif (self.cur_attr == 'RETURN'):
 				pass
-			elif (self.cur_attr == 'MODULE_TITLE' and len(self.file_name)):
-				print self.file_name
-			elif (self.cur_attr == 'TITLE' and len(self.cur_content)):
+			elif (self.cur_attr == 'MODULE_TITLE'):
+				##print self.file_name
+				self.xmlprint()
+			elif (self.cur_attr == 'TITLE'):
 				if(self.module_des == 0):
 					self.module_des = 1
 				else:
-					print "<<<start>>>"
-				print self.cur_content
+					pass
+					#print "<<<start>>>"
+				##print self.cur_content
+				self.xmlprint()
 			else:
 				pass
 			if (self.cur_dic.has_key(tag)):
@@ -93,7 +173,8 @@ class MyHTMLParser(HTMLParser):
 					else:
 						pass
 					if (self.cur_dic == module_dic):
-						print "<<<end>>>"
+						pass
+						#print "<<<end>>>"
 					else:
 						pass
 				else:
@@ -107,6 +188,86 @@ class MyHTMLParser(HTMLParser):
 				self.file_name = data
 			else:
 				pass
+		def xmlprint(self):
+			self.cur_content = self.cur_content.lstrip()
+			if (self.output == output_top_dic and self.output_cnt > 2):
+				if(len(self.cur_content) == 0):
+					return
+				else:
+					pass
+			else:
+				pass
+			if(self.output.has_key(str(self.output_cnt))):
+				mdata = self.output[str(self.output_cnt)]
+				if (type(mdata) is ListType):
+					#print mdata
+					if (self.output_list_cnt < len(mdata)):
+						if (mdata[self.output_list_cnt] == 'CONTENT'):
+							if (self.output == output_top_dic and self.output_cnt == 0):
+								print self.file_name
+							else:
+								print self.cur_content
+							self.output_list_cnt += 1
+							return
+						elif (mdata[self.output_list_cnt].find('=') != -1 ):
+							print "%s%s" %(mdata[self.output_list_cnt],self.cur_content)
+							self.output_list_cnt += 1
+							return
+						else:
+							if (self.output == output_top_dic and self.output_cnt ==0 and self.output_list_cnt == 0):
+								print output_file_head[0]
+								print output_file_head[1]
+							print mdata[self.output_list_cnt]
+							self.output_list_cnt += 1
+							self.xmlprint()
+							return
+					else:
+						self.output_list_cnt = 0
+						self.output_cnt += 1
+						self.xmlprint()
+						return
+				elif (type(mdata) is DictType):
+					#print self.output
+					mdata['parent'] = self.output
+					self.output = mdata
+					self.output_tree.append(self.output_cnt)
+					self.output_cnt = 0
+					self.output_list_cnt = 0
+					self.xmlprint()
+					return
+				else:
+					print "should not be here"
+					return
+			else:
+				if (type(self.output) is DictType):
+					if (self.output_cnt == self.output['cnt']):
+						if (self.output['end']):
+							print self.output['end'][0]
+						else:
+							pass
+						if (len(self.output_tree)):
+							self.output_cnt = self.output_tree.pop()
+						else:
+							self.output_cnt = 0
+						self.output_list_cnt = 0
+						if (self.output.has_key('parent')):
+							self.output = self.output['parent']
+							self.output_cnt += 1
+						else:
+							pass
+						self.xmlprint()
+						return
+					else:
+						if (self.output['cnt'] == -1):
+							self.output_cnt = int(self.output['*'][0])
+							self.output_list_cnt = 0
+							self.xmlprint()
+							return
+						else:
+							return
+				else:
+					print "should not be here"
+					return
 
 def usage():
         print "-h: this help"
