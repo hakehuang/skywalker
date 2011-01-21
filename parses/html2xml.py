@@ -44,8 +44,8 @@ void_dic = {
 
 formalpara_dic = {
 '0':['<formalpara>'],
-'1':['<title>','CONTENT','</title>'],
-'2':['<para>','CONTENT','</para>'],
+'1':['<title>','CONTENT','</title>\n'],
+'2':['<para>','CONTENT','</para>\n'],
 'end':['</formalpara>'],
 'cnt':3,
 'parent':void_dic
@@ -54,23 +54,23 @@ formalpara_dic = {
 screen_dic = {
 '0':['<screen>'],
 '1':['<![CDATA[','CONTENT',']]>'],
-'end':['</screen>'],
+'end':['</screen>\n'],
 'cnt':2,
 'parent':void_dic
 }
 
 formalpara2_dic = {
 '0':['<formalpara>'],
-'1':['<title>','CONTENT','</title>'],
+'1':['<title>','CONTENT','</title>\n'],
 '2':screen_dic,
-'end':['</formalpara>'],
+'end':['</formalpara>\n'],
 'cnt':3,
 'parent':void_dic
 }
 
 output_case_dic = {
 '0':['<sect1 ','id=','>'],
-'1':['<title>','CONTENT','</title>'],
+'1':['<title>','CONTENT','</title>\n'],
 '2':formalpara_dic,#name
 '3':formalpara_dic,#Category
 '4':formalpara_dic,#Auto level
@@ -79,15 +79,15 @@ output_case_dic = {
 '7':formalpara2_dic,#Steps
 '8':formalpara_dic,#Expected Result
 '9':formalpara2_dic,#Command Line
-'end':['</sect1>'],
+'end':['</sect1>\n'],
 'cnt':10,
 'parent': void_dic
 }
 
 output_top_dic = {
 '0':['<chapter ','name=','>'],
-'1':['<title>','CONTENT','</title>'],
-'2':['<sect>','CONTENT','</sect>'],
+'1':['<title>','CONTENT','</title>\n'],
+'2':['<sect>','CONTENT','</sect>\n'],
 '3':output_case_dic,
 '*':'3',
 'end':['</chapter>'],
@@ -102,6 +102,9 @@ class MyHTMLParser(HTMLParser):
 					self.cur_content = ""
 					self.xmlprint()
 			print output_top_dic['end'][0]
+			self.of.write(output_top_dic['end'][0])
+			if(self.file_name != 'UNKNOWN'):
+				self.of.close()
 		def reset(self):
 			HTMLParser.reset(self)
 			self._level_stack = []
@@ -115,6 +118,7 @@ class MyHTMLParser(HTMLParser):
 			self.output_list_cnt = 0
 			self.output_tree = []
 			self.case_title = ''
+			self.of = 'NULL'
 		def handle_starttag(self, tag, attrs):
 			#print "Encountered the beginning of a %s" % tag
 			for k, v in top_dic.iteritems():
@@ -190,6 +194,19 @@ class MyHTMLParser(HTMLParser):
 			else:
 				pass
 		def xmlprint(self):
+			if (self.file_name == 'UNKNOWN'):
+				return
+			elif (self.of == 'NULL'):
+				self.of = file(self.file_name + "_L.xml",'w')
+				if (self.output == output_top_dic and self.output_cnt ==0 and self.output_list_cnt == 0):
+					print output_file_head[0]
+					self.of.write(output_file_head[0] + "\n")
+					print output_file_head[1]
+					self.of.write(output_file_head[1] + "\n")
+				else:
+					pass
+			else:
+				pass
 			self.cur_content = self.cur_content.lstrip()
 			if (self.output == output_top_dic and self.output_cnt > 2):
 				if(len(self.cur_content) == 0):
@@ -206,33 +223,34 @@ class MyHTMLParser(HTMLParser):
 						if (mdata[self.output_list_cnt] == 'CONTENT'):
 							if (self.output == output_top_dic and self.output_cnt == 0):
 								print self.file_name
+								self.of.write(self.file_name)
 							else:
 								if (self.output == output_case_dic and self.output_cnt == 1):
 									print self.case_title
+									self.of.write(self.case_title)
 								else:
 									print self.cur_content
+									self.of.write(self.cur_content + "\n")
 							self.output_list_cnt += 1
 							return
 						elif (mdata[self.output_list_cnt].find('=') != -1 ):
 							if (self.output == output_top_dic and self.output_cnt ==0):
-								if (self.file_name == 'UNKNOWN'):
-									return
-								else:
-									print "%s\"%s\"" %(mdata[self.output_list_cnt],self.file_name)
+									print "%s\"%s_L\"" %(mdata[self.output_list_cnt],self.file_name)
+									self.of.write(mdata[self.output_list_cnt] + "\"" + self.file_name + "_L\"")
 							else:
 								if (self.output == output_case_dic and self.output_cnt ==0):
 									tdata = self.cur_content.split(':')[0]
 									print "%s\"%s\"" %(mdata[self.output_list_cnt],tdata)
+									self.of.write(mdata[self.output_list_cnt] + "\"" + tdata + "\"")
 									self.case_title = self.cur_content
 								else:
 									print "%s\"%s\"" %(mdata[self.output_list_cnt],self.cur_content)
+									self.of.write(mdata[self.output_list_cnt] + "\"" + self.cur_content + "\"")
 							self.output_list_cnt += 1
 							return
 						else:
-							if (self.output == output_top_dic and self.output_cnt ==0 and self.output_list_cnt == 0):
-								print output_file_head[0]
-								print output_file_head[1]
 							print mdata[self.output_list_cnt]
+							self.of.write(mdata[self.output_list_cnt])
 							self.output_list_cnt += 1
 							self.xmlprint()
 							return
@@ -258,6 +276,7 @@ class MyHTMLParser(HTMLParser):
 					if (self.output_cnt == self.output['cnt']):
 						if (self.output['end']):
 							print self.output['end'][0]
+							self.of.write(self.output['end'][0])
 						else:
 							pass
 						if (len(self.output_tree)):
