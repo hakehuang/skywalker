@@ -85,7 +85,7 @@ output_case_dic = {
 }
 
 output_top_dic = {
-'0':['<chapter ','name=','>','CONTENT'],
+'0':['<chapter ','name=','>'],
 '1':['<title>','CONTENT','</title>'],
 '2':['<sect>','CONTENT','</sect>'],
 '3':output_case_dic,
@@ -114,6 +114,7 @@ class MyHTMLParser(HTMLParser):
 			self.output_cnt = 0
 			self.output_list_cnt = 0
 			self.output_tree = []
+			self.case_title = ''
 		def handle_starttag(self, tag, attrs):
 			#print "Encountered the beginning of a %s" % tag
 			for k, v in top_dic.iteritems():
@@ -168,7 +169,7 @@ class MyHTMLParser(HTMLParser):
 					self.cur_dic = self.cur_dic['parent']
 					self.cur_attr = 'NULL'
 					if (len(self.cur_content)):
-						print self.cur_content
+						self.xmlprint()
 						self.cur_content = ''
 					else:
 						pass
@@ -206,11 +207,25 @@ class MyHTMLParser(HTMLParser):
 							if (self.output == output_top_dic and self.output_cnt == 0):
 								print self.file_name
 							else:
-								print self.cur_content
+								if (self.output == output_case_dic and self.output_cnt == 1):
+									print self.case_title
+								else:
+									print self.cur_content
 							self.output_list_cnt += 1
 							return
 						elif (mdata[self.output_list_cnt].find('=') != -1 ):
-							print "%s%s" %(mdata[self.output_list_cnt],self.cur_content)
+							if (self.output == output_top_dic and self.output_cnt ==0):
+								if (self.file_name == 'UNKNOWN'):
+									return
+								else:
+									print "%s\"%s\"" %(mdata[self.output_list_cnt],self.file_name)
+							else:
+								if (self.output == output_case_dic and self.output_cnt ==0):
+									tdata = self.cur_content.split(':')[0]
+									print "%s\"%s\"" %(mdata[self.output_list_cnt],tdata)
+									self.case_title = self.cur_content
+								else:
+									print "%s\"%s\"" %(mdata[self.output_list_cnt],self.cur_content)
 							self.output_list_cnt += 1
 							return
 						else:
