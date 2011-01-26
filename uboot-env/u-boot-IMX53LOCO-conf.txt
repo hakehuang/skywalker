@@ -20,6 +20,7 @@ stderr=serial
 ethact=FEC0
 tvout=mxcdi0fb:RGB24,XGA
 vga=mxcdi1fb:GBR24,XGA di1_primary tve
-seikowvga=mxcdi1fb:RGB24,SEIKO-WVGA
+seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA
+claawvga=mxcdi0fb:RGB565,CLAA-WVGA
 bootargs=console=ttymxc0,115200 daily_test=imx53_auto video=${vga}
 UVERSION=3
