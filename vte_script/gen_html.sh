@@ -31,8 +31,8 @@ do
 	mkdir -p $OUT_BASE
 	if [ -e $LTPROOT/output/latest_test_report ] ; then
 	. $LTPROOT/output/latest_test_report
-	OUTPUT_DIRECTORY=$(basename $OUTPUT_DIRECTORY)
-	export OUTPUT_DIRECTORY=${LTPROOT}/output/$OUTPUT_DIRECTORY
+	OUTPUT_FILE=$(basename $OUTPUT_DIRECTORY)
+	export OUTPUT_DIRECTORY=${LTPROOT}/output/$OUTPUT_FILE
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
@@ -71,9 +71,10 @@ do
 		else
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
-	fi
-  echo "see http://shlx12.ap.freescale.net/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
+  cp $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed ${OUT_BASE}/	
+  echo "see http://shlx12.ap.freescale.net/test_reports/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
   | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net b20222@freescale.com
+	fi
  fi	
  pj=$(expr $pj + 1)
 done

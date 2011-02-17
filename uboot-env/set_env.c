@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 	unsigned char * buf, * pstr;
   uint32_t crcv, crcnv;
 	unsigned int env_size = CONFIG_ENV_SIZE - sizeof(uint32_t);
-	int offset = 0;
+	int offset = 768 * 1024;
 	int need_update = 0;
   char device[512] = "/dev/mmcblk0";
 	char env_name[256];

@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 	int bfd;
 	unsigned char * buf, * pstr;
   uint32_t crcv;
-	int offset = 0;
+	int offset = 768 * 1024;
   while(1)
   {
    if(i > ct)
