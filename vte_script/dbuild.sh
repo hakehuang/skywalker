@@ -85,7 +85,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_roo
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
 fi
-return $old_kenel_rc
+return $old_kernel_rc
 fi
 old_kernel_config=$1
 make distclean
