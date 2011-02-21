@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#
+#convert html case to xml docboot format
+#usage 
+# ./html2xml $(ls /home/shared/test_case_release/module_*.html)
 
 import sys
 import os
@@ -190,7 +194,8 @@ class MyHTMLParser(HTMLParser):
 			if (self.cur_attr == 'CONTENT' or self.cur_attr == 'TITLE' or self.cur_attr == 'RETURN'):
 				self.cur_content += data
 			elif (self.cur_attr == 'MODULE_TITLE'):
-				self.file_name = data
+				self.file_name = data.replace(" ","_").replace("/","_")
+				print self.file_name
 			else:
 				pass
 		def xmlprint(self):
