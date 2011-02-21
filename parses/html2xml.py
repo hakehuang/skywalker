@@ -18,8 +18,8 @@ attribute_list = ['NULL','MODULE_TITLE','TITLE','CONTENT','RETURN']
 
 module_dic = {'strong':'MODULE_TITLE',
                'p':'CONTENT',
-							 'br':'RETURN',
-							 'a':'TITLE',
+				'br':'RETURN',
+				'a':'TITLE',
 }
 
 case_dic = {'td':'CONENT',
@@ -114,6 +114,7 @@ class MyHTMLParser(HTMLParser):
 			self._level_stack = []
 			self.cur_dic = module_dic
 			self.cur_attr = 'NULL'
+			self.old_attr = 'NULL'
 			self.cur_content = ''
 			self.file_name = 'UNKNOWN'
 			self.module_des = 0
@@ -134,6 +135,10 @@ class MyHTMLParser(HTMLParser):
 					pass
 			for k,v in self.cur_dic.iteritems():
 				if (k == tag):
+					if (self.cur_attr != 'RETURN'):
+						self.old_attr = self.cur_attr
+					else:
+						pass
 					self.cur_attr = v
 				else:
 					pass
@@ -143,10 +148,12 @@ class MyHTMLParser(HTMLParser):
 				pass
 		def handle_endtag(self, tag):
 			#print "Encountered the end of a %s tag" % tag
+			#print self.cur_content
 			if (self.cur_attr == 'CONTENT'):
 				##print self.cur_content
 				self.xmlprint()
 			elif (self.cur_attr == 'RETURN'):
+				self.cur_attr = self.old_attr;
 				pass
 			elif (self.cur_attr == 'MODULE_TITLE'):
 				##print self.file_name
@@ -191,6 +198,7 @@ class MyHTMLParser(HTMLParser):
 			else:
 				pass
 		def handle_data(self, data):
+			#print '++++++'+data
 			if (self.cur_attr == 'CONTENT' or self.cur_attr == 'TITLE' or self.cur_attr == 'RETURN'):
 				self.cur_content += data
 			elif (self.cur_attr == 'MODULE_TITLE'):
