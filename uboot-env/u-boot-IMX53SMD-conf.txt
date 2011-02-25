@@ -1,15 +1,15 @@
 bootdelay=3
 baudrate=115200
-loadaddr=0x90800000
+loadaddr=0x70800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx53_d
-nfsroot=/rootfs/imx53_rootfs
-serverip=10.192.224.218
-tftpaddr=10.192.225.218
+kernel=uImage_53
+nfsroot=/rootfs/android_fs_53
+serverip=10.192.244.16
+tftpaddr=10.192.244.16
 bootargs_base=setenv bootargs ${bootargs}
-bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800 0x2000;bootm
@@ -18,5 +18,7 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-bootargs=console=ttymxc0,115200 daily_test=imx53_auto di1_primary video=mxcdi1fb:RGB666,XGA ldb
+lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
+android_args=gpu_memory=64M androidboot.console=ttymxc0
+bootargs=console=ttymxc0 daily_test=imx53_auto video=${lvds}
 UVERSION=3
