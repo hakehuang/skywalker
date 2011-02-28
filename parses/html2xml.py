@@ -333,3 +333,4 @@ for filename in args:
 	parser = MyHTMLParser()
 	parser.feed(content)
 	parser.close()
+	del parser
