@@ -2,7 +2,7 @@
 #
 #convert html case to xml docboot format
 #usage 
-# for i in $(ls /home/shared/test_case_release/module_*.html) do ./html2xml $i ; done
+# for i in $(ls /home/shared/test_case_release/module_*.html); do ./html2xml.py $i ; done
 
 import sys
 import os
