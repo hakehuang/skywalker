@@ -108,9 +108,9 @@ ret=0
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ]; then
  if [ $old_vte_rc -eq 0 ] && [ -e $VTE_DIR/install ]; then
-   sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}/
+   sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_d/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
-	 sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
+   sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
  fi
 return $old_vte_rc
 fi
