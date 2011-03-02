@@ -8,7 +8,7 @@ kernel=uImage_53
 nfsroot=/rootfs/android_fs_53
 serverip=10.192.244.16
 tftpaddr=10.192.244.16
-bootargs_base=setenv bootargs ${bootargs}
+bootargs_base=setenv bootargs ${bootargs} video=${lvds}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
@@ -20,5 +20,5 @@ stderr=serial
 ethact=FEC0
 lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
 android_args=gpu_memory=64M androidboot.console=ttymxc0
-bootargs=console=ttymxc0 daily_test=imx53_auto video=${lvds}
+bootargs=console=ttymxc0 daily_test=imx53_auto
 UVERSION=3
