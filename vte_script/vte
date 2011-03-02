@@ -36,7 +36,7 @@ test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
  #enable watchdog here
- echo "start test in 10 seconds, or login then kill the test"
+ echo "start test in 30 seconds, or login then kill the test"
  sleep 30
  status=0
  while [ $status -eq 0 ]
