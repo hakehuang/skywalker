@@ -18,7 +18,7 @@ PRJ=$1
 
 PCNT=3
 ALL_PLAT=("IMX50RDP" "IMX53LOCO" "IMX53SMD");
-VTE_PATH=("vte_mx50_d" "vte_mx53_d" "vte_mx53_d");
+VTE_PATH=("vte_IMX50RDP_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d");
 
 for i in $PRJ
 do
