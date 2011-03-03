@@ -48,8 +48,8 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
 	fi
  done
  #chekc the uboot
- crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep crc | cut -d " " -f 3)
- crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep crc | cut -d " " -f 3)
+ crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
+ crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
  if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
   echo "need update uboot"
   dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
