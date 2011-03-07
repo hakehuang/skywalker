@@ -33,7 +33,7 @@ return 1
 fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
-if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file} ]; then
+if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]; then
  #enable watchdog here
  echo "start test in 30 seconds, or login then kill the test"
  sleep 30
@@ -59,11 +59,11 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_mx${TARGET}_d/runtest/${test_file}
    reboot
  fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
- insmod /mnt/nfs/vte_mx${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
+ insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
  export CONTINUE=y
  tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  if [ $tstatus -gt 0 ]; then
-  cd /mnt/nfs/vte_mx${TARGET}_d && ./mytest $test_file
+  cd /mnt/nfs/vte_${TARGET}_d && ./mytest $test_file
   #test finished start a process to reset board at
   /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
  fi
@@ -92,5 +92,5 @@ echo $(hostname -i) > /root/.mounts
 /mnt/nfs/util/ntpdate 10.192.225.222
 /sbin/hwclock -w
 sleep 1
-#/mnt/nfs/vte_mx${TARGET}/mytest
+#/mnt/nfs/vte_${TARGET}/mytest
 start_test
