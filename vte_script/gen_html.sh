@@ -59,7 +59,7 @@ do
 			else
 			     lcnt_end=$(echo $all_end | cut -d " " -f $icnt | cut -d ":" -f 1)
 			fi
-			sed -n '${lcnt_start},${lcnt_end}p' $OUTPUT_DIRECTORY > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt} 
+			sed -n "${lcnt_start},${lcnt_end}p" $OUTPUT_DIRECTORY > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt} 
 		  lcnt_start=$(expr $lcnt_end + 1)
 			oHTMLFILE=$(basename $HTMLFILE .html)_${file_cnt}.html
 			echo "output to ${OUT_BASE}/$oHTMLFILE"
