@@ -4,11 +4,11 @@ loadaddr=0x90800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx53_d
-nfsroot=/rootfs/imx53_rootfs
+kernel=uImage_mx51_d
+nfsroot=/rootfs/imx51_rootfs
 serverip=10.192.244.218
-tftpaddr=10.192.255.218
-bootargs_base=setenv bootargs ${bootargs} video=${lvds}
+tftpaddr=10.192.245.218
+bootargs_base=setenv bootargs ${bootargs}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
