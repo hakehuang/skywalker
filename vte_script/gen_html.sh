@@ -38,36 +38,37 @@ do
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
 	export HTMLFILE=${OUT_BASE}$HTMLFILE
 	#judge whether the log file is too large, if so split them
-	case_cnt=$(cat $OUTPUT_DIRECTORY | grep -i "<<<test_start>>>" | wc -l)
+	all_end=$(grep -Rn "<<<test_end>>>" $OUTPUT_DIRECTORY)
+	case_cnt=$(echo $all_end | wc -w)
 	if [ $case_cnt -gt $MAX_CASES ]; then
 	#log files seems too large splits them 
 		icnt=0
+		lcnt_start=1
+		lcnt_end=1
 		file_cnt=0
+		max_file=$(echo "$case_cnt/$MAX_CASES" | bc)
 		touch ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_0
 		echo "" > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_0
-		cat $OUTPUT_DIRECTORY | while read LINE
+		#grep -Rn "<<<test_end>>>"  $OUTPUT_DIRECTORY | sed -n '50p' | cut -d : -f 1
+		while [  $icnt -lt $case_cnt ]
 		do
-			echo $LINE >> ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
-      taged=$(echo $LINE | grep -i "<<<test_end>>>"| wc -l)
-			if [ $taged -eq 1 ]; then
-			  icnt=$(expr $icnt + 1)
-				if [ $icnt -eq $MAX_CASES ]; then
-				 oHTMLFILE=$(basename $HTMLFILE .html)_${file_cnt}.html
-				 echo "output to ${OUT_BASE}/$oHTMLFILE"
-				 /usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt \
-				 test_start test_end test_output execution_status ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}  > ${OUT_BASE}/${oHTMLFILE}
-         file_cnt=$(expr $file_cnt + 1)
-				 icnt=0
-				 touch ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
-				 echo "" > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
-				fi
+			#echo $LINE >> ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
+			icnt=$(expr $icnt + $MAX_CASES)
+			if [ $icnt -gt $case_cnt ]; then
+           lcnt_end=$(echo $all_end | cut -d " " -f ${case_cnt} | cut -d ":" -f 1)
+			else
+			     lcnt_end=$(echo $all_end | cut -d " " -f $icnt | cut -d ":" -f 1)
 			fi
-		done
-		file_cnt=$(echo "$case_cnt/$MAX_CASES" | bc)
-		oHTMLFILE=$(basename $HTMLFILE .html)_${file_cnt}.html
-		echo "output to ${OUT_BASE}/$oHTMLFILE"
-		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt \
-		test_start test_end test_output execution_status ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt} > ${OUT_BASE}/${oHTMLFILE}
+			sed -n '${lcnt_start},${lcnt_end}p' $OUTPUT_DIRECTORY > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt} 
+		  lcnt_start=$(expr $lcnt_end + 1)
+			oHTMLFILE=$(basename $HTMLFILE .html)_${file_cnt}.html
+			echo "output to ${OUT_BASE}/$oHTMLFILE"
+			/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt \
+			test_start test_end test_output execution_status ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}  > ${OUT_BASE}/${oHTMLFILE}
+      file_cnt=$(expr $file_cnt + 1)
+			touch ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
+			echo "" > ${OUT_BASE}/$(basename ${OUTPUT_DIRECTORY})_${file_cnt}
+		 done
 		else
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
