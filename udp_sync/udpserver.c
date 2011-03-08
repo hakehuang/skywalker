@@ -325,7 +325,7 @@ void recvUDP(char * name,int sockfd)
                 }else if(NULL != strstr(tmesg,"TESTEND")){
 									/*receive test finsih for certain platform*/
                   char icmd[256];
-									sprintf(icmd,"%s %s",cmds,cnode->platform);
+									sprintf(icmd,"%s %s &",cmds,cnode->platform);
 									uprintf("execute %s\n", icmd);
 									system(icmd);
 								}else if(NULL != strstr(tmesg,"UNREGIST")){
