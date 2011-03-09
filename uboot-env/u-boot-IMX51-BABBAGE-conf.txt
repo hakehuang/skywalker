@@ -6,8 +6,8 @@ ethprime=FEC0
 uboot=u-boot.bin
 kernel=uImage_mx51_d
 nfsroot=/rootfs/imx51_rootfs
-serverip=10.192.244.218
-tftpaddr=10.192.245.218
+serverip=10.192.224.218
+tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
