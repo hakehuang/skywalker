@@ -74,7 +74,7 @@ do
 		fi
   cp $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed ${OUT_BASE}/	
   echo "see http://shlx12.ap.freescale.net/test_reports/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
-  | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net b20222@freescale.com
+  | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com
 	fi
  fi	
  pj=$(expr $pj + 1)
