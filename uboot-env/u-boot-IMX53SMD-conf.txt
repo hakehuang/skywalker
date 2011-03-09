@@ -6,7 +6,7 @@ ethprime=FEC0
 uboot=u-boot.bin
 kernel=uImage_mx53_d
 nfsroot=/rootfs/imx53_rootfs
-serverip=10.192.244.218
+serverip=10.192.224.218
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} video=${lvds}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
@@ -21,4 +21,5 @@ ethact=FEC0
 lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
 android_args=gpu_memory=64M androidboot.console=ttymxc0
 bootargs=console=ttymxc0 daily_test=imx53_SMD_auto
+ethaddr=00:04:9F:01:0C:53
 UVERSION=3
