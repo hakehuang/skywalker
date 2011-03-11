@@ -72,7 +72,7 @@ do
 		else
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
-  cp $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed ${OUT_BASE}/	
+  sort $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed | uniq > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed	
   echo "see http://shlx12.ap.freescale.net/test_reports/daily_reports/skywalker/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}" \
   | mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com
 	fi
