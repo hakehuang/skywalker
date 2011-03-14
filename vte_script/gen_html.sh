@@ -16,9 +16,9 @@ declare -a ALL_PLAT;
 
 PRJ=$1
 
-PCNT=3
+PCNT=4
 ALL_PLAT=("IMX50RDP" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE");
-VTE_PATH=("vte_IMX50RDP_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte-IMX51-BABBAGE_d");
+VTE_PATH=("vte_IMX50RDP_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d");
 
 for i in $PRJ
 do
