@@ -88,6 +88,9 @@ fi
 return $old_kernel_rc
 fi
 old_kernel_config=$1
+git branch -D build_${2}
+git chechout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
+git checkout -b build_${2} build
 make distclean
 echo "-daily"  > localversion
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
