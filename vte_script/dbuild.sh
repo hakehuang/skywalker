@@ -119,6 +119,8 @@ git chechout build || git add . && git commit -s -m"build $(date +%m%d)" && git 
 git checkout -b build_${2} build
 make distclean
 echo "-daily"  > localversion
+git add .
+git commit -s -m"localversion"
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 uImage|| return 2
 KERNEL_VER=$(./scripts/setlocalversion)
