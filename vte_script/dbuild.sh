@@ -216,7 +216,7 @@ old_vte_config=
 old_vte_rc=0
 KERNEL_VER=
 old_ut_rc=0
-old_ut_plat=
+old_ut_plat=0
 
 if [ $BUILD = "y" ]; then
  cd $ROOTDIR
