@@ -15,6 +15,7 @@ VTE_DIR=${ROOTDIR}/vte
 TOOLSDIR=${ROOTDIR}/skywalker/udp_sync
 UCONFDIR=${ROOTDIR}/skywalker/uboot-env
 SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
+UNITTEST_DIR=${ROOTDIR}/linux-test
 
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
 
@@ -26,6 +27,7 @@ declare -a soc_name;
 declare -a u_boot_configs;
 declare -a kernel_configs;
 declare -a vte_configs;
+declare -a unit_test_configs;
 # As bash only support 1 dimension array below sequence is our assumption
 # 0   1  2  3  4  5  6  7  8 9  
 #(23 25 28 31 35 37 50 51 53 53)
@@ -47,7 +49,31 @@ kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" \
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
 "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config");
+#unit_test_configs
+unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
+"IMX5" "IMX5" "IMX5" "IMX5");
 
+
+make_unit_test()
+{
+ cd $UNITTEST_DIR
+ if [ $old_ut_plat = $1 ]; then
+	return $old_ut_rc
+ fi
+ old_ut_plat=$1
+ old_ut_rc=0
+ PLATFORM=$1
+ KERNELDIR=$KERNEL_DIR
+ KBUILD_OUTPUT=$KERNEL_DIR
+ INCLUDE="-I$KERNEL_DIR/include"
+ make distclean
+ make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=arm-none-linux-gnueabi-gcc || old_ut_rc=1
+ make -j1 PLATFORM=$PLATFORM INCLUDE="$INCLUDE" test  CC=arm-none-linux-gnueabi-gcc || old_ut_rc=$(expr $old_ut_rc + 2)
+ make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
+ DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs install || old_ut_rc=$(expr $old_ut_rc + 4)
+ make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests_d install || old_ut_rc=$(expr $old_ut_rc + 8)
+ return $old_ut_rc
+}
 
 make_uboot_config()
 {
@@ -185,6 +211,8 @@ old_kernel_rc=0
 old_vte_config=
 old_vte_rc=0
 KERNEL_VER=
+old_ut_rc=0
+old_ut_plat=
 
 if [ $BUILD = "y" ]; then
  cd $ROOTDIR
@@ -234,6 +262,18 @@ if [ $BUILD = "y" ]; then
   git checkout -b temp || git checkout temp
   git branch -D build
   git fetch origin +master:build && git checkout build || exit -4
+
+  cd $ROOTDIR
+  if [ ! -e ${ROOTDIR}/linux-test ]; then
+  git clone git://sw-git01-tx30.am.freescale.net/linux-test
+  fi
+  cd $ROOTDIR/linux-test
+  git add .
+  git commit -s -m"reset"
+  git reset --hard HEAD~1
+  git checkout -b temp || git checkout temp
+  git branch -D build
+  git fetch origin +master:build && git checkout build || exit -5
 fi 
 #end if build
 
@@ -254,11 +294,12 @@ do
 				RC=$(echo $RC $i)
      fi
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
-		 update_rootfs $c_soc
+	 update_rootfs $c_soc
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-		 if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
+     make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
+	 if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
 			then
      	sync_server $i READY_KVER${KERNEL_VER}
 		 fi
