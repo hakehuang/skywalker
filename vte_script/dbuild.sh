@@ -57,10 +57,10 @@ unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
 make_unit_test()
 {
  cd $UNITTEST_DIR
- if [ $old_ut_plat = $1 ]; then
+ if [ $old_ut_plat = $2 ]; then
 	return $old_ut_rc
  fi
- old_ut_plat=$1
+ old_ut_plat=$2
  old_ut_rc=0
  PLATFORM=$1
  KERNELDIR=$KERNEL_DIR
