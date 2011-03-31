@@ -331,6 +331,11 @@ except getopt.error, msg:
 for filename in args:
 	content = unicode(urllib.urlopen(filename).read(), 'UTF8')
 	parser = MyHTMLParser()
-	parser.feed(content)
+	try:
+		parser.feed(content)
+	except:
+		parser.close()
+		del parser
+		sys.exit()
 	parser.close()
 	del parser
