@@ -110,7 +110,7 @@ echo "make Platform $2 with $1"
 cd $KERNEL_DIR
 if [ "$old_kernel_config" = $1 ];then
 if [ "$old_kernel_rc" -eq 0 ]; then
-sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
+#sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
