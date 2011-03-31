@@ -67,11 +67,15 @@ make_unit_test()
  KBUILD_OUTPUT=$KERNEL_DIR
  INCLUDE="-I$KERNEL_DIR/include"
  make distclean
- make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=arm-none-linux-gnueabi-gcc || old_ut_rc=1
- make -j1 PLATFORM=$PLATFORM INCLUDE="$INCLUDE" test  CC=arm-none-linux-gnueabi-gcc || old_ut_rc=$(expr $old_ut_rc + 2)
- make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
+ make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=arm-none-linux-gnueabi-gcc \
+ CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=1
+ make -j1 PLATFORM=$PLATFORM INCLUDE="$INCLUDE" test  CC=arm-none-linux-gnueabi-gcc \
+ CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=$(expr $old_ut_rc + 2)
+ sudo make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
+ CROSS_COMPILE=arm-none-linux-gnueabi- \
  DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs install || old_ut_rc=$(expr $old_ut_rc + 4)
- make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests_d install || old_ut_rc=$(expr $old_ut_rc + 8)
+ sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests_d \
+ CROSS_COMPILE=arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
  return $old_ut_rc
 }
 
