@@ -30,7 +30,23 @@ do
   OUT_BASE=${TARGET_OUTPUT_BASE}/${VTEPATH}/${YEAR}/WW${WEEK}/${DAY}/
 	mkdir -p $OUT_BASE
 	if [ -e $LTPROOT/output/latest_test_report ] ; then
-	. $LTPROOT/output/latest_test_report
+	valid=0
+	log_lt=1
+	while [ $valid -eq 0 ];
+	do
+	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report)
+	 ht=$(echo $log_name | cut -c 1)
+	 if [ $ht != "#" ];then
+	    valid=1
+			sed -i "${log_lt}s/^/#/" $LTPROOT/output/latest_test_report
+	 fi
+	 if [ -z $log_name ]; then
+     #no valid log
+		 exit 1
+	 fi
+	 log_lt=$(expr $log_lt + 1)
+	done
+	. $LTPROOT/output/$log_name
 	OUTPUT_FILE=$(basename $OUTPUT_DIRECTORY)
 	export OUTPUT_DIRECTORY=${LTPROOT}/output/$OUTPUT_FILE
 	export LOGS_DIRECTORY="${LTPROOT}/results"
