@@ -41,7 +41,7 @@ do
 			sed -i "${log_lt}s/^/#/" $LTPROOT/output/latest_test_report
 			break;
 	 fi
-	 if [ -z $log_name ]; then
+	 if [ ! -e $log_name ]; then
      #no valid log
 		 exit 1
 	 fi
