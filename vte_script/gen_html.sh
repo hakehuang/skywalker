@@ -16,7 +16,7 @@ declare -a ALL_PLAT;
 
 PRJ=$1
 
-PCNT=4
+PCNT=5
 ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE");
 VTE_PATH=("vte_IMX50RDP_d"  "vte_IMX50-RDP3_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d");
 
@@ -39,6 +39,7 @@ do
 	 if [ $ht != "#" ];then
 	    valid=1
 			sed -i "${log_lt}s/^/#/" $LTPROOT/output/latest_test_report
+			break;
 	 fi
 	 if [ -z $log_name ]; then
      #no valid log
