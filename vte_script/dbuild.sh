@@ -61,6 +61,11 @@ make_unit_test()
  if [ $old_ut_plat = $2 ]; then
 	return $old_ut_rc
  fi
+ ucs=$(cat autorun-suite.txt | grep -i FSL-UT | wc -l)
+ if [ $ucs -ne 24 ];then
+		echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs not 24" \
+		b20222@freescale.com 
+ fi
  old_ut_plat=$2
  old_ut_rc=0
  PLATFORM=$1
