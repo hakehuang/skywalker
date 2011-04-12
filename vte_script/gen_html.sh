@@ -31,21 +31,27 @@ do
 	mkdir -p $OUT_BASE
 	if [ -e $LTPROOT/output/latest_test_report ] ; then
 	valid=0
-	log_lt=1
+	log_lt=0
+	tcnt=$(cat $LTPROOT/output/latest_test_report | wc -l)
 	while [ $valid -eq 0 ];
 	do
-	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report)
+	 log_lt=$(expr $log_lt + 1)
+	 if [ $log_lt -gt $tcnt ]; then
+     exit 0
+	 fi
+	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report | tail -1)
 	 ht=$(echo $log_name | cut -c 1)
 	 if [ $ht != "#" ];then
 	    valid=1
 			sed -i "${log_lt}s/^/#/" $LTPROOT/output/latest_test_report
 			break;
+	 else
+		 continue;
 	 fi
 	 if [ ! -e $log_name ]; then
      #no valid log
 		 exit 1
 	 fi
-	 log_lt=$(expr $log_lt + 1)
 	done
 	. $LTPROOT/output/$log_name
 	OUTPUT_FILE=$(basename $OUTPUT_DIRECTORY)
