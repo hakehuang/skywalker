@@ -18,6 +18,6 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=fec
+ethaddr=00:04:9F:01:03:50
 bootargs=console=ttymxc0,115200 daily_test=imx50_auto
 UVERSION=3
