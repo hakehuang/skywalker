@@ -31,13 +31,14 @@
 
 #define MAX_SIZE 512
 #define MAX_CLIENT_NUMBER 100
+#define MAX_BOARD_NUM 10
 /*platform name string length*/
 #define PSIZE 32
 
 typedef struct link_node{
    char platform[PSIZE];
 	 char kver[2*PSIZE];
-	 char bip[256];
+	 char bip[MAX_BOARD_NUM][256];
    int status;
    struct link_node *next;
 } tlink_node;
@@ -282,7 +283,6 @@ void recvUDP(char * name,int sockfd)
                   strncpy(temp,mesg,tmesg - mesg);
                   temp[tmesg - mesg] = 0;
                   if(strcmp(temp,cnode->platform) == 0)
-										if(strcmp(cnode->bip,inet_ntoa(c_addr.sin_addr)) == 0)
                         break;
                   if(cnode->next == NULL){
                      /*not found the platform insert one*/
@@ -290,7 +290,7 @@ void recvUDP(char * name,int sockfd)
                      strncpy(cnode->next->platform,temp,PSIZE);
                      cnode->next->status = eSTART;
                      strcpy(cnode->next->kver,"0");
-										 memset(cnode->next->bip,0,256);
+										 memset(cnode->next->bip, 0, MAX_BOARD_NUM * 256);
 										 cnode=cnode->next;
 										 cnode->next = NULL;
                      break;
@@ -330,9 +330,28 @@ void recvUDP(char * name,int sockfd)
 									uprintf("execute %s\n", icmd);
 									system(icmd);
 								}else if(NULL != strstr(tmesg,"UNREGIST")){
-									memset(cnode->bip,0,256);
+									int cnt = 0;
+									while(cnt < MAX_BOARD_NUM ){
+                     if(strcmp(cnode->bip[cnt],inet_ntoa(c_addr.sin_addr))==0)
+												  memset(cnode->bip[cnt],0,256);
+										 cnt++;
+									}
 								}else if(NULL != strstr(tmesg,"REGIST")){
-									sprintf(cnode->bip,"%s",inet_ntoa(c_addr.sin_addr));
+									int ifound = 0;
+									int ipos= -1;
+									int cnt = 0;
+									while(cnt < MAX_BOARD_NUM ){
+                    if(strcmp(cnode->bip[cnt],inet_ntoa(c_addr.sin_addr))==0){
+													ifound = 1;
+													break;
+										}
+										if( ipos == -1 && strlen(cnode->bip[cnt]) == 0)
+												ipos = cnt;
+										cnt++;
+									}
+									cnode = cnode->next;
+									if(ipos != -1 && ifound == 0)
+										sprintf(cnode->bip[ipos],"%s",inet_ntoa(c_addr.sin_addr));
 								}else{
 									gStatus = cnode->status; 
                 	if (gStatus == eREADY){
@@ -357,13 +376,17 @@ void recvUDP(char * name,int sockfd)
 				 }else if(NULL != strstr(tmesg,"HELLO")){
                printf("check all data\n");
                while(cnode){
+								 int i = 0;
 		  rlen = sendto(sockfd, cnode->platform, strlen(cnode->platform), 0,(struct sockaddr *) &c_addr, addr_len);
                   printf("platform %s\n",cnode->platform);
                   if (cnode->status == eREADY)
 		  	rlen = sendto(sockfd, "ready", 5, 0,(struct sockaddr *) &c_addr, addr_len);
                   else
 		  	rlen = sendto(sockfd, "no ready", 8, 0,(struct sockaddr *) &c_addr, addr_len);
-		  	rlen = sendto(sockfd, cnode->bip, strlen(cnode->bip), 0,(struct sockaddr *) &c_addr, addr_len);
+				for (i=0; i < MAX_BOARD_NUM; i++){
+					if(strlen(cnode->bip[i]) != 0)
+		  	rlen = sendto(sockfd, cnode->bip[i], strlen(cnode->bip[i]), 0,(struct sockaddr *) &c_addr, addr_len);
+				}
                   cnode = cnode->next;
                }
 	      rlen = sendto(sockfd, "LIST", 4, 0,(struct sockaddr *) &c_addr, addr_len);
