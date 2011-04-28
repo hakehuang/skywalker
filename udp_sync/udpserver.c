@@ -349,7 +349,6 @@ void recvUDP(char * name,int sockfd)
 												ipos = cnt;
 										cnt++;
 									}
-									cnode = cnode->next;
 									if(ipos != -1 && ifound == 0)
 										sprintf(cnode->bip[ipos],"%s",inet_ntoa(c_addr.sin_addr));
 								}else{
