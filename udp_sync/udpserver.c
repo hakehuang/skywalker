@@ -280,9 +280,10 @@ void recvUDP(char * name,int sockfd)
                 while(cnode){
                   char temp[PSIZE];
                   strncpy(temp,mesg,tmesg - mesg);
-                  temp[tmesg - mesg] = 0; 
+                  temp[tmesg - mesg] = 0;
                   if(strcmp(temp,cnode->platform) == 0)
-                        break;   
+										if(strcmp(cnode->bip,inet_ntoa(c_addr.sin_addr)) == 0)
+                        break;
                   if(cnode->next == NULL){
                      /*not found the platform insert one*/
                      cnode->next =(tlink_node *)malloc(sizeof(tlink_node));
@@ -293,7 +294,7 @@ void recvUDP(char * name,int sockfd)
 										 cnode=cnode->next;
 										 cnode->next = NULL;
                      break;
-                  }  
+                  }
 		  						cnode = cnode->next;
                 }
 								/*now cnode is the matched board or a new one*/
