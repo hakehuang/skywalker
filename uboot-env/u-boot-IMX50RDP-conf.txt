@@ -8,11 +8,12 @@ kernel=uImage_mx50_d
 nfsroot=/rootfs/imx50_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
-bootargs_base=setenv bootargs ${bootargs}
+bootargs_base=setenv bootargs ${bootargs} ${nand}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800 0x2000;bootm
+nand=gpmi:nand
 bootcmd=run bootcmd_net;bootm
 stdin=serial
 stdout=serial

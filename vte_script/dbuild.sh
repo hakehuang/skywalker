@@ -233,7 +233,7 @@ if [ $BUILD = "y" ]; then
  git add . 
  git commit -s -m"reset"
  git reset --hard HEAD~1
- git checkout -b temp || git checkout temp
+ git checkout -b temp  origin/$UBOOT_BRH || git checkout temp
  git branch -D build
  git fetch origin +$UBOOT_BRH:build && git checkout build || exit -1
 
@@ -245,7 +245,7 @@ if [ $BUILD = "y" ]; then
  git add . 
  git commit -s -m"reset"
  git reset --hard HEAD~1
- git checkout -b temp || git checkout temp
+ git checkout -b temp  origin/$KERNEL_BRH || git checkout temp 
  git branch -D build
  git fetch origin +$KERNEL_BRH:build && git checkout build || exit -2
 
