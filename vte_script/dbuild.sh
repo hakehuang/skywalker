@@ -3,9 +3,10 @@
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
 PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD"
 BUILD=y
-#KERNEL_BRH=imx_2.6.35
-KERNEL_BRH=imx_2.6.38
+KERNEL_BRH=imx_2.6.35
+#KERNEL_BRH=imx_2.6.38
 UBOOT_BRH=imx_v2009.08
+VTE_BRH=imx2.6.35.3
 #PLATFORM="5x"
 VTE_TARGET_PRE=/mnt/vte/
 TARGET_ROOTFS=/mnt/nfs_root/
@@ -257,9 +258,9 @@ if [ $BUILD = "y" ]; then
  git add . 
  git commit -s -m"reset"
  git reset --hard HEAD~1
- git checkout -b temp || git checkout temp
+ git checkout -b temp origin/$VTE_BRH || git checkout temp
  git branch -D build
- git fetch origin +master:build && git checkout build || exit -3
+ git fetch origin +$VTE_BRH:build && git checkout build || exit -3
 
  cd $ROOTDIR
  if [ ! -e $ROOTDIR/skywalker ]; then
