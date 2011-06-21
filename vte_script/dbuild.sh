@@ -3,10 +3,11 @@
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
 PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD"
 BUILD=y
+#kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
 #KERNEL_BRH=imx_2.6.38
-UBOOT_BRH=imx_v2009.08
 VTE_BRH=imx2.6.35.3
+UBOOT_BRH=imx_v2009.08
 #PLATFORM="5x"
 VTE_TARGET_PRE=/mnt/vte/
 TARGET_ROOTFS=/mnt/nfs_root/
@@ -19,11 +20,15 @@ UCONFDIR=${ROOTDIR}/skywalker/uboot-env
 SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
 UNITTEST_DIR=${ROOTDIR}/linux-test
 
+all_one_branch=n
+
 export PATH=$PATH:/opt/freescale/usr/local/gcc-4.4.4-glibc-2.11.1-multilib-1.0/arm-fsl-linux-gnueabi/bin
 
 RC=0
 
 #below is the matrix for rootfs
+declare -a kernel_branch;
+declare -a vte_branch;
 declare -a plat_name;
 declare -a soc_name;
 declare -a u_boot_configs;
@@ -31,10 +36,14 @@ declare -a kernel_configs;
 declare -a vte_configs;
 declare -a unit_test_configs;
 # As bash only support 1 dimension array below sequence is our assumption
-# 0   1  2  3  4  5  6  7  8 9  
-#(23 25 28 31 35 37 50 51 53 53)
+# 0   1  2  3  4  5  6  7  8  9  10
+#(23 25 28 31 35 37 50 50  51 53 53)
 #SOC names
-#           0     1    2    3    4   5    6    7    8   9
+#           0     1    2    3    4   5    6    7    8   9 10
+kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" \
+"imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35");
+vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
+"imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO");
 soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53");
@@ -215,12 +224,61 @@ sync_server()
  $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
 }
 
+
+branch_kernel()
+{
+if [ $all_one_branch = "n" ]; then
+ if [ $old_kernel_branch = $1 ]; then
+	return 0
+ fi
+ old_kernel_branch=$1
+ old_kernel_config=""
+ cd $ROOTDIR
+ if [ ! -e ${KERNEL_DIR} ]; then
+ git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
+ fi
+ cd ${KERNEL_DIR}
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
+ git checkout -b temp  origin/$1 || git checkout temp 
+ git branch -D build
+ git fetch origin +$1:build && git checkout build || return 1
+fi	
+ return 0
+}
+
+branch_vte()
+{
+if [ $all_one_branch = "n" ]; then
+ if [ $old_vte_branch = $1 ];then
+	return 0
+ fi
+ old_vte_branch=$1
+ old_vte_config=""
+ cd $ROOTDIR
+ if [ ! -e ${VTE_DIR} ]; then
+ git clone git://shlx12.ap.freescale.net/vte
+ fi
+ cd $VTE_DIR
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
+ git checkout -b temp origin/$1 || git checkout temp
+ git branch -D build
+ git fetch origin +$1:build && git checkout build || return 1
+fi
+ return 0
+}
+
 #main
 
 old_kernel_config=
 old_kernel_rc=0
 old_vte_config=
 old_vte_rc=0
+old_vte_branch=""
+old_kernel_branch=""
 KERNEL_VER=
 old_ut_rc=0
 old_ut_plat=0
@@ -238,6 +296,7 @@ if [ $BUILD = "y" ]; then
  git branch -D build
  git fetch origin +$UBOOT_BRH:build && git checkout build || exit -1
 
+if [ $all_one_branch = "y" ]; then
  cd $ROOTDIR
  if [ ! -e ${KERNEL_DIR} ]; then
  git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
@@ -249,7 +308,6 @@ if [ $BUILD = "y" ]; then
  git checkout -b temp  origin/$KERNEL_BRH || git checkout temp 
  git branch -D build
  git fetch origin +$KERNEL_BRH:build && git checkout build || exit -2
-
  cd $ROOTDIR
  if [ ! -e ${VTE_DIR} ]; then
  git clone git://shlx12.ap.freescale.net/vte
@@ -261,7 +319,7 @@ if [ $BUILD = "y" ]; then
  git checkout -b temp origin/$VTE_BRH || git checkout temp
  git branch -D build
  git fetch origin +$VTE_BRH:build && git checkout build || exit -3
-
+fi
  cd $ROOTDIR
  if [ ! -e $ROOTDIR/skywalker ]; then
   git clone git://10.192.225.222/skywalker
@@ -300,10 +358,12 @@ do
    if [ "$c_plat" = $i ];then
      c_soc=${soc_name[${j}]}
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
+	 branch_kernel ${kernel_branch[$j]}
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 				RC=$(echo $RC $i)
      fi
+	 branch_vte ${vte_branch[$j]}
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
 	 update_rootfs $c_soc
      if [ $old_vte_rc -ne 0 ]; then
