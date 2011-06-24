@@ -63,7 +63,7 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
  export CONTINUE=y
  tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  if [ $tstatus -gt 0 ]; then
-  cd /mnt/nfs/vte_${TARGET}_d && ./mytest $test_file
+  cd /mnt/nfs/vte_${TARGET}_d && /mnt/nfs/vte_${TARGET}_d/mytest $test_file
   #test finished start a process to reset board at
   /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
  fi
