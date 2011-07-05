@@ -16,7 +16,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 			<g id="bar" transform="translate(0,{$maxc+12})">
 				<!-- each bar element -->
 		<line x1="5" y1="0" x2="{($itol+1)*20}" y2="0" style="stroke:rgb(0,0,99);stroke-width:2"/>
-		<line x1="5" y1="0" x2="5" y2="-300" style="stroke:rgb(0,0,99);stroke-width:1"/>
+		<line x1="5" y1="0" x2="5" y2="-{$maxc+12}" style="stroke:rgb(0,0,99);stroke-width:1"/>
 		<text x="5" y="40" style="font-family:arial;text-anchor:right;baseline-shift:-5;font-size:12pt">
 		<xsl:value-of select="title"/>
 		Failed cases summary
