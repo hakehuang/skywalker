@@ -228,7 +228,7 @@ sync_server()
 branch_kernel()
 {
 if [ $all_one_branch = "n" ]; then
- if [ $old_kernel_branch = $1 ]; then
+ if [ "$old_kernel_branch" = "$1" ]; then
 	return 0
  fi
  old_kernel_branch=$1
@@ -358,7 +358,7 @@ do
    if [ "$c_plat" = $i ];then
      c_soc=${soc_name[${j}]}
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
-	 branch_kernel ${kernel_branch[$j]}
+     branch_kernel ${kernel_branch[$j]}
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 				RC=$(echo $RC $i)
@@ -369,7 +369,7 @@ do
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
-     make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
+     #make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
 	 if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
 			then
      	sync_server $i READY_KVER${KERNEL_VER}
