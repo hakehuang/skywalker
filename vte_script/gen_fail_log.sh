@@ -1,11 +1,13 @@
 ##/bin/sh
-
+# ./gen_fail_log.sh /home/smb/nfs/wb/vte_IMX50-RDP3_d/output IMX50-RDP3 .
+#<output fail log path> <platfrom name> <output path>
 PLATFORM=$2
 
 path=$3
 
 list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
 
+MAXcase=300
 
 tofile()
 {
@@ -16,6 +18,16 @@ create_file()
 {
 echo $1 > ${path}/${PLATFORM}_failed_status.xml	
 }
+for i in $list
+do
+runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
+runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
+totalcase_path=$(dirname $(dirname $i))/runtest/
+total_case=$(cat ${totalcase_path}${runfile} | grep -v '#' | wc -l)
+if [ $total_case -gt $MAXcase  ]; then
+MAXcase=$total_case
+fi
+done
 
 create_file "<?xml version=\"1.0\" encoding='UTF-8'?>"
 tofile "<?xml-stylesheet type=\"text/xsl\" href=\"fails.xsl\"?>"
@@ -26,11 +38,17 @@ tofile "</title>"
 tofile "<total>"
 tofile $(ls ${1}/*.failed | wc -l)
 tofile "</total>"
+tofile "<maxcase>"
+tofile $MAXcase
+tofile "</maxcase>"
+
 for i in $list
 do
 #get date
 idate=$(ls -lt $i | awk '{print $6}')
 idate=$(echo $idate| sed 's/-//g')
+runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
+runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 tofile "<fail_count>"
 tofile "<count>"
 tofile  $(cat $i | wc -l)
@@ -41,6 +59,12 @@ tofile  "</flink>"
 tofile  "<fdate>"
 tofile  $idate
 tofile  "</fdate>"
+tofile  "<total_cases>"
+tofile  ${total_case}
+tofile  "</total_cases>"
+tofile  "<runfile>"
+tofile  "http://shlx12.ap.freescale.net/test_reports/runtest/${runfile}"
+tofile  "</runfile>"
 tofile  "</fail_count>"
 done
 tofile "</LOG>"
