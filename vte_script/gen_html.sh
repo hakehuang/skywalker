@@ -96,7 +96,7 @@ do
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
   sort $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed | uniq > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  ./gen_fail_log.sh $LTPROOT/output/ $i && mv $i__failed_status.xml  ${TARGET_OUTPUT_BASE}/
+  ./gen_fail_log.sh $LTPROOT/output/ $i ${TARGET_OUTPUT_BASE}
   mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
 	fi
  fi	

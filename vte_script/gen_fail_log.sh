@@ -2,16 +2,19 @@
 
 PLATFORM=$2
 
+path=$3
+
 list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
+
 
 tofile()
 {
- echo $1 >> ${PLATFORM}_failed_status.xml		
+ echo $1 >> ${path}/${PLATFORM}_failed_status.xml		
 }
 
 create_file()
 {
-echo $1 > ${PLATFORM}_failed_status.xml	
+echo $1 > ${path}/${PLATFORM}_failed_status.xml	
 }
 
 create_file "<?xml version=\"1.0\" encoding='UTF-8'?>"
