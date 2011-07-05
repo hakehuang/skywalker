@@ -34,7 +34,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 					</text>	
 					</a>
 					<!-- bar symbolized as a rectangle -->
-					<rect x="{position()*20}" y="-{$val*1}" height="{$val*1}" width="2" style="fill:{@fill};"/>
+					<rect x="{position()*20}" y="-{$val*1}" height="{$val*1}" width="2" style="fill:rgb(255,0,0);"/>
 					<a xlink:href="{$rf}">	
 					<text x="{position()*20}" y="-{$tval*1}" style="font-family:arial;text-anchor:middle;baseline-shift:-5;font-size:8pt">
 						<xsl:value-of select="total_cases"/>
