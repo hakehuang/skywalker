@@ -1,0 +1,117 @@
+<HTML>
+<HEAD>
+<TITLE> test reports index </TITLE>
+<script type="text/javascript">
+function oncompare()
+{
+var contents1 = parent.frames['showframe'].frames['Right1'].document.body.innerHTML;
+var contents2 = parent.frames['showframe'].frames['Right2'].document.body.innerHTML;
+alert(contents1);
+var o=diffString(escape(contents1),escape(contents2));
+    o=o.replace(/\r/gm,'<br />');
+    o=o.replace(/\t/gm,'&nbsp;&nbsp;&nbsp;&nbsp;');
+    if(o.indexOf("ins") > 0 || o.indexOf("del") > 0){ 
+	alert(o);
+	ttwnd(o);
+    }else
+	alert("idential");
+}
+function ttwnd(str)
+{
+iWnd = window.open ("", null, "height=100, width=400, top=0, left=0, toolbar=no, menubar=no, scrollbars=yes, resizable=yes,location=no, status=no");
+iWnd.document.open("text/html","replace");
+iWnd.name = "diff results";
+iWnd.defaultStatus = "Daily test report";
+iWnd.document.write("<head><meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\"/>");
+iWnd.document.write("<style type=\"text/css\">");
+iWnd.document.write("body{font-family:trebuchet ms,sans-serif}");
+iWnd.document.write("textarea{width:40%;height:200px}");
+iWnd.document.write("ins{background:#cfc}");
+iWnd.document.write("del{background:#fcc}");
+iWnd.document.write("#out{font-family:monospace;font-size:11px;border:solid 1px #ccc;padding:2px;\n\
+white-space: pre-wrap;/* css-3 */\n\
+white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\n\
+white-space: -pre-wrap; /* Opera 4-6 */\n\
+white-space: -o-pre-wrap; /* Opera 7 */\n\
+word-wrap: break-word; /* Internet Explorer 5.5+ */ }");
+iWnd.document.write("</style>");
+iWnd.document.write("<title>");
+iWnd.document.write("Diffs result");
+iWnd.document.write("</title>");
+iWnd.document.write("</head>");
+iWnd.document.write("<body>");
+iWnd.document.write("<p><font color=\"green\">Green</font>: added - <font color=\"red\">red</font>: deleted</p>");
+iWnd.document.write("<div id=\"out\">");
+iWnd.document.write(str);
+iWnd.document.write("</div>")
+iWnd.document.write("<p>");
+iWnd.document.write("<a href=\"http://ejohn.org/projects/javascript-diff-algorithm/\">");
+iWnd.document.write("Powered by http://ejohn.org/projects/javascript-diff-algorithm/.")
+iWnd.document.write("</a>");
+iWnd.document.write("</p>")
+iWnd.document.write("</body>");
+iWnd.document.write("</html>");
+}
+//below code are from http://ejohn.org/projects/javascript-diff-algorithm/.
+function escape(s){return s.replace(/<pre>/g,'').replace(/<\/pre>/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function diffString(o,n){
+    o=o.replace(/\s+$/,'');n=n.replace(/\s+$/,'')
+    var out=diff(o==''?[]:o.split(/\s+/),n==''?[]:n.split(/\s+/)),str='',i,x=null,pre
+    var oSpace=o.match(/\s+/g),nSpace=n.match(/\s+/g)
+    if(oSpace==x)oSpace=['\n'];else oSpace.push('\n')
+    if(nSpace==x)nSpace=['\n'];else nSpace.push('\n')
+    if(out.n.length==0){for(i=0;i<out.o.length;i++)str+='<del>'+escape(out.o[i])+oSpace[i]+'</del>'}
+    else{
+        if(out.n[0].text==x){for(n=0;n<out.o.length && out.o[n].text==x;n++)str+='<del>'+escape(out.o[n])+oSpace[n]+'</del>'}
+        for(i=0;i<out.n.length;i++){
+            if(out.n[i].text==x)str+='<ins>'+escape(out.n[i])+nSpace[i]+'</ins>'
+            else{
+                pre=''
+                for(n=out.n[i].row+1;n<out.o.length && out.o[n].text==x;n++){
+                    pre+='<del>'+escape(out.o[n])+oSpace[n]+'</del>'
+                }
+                str+=" "+out.n[i].text+nSpace[i]+pre
+            }
+        }
+    }
+    return str
+}
+
+function diff(o,n){
+    var ns={},os={},i,x=null
+    for(i=0;i<n.length;i++){if(ns[n[i]]==x)ns[n[i]]={rows:[],o:x};ns[n[i]].rows.push(i)}
+    for(i=0;i<o.length;i++){if(os[o[i]]==x)os[o[i]]={rows:[],n:x};os[o[i]].rows.push(i)}
+    for(i in ns){
+        if(ns[i].rows.length==1 && typeof(os[i])!='undefined' && os[i].rows.length==1){
+            n[ns[i].rows[0]]={text:n[ns[i].rows[0]],row:os[i].rows[0]}
+            o[os[i].rows[0]]={text:o[os[i].rows[0]],row:ns[i].rows[0]}
+        }
+    }
+    for(i=0;i<n.length-1;i++){
+        if(n[i].text!=x && n[i+1].text==x && n[i].row+1<o.length && o[n[i].row+1].text==x &&
+        n[i+1]==o[n[i].row+1]){
+            n[i+1]={text:n[i+1],row:n[i].row+1}
+            o[n[i].row+1]={text:o[n[i].row+1],row:i+1}
+        }
+    }
+    for(i=n.length-1;i>0;i--){
+        if(n[i].text!=x && n[i-1].text==x && n[i].row>0 && o[n[i].row-1].text==x &&
+        n[i-1]==o[n[i].row-1]){
+            n[i-1]={text:n[i-1],row:n[i].row-1}
+            o[n[i].row-1]={text:o[n[i].row-1],row:i-1}
+        }
+    }
+    return {o:o,n:n}
+}
+</script>
+</HEAD>
+<BODY>
+<p><a href="IMX50-RDP3_failed_status.xml" target="showframe">MX50 RDP<a></p>
+<p><a href="reports_mx50.html" target="showframe">MX50 RDP compare<a></p>
+<p><a href="IMX51-BABBAGE_failed_status.xml"  target="showframe">MX51 BABBAGE<a></p>
+<p><a href="reports_mx51.html" target="showframe">MX51 BABBAGE compare<a></p>
+<p><a href="IMX53SMD_failed_status.xml"  target="showframe">MX53 SMD<a></p>
+<p><a href="reports_mx53.html" target="showframe">MX53 SMD compare<a></p>
+<p><input type="button" value="diff them" onclick="oncompare()"></input></p>
+</BODY>
+</HTML> 
