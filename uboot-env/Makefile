@@ -5,7 +5,7 @@ TARGET3 = setenv
 SRCS = crc32.c u-boot-config.c
 OBJS = $(patsubst %.c,%.o,$(SRCS))
 INC = -I./include
-CFLAGS = -g -DUSE_HOSTCC -DCONFIG_ENV_SIZE=8*1024
+CFLAGS = -g -DUSE_HOSTCC -DCONFIG_ENV_SIZE=128*1024
 all: $(TARGET) $(TARGET2) $(TARGET3)
 
 install:
