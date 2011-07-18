@@ -241,7 +241,8 @@ if [ $all_one_branch = "n" ]; then
  git add . 
  git commit -s -m"reset"
  git reset --hard HEAD~1
- git checkout -b temp  origin/$1 || git checkout temp 
+ git checkout -b temp  origin/$1 || git checkout temp
+ git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
  git branch -D build
  git fetch origin +$1:build && git checkout build || return 1
 fi	
