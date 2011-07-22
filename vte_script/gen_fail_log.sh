@@ -49,6 +49,14 @@ idate=$(ls -lt $i | awk '{print $6}')
 idate=$(echo $idate| sed 's/-//g')
 runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
+mac=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 2 | sed 's/failed/txt/')
+resultpath=$(dirname $(dirname $i))/results/
+resultfile=$(ls $resultpath | grep $runfile | grep $mac | grep $idate)
+if [ ! -z "$resultfile" ]; then
+total_case=$(cat ${resultpath}${resultfile} | grep "Tatal Tests:" | awk '{print $3}')
+else
+total_case=$MAXcase
+fi
 tofile "<fail_count>"
 tofile "<count>"
 tofile  $(cat $i | wc -l)
