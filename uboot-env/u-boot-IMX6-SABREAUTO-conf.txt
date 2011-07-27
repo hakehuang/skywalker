@@ -23,5 +23,6 @@ ethaddr=00:04:9F:01:03:63
 bootargs=console=ttymxc0,115200 daily_test=imx63_auto vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,1024x768M@60,if=RGB666 ldb=sin1
 lcd_mode=video=mxcfb1:dev=lcd
+hdmi_mode=video=mxcfb1:dev=hdmi
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 UVERSION=3
