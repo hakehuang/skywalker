@@ -46,7 +46,7 @@ vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3
 "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" "IMX6-SABREAUTO");
-soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63");
+soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "61");
 SOC_CNT=12
 #default u-boot kernel configs for each platform
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
