@@ -212,7 +212,7 @@ make_target_tools()
  make clean
  cd $UCONFDIR
  make clean
- make CC=arm-none-linux-gnueabi-gcc || return 11
+ make CC=arm-none-linux-gnueabi-gcc PLATFORM=$1 || return 11
  sudo cp u-config ${VTE_TARGET_PRE}/tools/
  sudo cp printenv ${VTE_TARGET_PRE}/tools/
  sudo cp setenv ${VTE_TARGET_PRE}/tools/
@@ -347,7 +347,6 @@ fi
 fi 
 #end if build
 
-make_target_tools || exit -6
 make_tools || exit -5
 
 for i in $PLATFORM;
@@ -358,6 +357,7 @@ do
    c_plat=${plat_name[${j}]}
    if [ "$c_plat" = $i ];then
      c_soc=${soc_name[${j}]}
+		 make_target_tools MX${c_soc} 
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
      branch_kernel ${kernel_branch[$j]}
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
