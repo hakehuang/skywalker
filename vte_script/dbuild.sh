@@ -216,7 +216,6 @@ make_target_tools()
  sudo cp u-config ${VTE_TARGET_PRE}/tools/
  sudo cp printenv ${VTE_TARGET_PRE}/tools/
  sudo cp setenv ${VTE_TARGET_PRE}/tools/
- make clean
 }
 
 sync_server()
@@ -357,7 +356,7 @@ do
    c_plat=${plat_name[${j}]}
    if [ "$c_plat" = $i ];then
      c_soc=${soc_name[${j}]}
-		 make_target_tools MX${c_soc} 
+     make_target_tools MX${c_soc} 
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
      branch_kernel ${kernel_branch[$j]}
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
