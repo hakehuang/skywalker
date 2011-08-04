@@ -100,6 +100,8 @@ make_uboot_config()
 echo "make uboot config $1"
 cd $UCONFDIR
 sed "/UVERSION/s/^.*/UVERSION=$2/g" u-boot-${1}-conf.txt > ${1}-config.txt
+make clean
+make  PLATFORM=$1
 $UCONFDIR/u-config -s ${1}-config.txt u-boot-${1}-config.bin
 #rm -f ${1}_config.txt
 sudo cp u-boot-${1}-config.bin /mnt/nfs_root/imx${3}_rootfs/root/u-boot-${1}-config.bin || return 3
@@ -216,6 +218,7 @@ make_target_tools()
  sudo cp u-config ${VTE_TARGET_PRE}/tools/
  sudo cp printenv ${VTE_TARGET_PRE}/tools/
  sudo cp setenv ${VTE_TARGET_PRE}/tools/
+ make clean
 }
 
 sync_server()
