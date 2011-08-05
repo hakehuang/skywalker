@@ -47,7 +47,7 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
 	fi
  done
  #chekc the uboot
- if [ $platfm = "63" ]; then
+ if [ $platfm = "61" ]; then
  crc1=$(/mnt/nfs/tools/u-config_8k -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
  crc2=$(/mnt/nfs/tools/u-config_8k -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
  else
@@ -64,7 +64,11 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
    reboot
  fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
+ if [ $platfm = "61" ]; then
+ insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/imx2_wd_test.ko timer_margin=25
+ else
  insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
+ fi
  export CONTINUE=y
  tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  if [ $tstatus -gt 0 ]; then
