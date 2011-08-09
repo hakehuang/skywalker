@@ -373,10 +373,10 @@ do
      	RC=$(echo $RC vte_$i)
      fi
      #make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
-	 if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
-			then
+     #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
+     #then
      	sync_server $i READY_KVER${KERNEL_VER}
-		 fi
+     #fi
    fi
    j=$(expr $j + 1)
   done
