@@ -8,7 +8,7 @@ kernel=uImage_mx51_d
 nfsroot=/rootfs/imx51_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
-bootargs_base=setenv bootargs ${bootargs}
+bootargs_base=setenv bootargs ${bootargs} ${lcd_mode}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
@@ -19,6 +19,7 @@ stdout=serial
 stderr=serial
 ethact=FEC0
 lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
+lcd_mode=video=mxcdi0fb:RGB565,CLAA-WVGA
 android_args=gpu_memory=64M androidboot.console=ttymxc0
 bootargs=console=ttymxc0 daily_test=imx51_BABBAGE_auto
 UVERSION=3
