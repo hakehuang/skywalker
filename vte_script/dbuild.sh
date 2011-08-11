@@ -223,10 +223,9 @@ make_target_tools()
 
 sync_server()
 {
- cd $UCONFDIR
+ cd $TOOLSDIR
  make clean
- make CROSS_COMPILER= || return 10
- sudo cp uclient ${VTE_TARGET_PRE}/tools/
+ make CC=gcc || return 10
  $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
 }
 
