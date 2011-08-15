@@ -24,7 +24,7 @@ runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 totalcase_path=$(dirname $(dirname $i))/runtest/
 total_case=$(cat ${totalcase_path}${runfile} | grep -v '#' | wc -l)
-if [ $total_case -gt $MAXcase  ]; then
+if [ $total_case -gt 0  ]; then
 MAXcase=$total_case
 fi
 done
