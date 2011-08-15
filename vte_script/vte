@@ -93,9 +93,6 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
  done
 fi
 }
-runlev=$(/sbin/runlevel)
-
-if [ $runlev -lt 5 ]; then
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
 sleep 1
@@ -105,4 +102,3 @@ echo $(hostname -i) > /root/.mounts
 sleep 1
 #/mnt/nfs/vte_${TARGET}/mytest
 start_test
-fi
