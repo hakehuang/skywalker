@@ -1,11 +1,23 @@
-##/bin/sh
+#!/bin/sh -x
 # ./gen_fail_log.sh /home/smb/nfs/wb/vte_IMX50-RDP3_d/output IMX50-RDP3 .
 #<output fail log path> <platfrom name> <output path>
+echo $* >> /rootfs/wb/.log.txt
+
 PLATFORM=$2
 
 path=$3
 
-list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
+#list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
+
+for i in $(ls ${1}/*.failed -lrt)
+do
+file=$(echo $i | grep "failed" | wc -l)
+if [ $file -gt 0 ] ; then
+list=$(echo $list $i)
+fi
+done
+echo $list
+read -p "help"
 
 MAXcase=300
 
@@ -24,7 +36,7 @@ runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 totalcase_path=$(dirname $(dirname $i))/runtest/
 total_case=$(cat ${totalcase_path}${runfile} | grep -v '#' | wc -l)
-if [ $total_case -gt $MAXcase  ]; then
+if [ $total_case -gt 0  ]; then
 MAXcase=$total_case
 fi
 done
