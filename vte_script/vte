@@ -93,7 +93,6 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
  done
 fi
 }
-
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
 sleep 1
