@@ -1,11 +1,23 @@
-##/bin/sh
+#!/bin/sh -x
 # ./gen_fail_log.sh /home/smb/nfs/wb/vte_IMX50-RDP3_d/output IMX50-RDP3 .
 #<output fail log path> <platfrom name> <output path>
+echo $* >> /rootfs/wb/.log.txt
+
 PLATFORM=$2
 
 path=$3
 
-list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
+#list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
+
+for i in $(ls ${1}/*.failed -lrt)
+do
+file=$(echo $i | grep "failed" | wc -l)
+if [ $file -gt 0 ] ; then
+list=$(echo $list $i)
+fi
+done
+echo $list
+read -p "help"
 
 MAXcase=300
 
