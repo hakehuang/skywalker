@@ -95,6 +95,10 @@ fi
 }
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
+if [ $? -ne 0 ]; then
+ echo "mount test nfs failure..."
+ exit
+fi
 sleep 1
 echo $(hostname -i) > /root/.mounts
 /mnt/nfs/util/ntpdate 10.192.225.222
