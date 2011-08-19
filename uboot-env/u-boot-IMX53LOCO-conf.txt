@@ -23,5 +23,4 @@ vga=mxcdi1fb:GBR24,VGA-XGA di1_primary vga
 seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA
 claawvga=mxcdi0fb:RGB565,CLAA-WVGA
 bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto
-ethaddr=00:04:9F:01:0D:53
 UVERSION=3
