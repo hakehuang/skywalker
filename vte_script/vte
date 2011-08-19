@@ -64,7 +64,7 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
    reboot
  fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
- if [ $platfm = "61" ]; then
+ if [ $platfm = "IMX6-SABREAUTO" ]; then
  insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/imx2_wd_test.ko timer_margin=25
  else
  insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
