@@ -19,7 +19,7 @@ stdout=serial
 stderr=serial
 ethact=FEC0
 lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
-lcd_mode=video=mxcdi0fb:RGB565,CLAA-WVGA
+lcd_mode=video=mxcdi1fb:RGB565,CLAA-WVGA di1_primary
 android_args=gpu_memory=64M androidboot.console=ttymxc0
 bootargs=console=ttymxc0 daily_test=imx51_BABBAGE_auto
 UVERSION=3
