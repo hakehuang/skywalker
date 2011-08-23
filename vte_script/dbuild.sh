@@ -180,10 +180,9 @@ make vte || return 1
 make apps || ret=2
 make install
 #make ltp tests
-if [ $BUILD = "y" ]; then
-;
+#if [ $BUILD = "y" ]; then
 #sudo scp -r bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/bin
-fi
+#fi
 sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
