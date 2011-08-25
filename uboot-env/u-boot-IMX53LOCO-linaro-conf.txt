@@ -5,7 +5,7 @@ netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
 kernel=uImage_mx53_linaro
-nfsroot=/rootfs/imx53_rootfs_nano/binary
+nfsroot=/rootfs/imx53_rootfs/
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} video=${vga}
@@ -22,5 +22,5 @@ tvout=mxcdi0fb:RGB24,XGA
 vga=mxcdi1fb:GBR24,VGA-XGA di1_primary vga
 seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA
 claawvga=mxcdi0fb:RGB565,CLAA-WVGA
-bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto
+bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto release=linaro
 UVERSION=3
