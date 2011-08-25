@@ -16,8 +16,6 @@ if [ $file -gt 0 ] ; then
 list=$(echo $list $i)
 fi
 done
-echo $list
-read -p "help"
 
 MAXcase=300
 
@@ -57,7 +55,7 @@ tofile "</maxcase>"
 for i in $list
 do
 #get date
-idate=$(ls -lt $i | awk '{print $6}')
+idate=$(stat -c %y $i | awk '{print $1}')
 idate=$(echo $idate| sed 's/-//g')
 runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
