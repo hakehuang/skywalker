@@ -8,7 +8,7 @@ kernel=uImage_mx53_d
 nfsroot=/rootfs/imx53_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
-bootargs_base=setenv bootargs ${bootargs} video=${vga}
+bootargs_base=setenv bootargs ${bootargs} video=${vga} 
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
@@ -20,7 +20,7 @@ stderr=serial
 ethact=FEC0
 tvout=mxcdi0fb:RGB24,XGA
 vga=mxcdi1fb:GBR24,VGA-XGA di1_primary vga
-seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA
-claawvga=mxcdi0fb:RGB565,CLAA-WVGA
-bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto
+seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA di0_primary
+claawvga=mxcdi0fb:RGB565,CLAA-WVGA di0_primary
+bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto no_console_suspend
 UVERSION=3
