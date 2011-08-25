@@ -240,7 +240,7 @@ if [ $all_one_branch = "n" ]; then
  old_kernel_config=""
  cd $ROOTDIR
  if [ ! -e ${KERNEL_DIR} ]; then
- git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
+ git clone git://sw-git.freescale.net/linux-2.6-imx.git
  fi
  cd ${KERNEL_DIR}
  git add . 
@@ -305,7 +305,7 @@ if [ $BUILD = "y" ]; then
 if [ $all_one_branch = "y" ]; then
  cd $ROOTDIR
  if [ ! -e ${KERNEL_DIR} ]; then
- git clone git://sw-git01-tx30.am.freescale.net/linux-2.6-imx.git
+ git clone git://sw-git.freescale.net/linux-2.6-imx.git
  fi
  cd ${KERNEL_DIR}
  git add . 
@@ -340,7 +340,7 @@ fi
 
   cd $ROOTDIR
   if [ ! -e ${ROOTDIR}/linux-test ]; then
-  git clone git://sw-git01-tx30.am.freescale.net/linux-test
+  git clone git://sw-git.freescale.net/linux-test
   fi
   cd $ROOTDIR/linux-test
   git add .
