@@ -86,13 +86,17 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
   sleep 1800;
 #if no command can execute guess the rootfs is changed then reboot
 	ls / || reboot
-  kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
-	kh=$(uname -r | cut -d - -f 1)
-	if [ $(uname -r) !=  $kh$kver ]; then
+ 	if [ $release_flag = "linaro"  ]; then
+    echo "do not check for linaro release"
+	else
+  	kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
+		kh=$(uname -r | cut -d - -f 1)
+		if [ $(uname -r) !=  $kh$kver ]; then
 #kernel changed restart test
-  	status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
-		if [ $status -eq 1 ];then
-    	reboot
+  		status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+			if [ $status -eq 1 ];then
+    		reboot
+			fi
 		fi
 	fi
  done
