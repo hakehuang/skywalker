@@ -81,7 +81,7 @@ tofile  "<total_cases>"
 tofile  ${total_case}
 tofile  "</total_cases>"
 tofile  "<runfile>"
-tofile  "http://shlx12.ap.freescale.net/test_reports/runtest/${runfile}"
+tofile  "http://shlx12.ap.freescale.net/test_reports/runtest_${PLATFORM}/${runfile}"
 tofile  "</runfile>"
 tofile  "</fail_count>"
 done
