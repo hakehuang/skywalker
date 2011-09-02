@@ -103,7 +103,7 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
 fi
 }
 
-if [ $1 != "start" ]; then
+if [ "$1" != "start" ]; then
  echo "say goodby"
  exit
 fi
