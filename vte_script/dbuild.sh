@@ -73,7 +73,7 @@ branch_libs()
 {
   cd $ROOTDIR
   if [ ! -e $LIB_DIR ]; then
-  git://sw-git01-tx30.am.freescale.net/linux-lib.git
+  git://sw-git.am.freescale.net/linux-lib.git
   fi
   cd $LIB_DIR
   git checkout master
@@ -107,9 +107,9 @@ deploy_firmware()
   fi
   cd $FIRMWARE_DIR
   git pull
-  if [ -e $FIRMWARE_DIR/firmware ]; then
-    rm -rf mx${1}_rootfs/lib/firmware
-    cp -af $FIRMWARE_DIR/firmware mx${1}_rootfs/lib/ || return 1
+  if [ -e ${FIRMWARE_DIR}/firmware ]; then
+    rm -rf ${TARGET_ROOTFS}/imx${1}_rootfs/lib/firmware
+    cp -af ${FIRMWARE_DIR}/firmware ${TARGET_ROOTFS}/imx${1}_rootfs/lib/ || return 1
   fi 
   return 0
 }
