@@ -19,6 +19,8 @@ TOOLSDIR=${ROOTDIR}/skywalker/udp_sync
 UCONFDIR=${ROOTDIR}/skywalker/uboot-env
 SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
 UNITTEST_DIR=${ROOTDIR}/linux-test
+FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
+LIB_DIR=${ROOTDIR}/linux-lib
 
 all_one_branch=n
 
@@ -36,8 +38,8 @@ declare -a kernel_configs;
 declare -a vte_configs;
 declare -a unit_test_configs;
 # As bash only support 1 dimension array below sequence is our assumption
-# 0   1  2  3  4  5  6  7  8  9  10
-#(23 25 28 31 35 37 50 50  51 53 53)
+# 0   1  2  3  4  5  6  7  8  9  10 11
+#(23 25 28 31 35 37 50 50  51 53 53 61)
 #SOC names
 #           0     1    2    3    4   5    6    7    8   9 10
 kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" \
@@ -63,7 +65,54 @@ vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 #unit_test_configs
 unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
 "IMX5" "IMX5" "IMX5" "IMX5" "IMX6");
+#linux_libs_platfm
+linux_libs_platfm=("NULL" "NULL" "NULL" "NULL" "NULL" "IMX37_3STACK" "NULL" "NULL" "IMX51" "IMX53" "IMX53" "IMX6Q");
+linux_libs_branch=("master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master");
 
+branch_libs()
+{
+  cd $ROOTDIR
+  if [ ! -e $LIB_DIR ]; then
+  git://sw-git01-tx30.am.freescale.net/linux-lib.git
+  fi
+  cd $LIB_DIR
+  git checkout master
+  git pull  
+}
+
+make_libs()
+{
+  cd $LIB_DIR
+  git add . 
+  git commit -s -m"reset"
+  git reset --hard HEAD~1
+  git checkout -b temp  origin/$1 || git checkout temp
+  git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
+  git branch -D build
+  git fetch origin +$1:build && git checkout build || return 1
+  git branch -D build_${2}
+  git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
+  git checkout -b build_${2} build
+  make distclean
+  make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi-  || return 1
+  make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || return 2 
+}
+
+
+deploy_firmware()
+{
+  cd $ROOTDIR
+  if [ ! -e $FIRMWARE_DIR ]; then
+    git clone git://sw-git.freescale.net/linux-firmware-imx.git
+  fi
+  cd $FIRMWARE_DIR
+  git pull
+  if [ -e $FIRMWARE_DIR/firmware ]; then
+    rm -rf mx${1}_rootfs/lib/firmware
+    cp -af $FIRMWARE_DIR/firmware mx${1}_rootfs/lib/ || return 1
+  fi 
+  return 0
+}
 
 make_unit_test()
 {
@@ -203,6 +252,7 @@ update_rootfs()
 {	
  cd $SCRPTSDIR
  sudo cp vte ${TARGET_ROOTFS}/imx${1}_rootfs/etc/rc.d/init.d/vte 	
+ deploy_firmware $1
 }
 
 make_target_tools()
@@ -288,6 +338,7 @@ old_kernel_branch=""
 KERNEL_VER=
 old_ut_rc=0
 old_ut_plat=0
+old_lib_platfm=0
 
 if [ $BUILD = "y" ]; then
  cd $ROOTDIR
@@ -354,6 +405,8 @@ fi
 
 make_tools || exit -5
 
+branch_libs
+
 for i in $PLATFORM;
 do
   j=0
@@ -371,7 +424,8 @@ do
      fi
 	 branch_vte ${vte_branch[$j]}
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
-	 update_rootfs $c_soc
+     update_rootfs $c_soc
+     make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
