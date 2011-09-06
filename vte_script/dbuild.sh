@@ -73,7 +73,7 @@ branch_libs()
 {
   cd $ROOTDIR
   if [ ! -e $LIB_DIR ]; then
-  git://sw-git.am.freescale.net/linux-lib.git
+   git clone git://sw-git.am.freescale.net/linux-lib.git
   fi
   cd $LIB_DIR
   git checkout master
