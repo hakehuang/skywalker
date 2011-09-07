@@ -62,7 +62,8 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
    echo "need update uboot"
    dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
    #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
-   reboot
+   /mnt/nfs/tools/setenv UVERSION ${crc2} 
+	 reboot
   fi
  fi
  if [ $need_reboot -eq 1 ]; then
