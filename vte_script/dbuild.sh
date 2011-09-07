@@ -95,7 +95,7 @@ make_libs()
   git checkout -b build_${2} build
   make distclean
   make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi-  || return 1
-  make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || return 2 
+  sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || return 2 
 }
 
 
@@ -108,8 +108,8 @@ deploy_firmware()
   cd $FIRMWARE_DIR
   git pull
   if [ -e ${FIRMWARE_DIR}/firmware ]; then
-    rm -rf ${TARGET_ROOTFS}/imx${1}_rootfs/lib/firmware
-    cp -af ${FIRMWARE_DIR}/firmware ${TARGET_ROOTFS}/imx${1}_rootfs/lib/ || return 1
+    sudo rm -rf ${TARGET_ROOTFS}/imx${1}_rootfs/lib/firmware
+    sudo cp -af ${FIRMWARE_DIR}/firmware ${TARGET_ROOTFS}/imx${1}_rootfs/lib/ || return 1
   fi 
   return 0
 }
@@ -424,11 +424,11 @@ do
      fi
 	 branch_vte ${vte_branch[$j]}
      make_vte  ${vte_configs[${j}]} $c_soc || old_vte_rc=$?
-     update_rootfs $c_soc
-     make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
+     update_rootfs $c_soc
+     make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc
      #make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
      #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
      #then
