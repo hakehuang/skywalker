@@ -134,12 +134,12 @@ make_unit_test()
  make distclean
  make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=arm-none-linux-gnueabi-gcc \
  CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=1
- make -j1 PLATFORM=$PLATFORM INCLUDE="$INCLUDE" test  CC=arm-none-linux-gnueabi-gcc \
+ make -j1 PLATFORM=$PLATFORM INC="${INCLUDE}" test  CC=arm-none-linux-gnueabi-gcc \
  CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=$(expr $old_ut_rc + 2)
  sudo make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
  CROSS_COMPILE=arm-none-linux-gnueabi- \
  DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs install || old_ut_rc=$(expr $old_ut_rc + 4)
- sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests_d \
+ sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests \
  CROSS_COMPILE=arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
  return $old_ut_rc
 }
@@ -429,7 +429,7 @@ do
      fi
      update_rootfs $c_soc
      make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc
-     #make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
+     make_unit_test ${unit_test_configs[${j}]} $c_soc || RC=$(echo $RC unit_test_$i) 
      #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
      #then
      	sync_server $i READY_KVER${KERNEL_VER}
