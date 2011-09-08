@@ -82,6 +82,7 @@ branch_libs()
 
 make_libs()
 {
+  iRC=0
   cd $LIB_DIR
   git add . 
   git commit -s -m"reset"
@@ -94,8 +95,9 @@ make_libs()
   git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
   git checkout -b build_${2} build
   make distclean
-  make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" || return 1
-  sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || return 2 
+  make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
+  sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || iRC=$(expr $iRC + 1)
+  return $iRC
 }
 
 
