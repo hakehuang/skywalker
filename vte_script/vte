@@ -74,7 +74,9 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
  if [ $tstatus -gt 0 ]; then
   cd /mnt/nfs/vte_${TARGET}_d && /mnt/nfs/vte_${TARGET}_d/mytest $test_file
   #test finished start a process to reset board at
+  if [ $? -eq 0 ]; then
   /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
+  fi
  fi
  while true;
  do
