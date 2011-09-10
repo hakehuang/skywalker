@@ -20,6 +20,6 @@ stderr=serial
 ethact=FEC0
 lvds=mxcdi1fb:RGB666,XGA ldb=di1 di1_primary
 android_args=gpu_memory=64M androidboot.console=ttymxc0
-bootargs=console=ttymxc0 daily_test=imx53_SMD_auto
+bootargs=console=ttymxc0 daily_test=imx53_SMD_auto no_console_suspend
 ethaddr=00:04:9F:01:0C:53
 UVERSION=3

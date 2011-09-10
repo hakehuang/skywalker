@@ -4,11 +4,11 @@ loadaddr=0x90800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx53_d
-nfsroot=/rootfs/imx53_rootfs
+kernel=uImage_mx5_linaro
+nfsroot=/rootfs/imx53_rootfs/
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
-bootargs_base=setenv bootargs ${bootargs} video=${vga} 
+bootargs_base=setenv bootargs ${bootargs} video=${vga}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
@@ -24,5 +24,5 @@ seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA di0_primary
 claawvga=mxcdi0fb:RGB565,CLAA-WVGA di0_primary
 hdmi=mxcdi0fb:RGB24,1024x768M@60 hdmi di0_primary
 lvds=mxcdi0fb:RGB666,XGA ldb=di0 di0_primary
-bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto no_console_suspend
+bootargs=console=ttymxc0,115200 daily_test=imx53_LOCO_auto release=linaro
 UVERSION=3

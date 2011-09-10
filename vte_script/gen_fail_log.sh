@@ -9,15 +9,13 @@ path=$3
 
 #list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
 
-for i in $(ls ${1}/*.failed -lrt)
+for i in $(ls ${1}/*.failed -lrt )
 do
 file=$(echo $i | grep "failed" | wc -l)
 if [ $file -gt 0 ] ; then
 list=$(echo $list $i)
 fi
 done
-echo $list
-read -p "help"
 
 MAXcase=300
 
@@ -57,18 +55,22 @@ tofile "</maxcase>"
 for i in $list
 do
 #get date
-idate=$(ls -lt $i | awk '{print $6}')
-idate=$(echo $idate| sed 's/-//g')
+idatea=$(stat -c %y $i | awk '{print $1}')
+idatey=$(echo $idatea| cut -d '-' -f 1)
+idatem=$(echo $idatea| cut -d '-' -f 2)
+idated=$(echo $idatea| cut -d '-' -f 3)
+idate=${idatem}${idated}${idatey}
 runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 mac=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 2 | sed 's/failed/txt/')
 resultpath=$(dirname $(dirname $i))/results/
 resultfile=$(ls $resultpath | grep $runfile | grep $mac | grep $idate)
 if [ ! -z "$resultfile" ]; then
-total_case=$(cat ${resultpath}${resultfile} | grep "Tatal Tests:" | awk '{print $3}')
+total_case=$(cat ${resultpath}${resultfile} | grep "TGE" | wc -l)
 else
 total_case=$MAXcase
 fi
+read -p "check here" a
 tofile "<fail_count>"
 tofile "<count>"
 tofile  $(cat $i | wc -l)
@@ -83,7 +85,7 @@ tofile  "<total_cases>"
 tofile  ${total_case}
 tofile  "</total_cases>"
 tofile  "<runfile>"
-tofile  "http://shlx12.ap.freescale.net/test_reports/runtest/${runfile}"
+tofile  "http://shlx12.ap.freescale.net/test_reports/runtest_${PLATFORM}/${runfile}"
 tofile  "</runfile>"
 tofile  "</fail_count>"
 done
