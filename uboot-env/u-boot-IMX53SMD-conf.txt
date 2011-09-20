@@ -12,7 +12,7 @@ bootargs_base=setenv bootargs ${bootargs} video=${lvds}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp console=ttymxc0,115200
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
-bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800 0x2000;bootm
+bootcmd_mmc=run bootargs_base bootargs_mmc;mmc dev 0 ;mmc read ${loadaddr} 0x800 0x2000;bootm
 bootcmd=run bootcmd_net; bootm
 stdin=serial
 stdout=serial
