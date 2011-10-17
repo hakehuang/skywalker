@@ -1,0 +1,28 @@
+bootdelay=1
+baudrate=115200
+netdev=eth0
+ethprime=FEC0
+uboot_addr=0xa0000000
+uboot=u-boot.bin
+kernel=uImage
+nfsroot=/opt/eldk/arm
+bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+bootcmd_net=run bootargs_base bootargs_nfs; tftpboot ${loadaddr} ${kernel}; bootm
+prg_uboot=tftpboot ${loadaddr} ${uboot}; protect off ${uboot_addr} 0xa003ffff; erase ${uboot_addr} 0xa003ffff; cp.b ${loadaddr} ${uboot_addr} ${filesize}; setenv filesize; saveenv
+bootargs_android_recovery=setenv bootargs ${bootargs} init=/init root=/dev/mmcblk0p4 rootfs=ext4 di1_primary ethact=FEC0
+bootcmd_SD1=run bootargs_base bootargs_android bootargs_SD
+bootargs_base=setenv bootargs console=ttymxc0,115200
+bootargs_SD=setenv bootargs ${bootargs}
+bootcmd_android_recovery=run bootargs_base bootargs_android_recovery;mmc read 0 ${loadaddr} 0x800 0x2000;bootm
+bootcmd_SD2=mmc read 0 ${loadaddr} 0x800 0x2000;mmc read 0 ${rd_loadaddr} 0x3000 0x258;bootm ${loadaddr} ${rd_loadaddr}
+ethaddr=00:04:9f:00:ea:d7
+fec_addr=00:04:9f:00:ea:d7
+bootcmd=run bootcmd_SD; bootm ${loadaddr} ${rd_loadaddr}
+bootcmd_SD=mmc read 0 ${loadaddr} 0x800 0x2000; mmc read 0 ${rd_loadaddr} 0x3000 0x300;
+bootargs_android=setenv bootargs ${bootargs} init=/init androidboot.console=ttymxc0 di1_primary calibration gpu_memory=32M
+bootargs=console=ttymxc0 init=/init keypad gpmi:nand ubi.mtd=4 lcd=1,j12 calibration
+loadaddr=0x70800000
+rd_loadaddr=0x70D00000
+stdin=serial
+stdout=serial
+stderr=serial

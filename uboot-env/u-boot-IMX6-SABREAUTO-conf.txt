@@ -12,7 +12,7 @@ bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode} ${lcd_
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
 bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
-bootcmd_mmc=run bootargs_base bootargs_mmc; mmc read 0 ${loadaddr} 0x800 0x2000;bootm
+bootcmd_mmc=run bootargs_base bootargs_mmc; mmc dev 3;mmc read ${loadaddr} 0x800 0x2000;bootm
 nand=gpmi:nand
 bootcmd=run bootcmd_net;bootm
 stdin=serial
@@ -22,7 +22,8 @@ ethact=FEC0
 ethaddr=00:04:9F:01:03:63
 bootargs=console=ttymxc0,115200 daily_test=imx6q_SABRA_auto vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
-lcd_mode=video=mxcfb1:dev=lcd
+lcd_mode=video=mxcfb1:dev=lcd,if=RGB565
 hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024@60,if=RGB24
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
+nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
 UVERSION=3

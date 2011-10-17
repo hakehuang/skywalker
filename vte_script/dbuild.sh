@@ -94,7 +94,7 @@ make_libs()
   git branch -D build_${2}
   git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
   git checkout -b build_${2} build
-  make distclean
+  make clean
   make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
   sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || iRC=$(expr $iRC + 1)
   return $iRC
@@ -124,7 +124,7 @@ make_unit_test()
  fi
  ucs=$(cat autorun-suite.txt | grep -i FSL-UT | wc -l)
  if [ $ucs -ne 24 ];then
-		echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs not 24" \
+    echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs not 24" \
 		b20222@freescale.com 
  fi
  old_ut_plat=$2
@@ -132,11 +132,14 @@ make_unit_test()
  PLATFORM=$1
  KERNELDIR=$KERNEL_DIR
  KBUILD_OUTPUT=$KERNEL_DIR
- INCLUDE="-I$KERNEL_DIR/include"
+ INCLUDE="-I${TARGET_ROOTFS}/imx${2}_rootfs/usr/include \
+ -I${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/include \
+ -I./include/"
+ LIB="-L/mnt/nfs_root/imx${2}_rootfs/usr/lib"
  make distclean
  make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=arm-none-linux-gnueabi-gcc \
  CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=1
- make -j1 PLATFORM=$PLATFORM INC="${INCLUDE}" test  CC=arm-none-linux-gnueabi-gcc \
+ make -j1 PLATFORM=$PLATFORM INC="${INCLUDE}" LIBS=${LIB} test  CC=arm-none-linux-gnueabi-gcc \
  CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=$(expr $old_ut_rc + 2)
  sudo make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
  CROSS_COMPILE=arm-none-linux-gnueabi- \
@@ -198,6 +201,7 @@ KERNEL_VER=$(./scripts/setlocalversion)
 sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
+sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/include || return 5
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
 old_kernel_rc=0
