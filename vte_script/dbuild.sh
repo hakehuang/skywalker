@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO"
+#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO"
+PLATFORM="IMX6-SABREAUTO"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -96,7 +97,7 @@ make_libs()
   git checkout -b build_${2} build
   make clean
   make PLATFORM=${2} CROSS_COMPILE=arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
-  sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install || iRC=$(expr $iRC + 1)
+  sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs install -k || iRC=$(expr $iRC + 1)
   return $iRC
 }
 
@@ -143,7 +144,7 @@ make_unit_test()
  CROSS_COMPILE=arm-none-linux-gnueabi- || old_ut_rc=$(expr $old_ut_rc + 2)
  sudo make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
  CROSS_COMPILE=arm-none-linux-gnueabi- \
- DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs install || old_ut_rc=$(expr $old_ut_rc + 4)
+ DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs install -k || old_ut_rc=$(expr $old_ut_rc + 4)
  sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs/unit_tests \
  CROSS_COMPILE=arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
  return $old_ut_rc
