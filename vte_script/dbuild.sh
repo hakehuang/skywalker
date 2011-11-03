@@ -49,7 +49,7 @@ vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" "IMX6-SABREAUTO" "IMX6-SABRELITE");
 soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "61" "61");
-SOC_CNT=12
+SOC_CNT=13
 #default u-boot kernel configs for each platform
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" \
@@ -305,6 +305,7 @@ if [ $all_one_branch = "n" ]; then
  git reset --hard HEAD~1
  git checkout -b temp  origin/$1 || git checkout temp
  git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
+ git remote update
  git branch -D build
  git fetch origin +$1:build && git checkout build || return 1
 fi	
