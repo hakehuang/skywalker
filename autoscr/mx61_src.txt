@@ -1,0 +1,13 @@
+setenv serverip 10.192.224.218
+setenv tftpaddr 10.192.225.218
+setenv nfsroot /rootfs/imx61_rootfs
+setenv kernel uImage_mx61_d
+setenv loadaddr 0x10800000
+setenv hdmi_mode 'video=mxcfb0:dev=hdmi,1280x1024@60,if=RGB24'
+setenv bootargs 'console=ttymxc1,115200 vmalloc=256M'
+setenv bootargs_base 'setenv bootargs ${bootargs} fec_mac=${ethaddr} ${hdmi_mode}'
+setenv bootargs_nfs 'setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp'
+setenv bootcmd_net 'run bootargs_base bootargs_nfs;bootp ${loadaddr} ${tftpaddr}:${kernel}'
+saveenv
+run bootcmd_net
+bootm
