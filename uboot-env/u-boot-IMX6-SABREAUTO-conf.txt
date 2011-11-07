@@ -26,4 +26,5 @@ lcd_mode=video=mxcfb1:dev=lcd,if=RGB565
 hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024@60,if=RGB24
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
+mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
 UVERSION=3
