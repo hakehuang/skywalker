@@ -20,7 +20,7 @@ stdout=serial
 stderr=serial
 ethact=FEC0
 ethaddr=00:04:9F:0A:03:4E
-bootargs=console=tty1 console=ttymxc0,115200 daily_test=imx6q_lite vmalloc=256M
+bootargs=console=tty1 console=ttymxc1,115200 daily_test=imx6q_lite vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
 hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024@60,if=RGB24
 UVERSION=3
