@@ -1,0 +1,152 @@
+#!/bin/sh -x
+
+if [ $# -eq 0 ]
+then
+CMDFILE=exec_table_rdp
+#CMDFILE=re-test
+elif [ $1 == "one" ]
+then
+CMDFILE=ONSHOT
+else
+CMDFILE=$1
+fi
+
+TEST_TYPE=AUTO
+
+#CONTINUE=y
+
+export STREAM_PATH=/mnt/nfs/test_stream
+mount /dev/mmcblk0p1 /tmp
+export TMPDIR=/tmp
+export LTPROOT=$(dirname $0)
+TEST_PATH=$(dirname $0)
+export PATH=$PATH:${TEST_PATH}/testcases/bin
+
+dos2unix ${TEST_PATH}/runtest/$CMDFILE
+#dmesg -c
+
+platfm=$(platfm.sh)
+ARCH_PLATFORM=${platfm}
+
+if [ "$CONTINUE" = 'y' ];then
+#tday=$(date +%m%d%Y)
+mac=$(cat /sys/class/net/eth0/address | sed 's/:/_/g')
+tday=${mac}
+cp ${TEST_PATH}/runtest/$CMDFILE ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday
+if [ -e ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday ]; then
+#1 not first run, need change the command file skip the last one
+#find the last execute one 
+	search=1
+	cnt=1
+	ll=0
+	step=1
+	while [ $search -eq 1 ];do
+	 lct=$(cat ${TEST_PATH}/results/${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.txt | grep "TGE-" | wc -l)
+   id=$(cat ${TEST_PATH}/results/${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.txt | grep "TGE-" |tail -n $cnt | head -n 1)
+	 timeout=$(echo $id | grep TIMEOUT | wc -l)
+	 ide=$(echo $id | wc -L)
+	 ll=$(cat ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday)
+	 if [ $ll = $(uname -r) ]; then
+     echo "test finished for this kernel"
+		 exit 255
+	 else
+		 tstat=$(echo $ll | grep [^0-9] | wc -l)
+		 if [ $tstat -gt 0 ]; then
+		 #last test is finished
+			ll=0
+		 fi
+	 fi
+	 
+	 if [ $ide -eq 0 ]; then
+#2 the case id not find in this line
+			if [ $lct -eq 0 ]; then
+	#3 if no case is run before
+				search=0
+				if [ $ll -eq 0 ]; then
+		#4 no former fail? start from first case
+					echo 1 > ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+				else
+		#4 skip formal fail
+					line=$(expr $ll + 1)
+					echo $line > ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+					#sh -c "sed -i '1,${line}s/^/#/g' ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+					sh -c "cat ${TEST_PATH}/runtest/$CMDFILE | sed '1,${line}s/^/#/g' > ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+				fi
+			else
+	#3 there is case run before
+				if [ $cnt -gt $lct  ]; then
+		#4 can not find any start test from begin
+					search=0
+					echo "former test cases list is changed!"
+					if [ $ll -eq 0 ]; then
+				#5 if no former fail cases
+						echo 1 > ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+					else
+				#5 has former fail case
+						line=$(expr $ll + 1)
+						echo $line > ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+						#sh -c "sed -i '1,${line}s/^/#/g' ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+						sh -c "cat ${TEST_PATH}/runtest/$CMDFILE | sed '1,${line}s/^/#/g' > ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+					fi
+				else
+		#4 search former line
+      		cnt=$(expr $cnt + 1)
+				fi
+			fi
+	 else
+#2 case ID avaialble
+			ss=$(echo $id | awk '{print $1}')
+      line=$(grep -n "\<${ss}\>" ${TEST_PATH}/runtest/$CMDFILE | awk '{print $1}' | cut -d ":" -f 1)
+			if [ -z $ll ]; then
+	#3 if no former fail data
+				ll=0
+			fi
+			if [ $timeout -eq 0 ]; then
+				if [ ! -z "$line" ] ; then
+	#3 has last success case 
+					if [ $ll -gt $line ]; then
+			#4 former fail cases is after current success case
+						line=$(expr $ll + 1)
+					else
+			#4 former fail cases is before the last success cases 
+						line=$(expr $line + 1)
+					fi
+				else
+	#3 has not last success cases
+					line=$(expr $ll + 1)
+				fi
+			fi
+			if [ -z "$line" ]; then
+			#if the case id change and can not find then
+				line=$ll
+			fi
+			echo $line > ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+			sh -c "cat ${TEST_PATH}/runtest/$CMDFILE | sed '1,${line}s/^/#/g' > ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+			#sh -c "sed -i '1,${line}s/^/#/g' ${TEST_PATH}/runtest/temp_test_${CMDFILE}_$tday"
+			search=0
+	 fi
+	done
+else
+#1 fisrt run reset counter
+	echo 1 >  ${TEST_PATH}/temp_cnt_${CMDFILE}_$tday
+fi
+${TEST_PATH}/runltp -p -g ${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.html -l ${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.txt -f temp_test_${CMDFILE}_$tday -o ${TEST_PATH}/output/${ARCH_PLATFORM}_${CMDFILE}_log_$tday
+else
+rm -f ${LTPROOT}/output/${ARCH_PLATFORM}_${CMDFILE}_log_$tday
+${TEST_PATH}/runltp -p -g ${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_test.html -l ${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_test.txt -f $CMDFILE -o ${TEST_PATH}/${ARCH_PLATFORM}_${CMDFILE}_log_$tday
+#${TEST_PATH}/runalltests.sh -v -p -l ${ARCH_PLATFORM}_${TEST_TYPE}_test.txt
+fi
+lastcmd=$(cat ${TEST_PATH}/runtest/$CMDFILE | grep -v "#" |grep "TGE-" | tail -n 1| awk '{print $1}')
+rlastcmd=$(cat ${TEST_PATH}/results/${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.txt | grep "TGE-" | tail -n 1 | awk '{print $1}')
+flastcmd=$(cat ${TEST_PATH}/output/LTP_RUN_ON-${ARCH_PLATFORM}_${CMDFILE}_log_${tday}.failed | grep "TGE-" | tail -n 1 | awk '{print $1}')
+if [ $lastcmd != "$rlastcmd"  ];then
+ if [ $lastcmd != "$flastcmd"  ]; then
+     exit 251
+ fi
+fi
+/mnt/nfs/util/ntpdate 10.192.225.222
+mv ${TEST_PATH}/output/${ARCH_PLATFORM}_${CMDFILE}_log_$tday ${TEST_PATH}/output/${ARCH_PLATFORM}_${CMDFILE}_log_${tday}_$(date +%m%d%Y)
+mv ${TEST_PATH}/output/LTP_RUN_ON-${ARCH_PLATFORM}_${CMDFILE}_log_${tday}.failed ${TEST_PATH}/output//LTP_RUN_ON-${ARCH_PLATFORM}_${CMDFILE}_log_${tday}_$(date +%m%d%Y).failed
+mv ${TEST_PATH}/results/${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_$tday.txt ${TEST_PATH}/results/${ARCH_PLATFORM}_${TEST_TYPE}_${CMDFILE}_${tday}_$(date +%m%d%Y).txt
+echo $(uname -r) > ${TEST_PATH}/temp_cnt_${CMDFILE}_${tday}
+echo "FREESCALE LBG TEST END"
