@@ -46,23 +46,25 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
 	  need_reboot=1
 	fi
  done
- #chekc the uboot
+ #check the uboot
  release_flag=$(cat /proc/cmdline | sed 's/release=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
  if [ $release_flag = "linaro"  ]; then
     echo "do not update uboot for linaro release"
  else
-  if [ $platfm = "IMX6-SABREAUTO" ]; then
-   crc1=$(/mnt/nfs/tools/u-config_8k -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
-   crc2=$(/mnt/nfs/tools/u-config_8k -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
-  else
    crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
    crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
-  fi
   if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
    echo "need update uboot"
-   dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+   if [ $platfm = "IMX6-SABREALITE" ]; then
+		flash_eraseall /dev/mtd0
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mtd0 bs=512
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+	 else
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+	 fi
    #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
    /mnt/nfs/tools/setenv UVERSION ${crc2} 
+
 	 reboot
   fi
  fi
@@ -110,6 +112,9 @@ if [ "$1" != "start" ]; then
  echo "say goodby"
  exit
 fi
+
+#enlarge the memory
+echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
 
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
