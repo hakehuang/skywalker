@@ -23,7 +23,7 @@ ethaddr=00:04:9F:01:03:63
 bootargs=console=ttymxc0,115200 daily_test=imx6q_SABRA_auto vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
 lcd_mode=video=mxcfb1:dev=lcd,if=RGB565
-hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024@60,if=RGB24
+hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
 mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24

@@ -22,6 +22,6 @@ ethact=FEC0
 ethaddr=00:04:9F:0A:03:4E
 bootargs=console=tty1 console=ttymxc1,115200 daily_test=imx6q_lite vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
-hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024@60,if=RGB24
+hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
 update_cmd=bootp 10.192.225.218:mx61_asrc_daily.img;source
 UVERSION=3
