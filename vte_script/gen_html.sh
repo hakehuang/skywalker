@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash -x
+
+echo $@ >> /rootfs/wb/.log.txt
 
 BASE=/rootfs/wb
 TARGET_OUTPUT_BASE=${BASE}/daily_reports/skywalker
@@ -17,8 +19,8 @@ declare -a ALL_PLAT;
 PRJ=$1
 
 PCNT=6
-ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE" "IMX6-SABREAUTO");
-VTE_PATH=("vte_IMX50RDP_d"  "vte_IMX50-RDP3_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d" "vte_IMX6-SABREAUTO_d");
+ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE" "IMX6-SABREAUTO" "IMX6-SABRELITE");
+VTE_PATH=("vte_IMX50RDP_d"  "vte_IMX50-RDP3_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d" "vte_IMX6-SABREAUTO_d" "vte_IMX6-SABRELITE_d");
 
 for i in $PRJ
 do
@@ -95,9 +97,10 @@ do
 		else
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
-  sort $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed | uniq > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   ${BASE}/gen_fail_log.sh $LTPROOT/output/ $i ${TARGET_OUTPUT_BASE}
-  mutt -s "mx$i daily test finished" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  cat "please see http://shlx12.ap.freescale.net/test_reports/" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
 	fi
  fi	
  pj=$(expr $pj + 1)

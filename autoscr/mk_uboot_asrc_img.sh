@@ -1,6 +1,6 @@
 bin_prog=mkimage
 PERFIX=
-PLATFORM="25 31 35 37 51 50 53"
+PLATFORM="25 31 35 37 51 50 53 61"
 
 if [ $# -lt 1 ]; then
   echo "do all platform"
