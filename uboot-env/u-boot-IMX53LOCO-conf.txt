@@ -20,6 +20,7 @@ stderr=serial
 ethact=FEC0
 tvout=mxcdi0fb:RGB24,XGA
 vga=mxcdi1fb:GBR24,VGA-XGA di1_primary vga
+vga1024=mxcdi1fb:GBR24,1280x1024 di1_primary vga
 seikowvga=mxcdi0fb:RGB24,SEIKO-WVGA di0_primary
 claawvga=mxcdi0fb:RGB565,CLAA-WVGA di0_primary
 hdmi=mxcdi0fb:RGB24,1024x768M@60 hdmi di0_primary
