@@ -31,9 +31,10 @@ platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
 fi
+ltp_root=vte_${TARGET}_d
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
-if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]; then
+if [ ! -z "$test_flag" ]; then
  #enable watchdog here
  echo "start test in 30 seconds, or login then kill the test"
  sleep 30
@@ -42,14 +43,15 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
  do
   sleep 30
   status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
-	if [ $status -eq 0 ]; then
-	  need_reboot=1
-	fi
+	#if [ $status -eq 0 ]; then
+	#  need_reboot=1
+	#fi
  done
  #check the uboot
- release_flag=$(cat /proc/cmdline | sed 's/release=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
- if [ $release_flag = "linaro"  ]; then
-    echo "do not update uboot for linaro release"
+ release_flag=$(cat /proc/cmdline | grep release | wc -l)
+ if [ $release_flag -ne 0 ]; then
+    echo "do not update uboot for release"
+    ltp_root=vte_${TARGET}
  else
    crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
    crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
@@ -68,19 +70,23 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
 	 reboot
   fi
  fi
- if [ $need_reboot -eq 1 ]; then
-   reboot
+ if [ ! -e /mnt/nfs/${ltp_root}/runtest/${test_file} ]; then
+    echo "test comand file does not exist, quit test environment"
+	exit 0;
  fi
+ #if [ $need_reboot -eq 1 ]; then
+ #  reboot
+ #fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
  if [ $platfm = "IMX6-SABREAUTO" ]; then
- insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/imx2_wd_test.ko timer_margin=25
+ insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
  else
- insmod /mnt/nfs/vte_${TARGET}_d/testcases/bin/mxc_wd_test.ko timer_margin=25
+ insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
  fi
  export CONTINUE=y
  tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  if [ $tstatus -gt 0 ]; then
-  cd /mnt/nfs/vte_${TARGET}_d && /mnt/nfs/vte_${TARGET}_d/mytest $test_file
+  cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
   #test finished start a process to reset board at
   if [ $? -eq 0 ]; then
   /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
@@ -91,8 +97,8 @@ if [ ! -z "$test_flag" ] && [ -e /mnt/nfs/vte_${TARGET}_d/runtest/${test_file} ]
   sleep 1800;
 #if no command can execute guess the rootfs is changed then reboot
 	ls / || reboot
- 	if [ $release_flag = "linaro"  ]; then
-    echo "do not check for linaro release"
+ 	if [ $release_flag -ne 0  ]; then
+    echo "do not check for release"
 	else
   	kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
 		kh=$(uname -r | cut -d - -f 1)
@@ -127,5 +133,4 @@ echo $(hostname -i) > /root/.mounts
 /mnt/nfs/util/ntpdate 10.192.225.222
 /sbin/hwclock -w
 sleep 1
-#/mnt/nfs/vte_${TARGET}/mytest
 start_test
