@@ -20,7 +20,7 @@ PRJ=$1
 
 PCNT=8
 ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE" "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2");
-VTE_PATH=("vte_IMX50RDP_d"  "vte_IMX50-RDP3_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d" "vte_IMX6-SABREAUTO_d" "vte_IMX6-SABRELITE_d" "vte_IMX6ARM2_d");
+VTE_PATH=("vte_IMX50RDP"  "vte_IMX50-RDP3" "vte_IMX53LOCO" "vte_IMX53SMD" "vte_IMX51-BABBAGE" "vte_IMX6-SABREAUTO" "vte_IMX6-SABRELITE" "vte_IMX6ARM2");
 
 for i in $PRJ
 do
@@ -106,5 +106,3 @@ do
  pj=$(expr $pj + 1)
 done
 	done
-
-/rootfs/wb/gen_html_release.sh $1
