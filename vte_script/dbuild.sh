@@ -65,7 +65,7 @@ vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config");
 #unit_test_configs
 unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
-"IMX5" "IMX5" "IMX5" "IMX5" "IMX6" "IMX6" "IMX6");
+"IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6");
 #linux_libs_platfm
 linux_libs_platfm=("NULL" "NULL" "NULL" "NULL" "NULL" "IMX37_3STACK" "NULL" "NULL" "IMX51" "IMX53" "IMX53" "IMX6Q" "IMX6Q" "IMX6Q");
 linux_libs_branch=("master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master");
