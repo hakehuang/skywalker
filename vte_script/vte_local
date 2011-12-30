@@ -1,0 +1,95 @@
+#!/bin/sh
+###################################################################################################
+#
+#    @file   vte
+#
+#    @brief  shell script to mount the vte test suite for different platform from nfs 
+#
+###################################################################################################
+#
+#   Copyright (C) 2004, Freescale Semiconductor, Inc. All Rights Reserved
+#   THIS SOURCE CODE IS CONFIDENTIAL AND PROPRIETARY AND MAY NOT
+#   BE USED OR DISTRIBUTED WITHOUT THE WRITTEN PERMISSION OF
+#   Freescale Semiconductor, Inc.
+#
+###################################################################################################
+#Revision History:
+#                            Modification     Tracking
+#Author                          Date          Number    Description of Changes
+#-------------------------   ------------    ----------  -------------------------------------------
+#Hake Huang/-----             20081007     N/A          Initial version
+# 
+###################################################################################################
+
+TEST_SERVER=10.192.225.222
+
+start_test()
+{
+TARGET=$(/mnt/nfs/tools/platfm.sh)
+need_reboot=0
+platfm=$(/mnt/nfs/tools/platfm.sh)
+if [ -z "$TARGET" ]; then
+return 1
+fi
+ltp_root=vte_${TARGET}_d
+test_flag=$(cat /proc/cmdline | grep daily_test)
+test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+if [ ! -z "$test_flag" ]; then
+ #enable watchdog here
+ echo "start test in 30 seconds, or login then kill the test"
+ sleep 30
+ #check the uboot
+ release_flag=$(cat /proc/cmdline | grep release | wc -l)
+ if [ $release_flag -ne 0 ]; then
+    echo "do not update uboot for release"
+    ltp_root=vte_${TARGET}
+ fi
+ if [ ! -e /mnt/nfs/${ltp_root}/runtest/${test_file} ]; then
+    echo "test comand file does not exist, quit test environment"
+	exit 0;
+ fi
+ #if [ $need_reboot -eq 1 ]; then
+ #  reboot
+ #fi
+ if [ $platfm = "IMX6-SABREAUTO" ] || [ $platfm = "IMX6-SABREALITE" ] || [ $platfm = "IMX6ARM2" ]; then
+ insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
+ else
+ insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
+ fi
+ export CONTINUE=y
+ tstatus=1
+ if [ $tstatus -gt 0 ]; then
+  cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
+ fi
+ while true;
+ do
+  sleep 1800;
+#if no command can execute guess the rootfs is changed then reboot
+	ls / || reboot
+ 	if [ $release_flag -ne 0  ]; then
+    echo "do not check for release"
+	fi
+ done
+fi
+}
+
+if [ "$1" != "start" ]; then
+ echo "say goodby"
+ exit
+fi
+
+#enlarge the memory
+echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
+
+mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
+#check time
+if [ $? -ne 0 ]; then
+ echo "mount test nfs failure..."
+ exit
+fi
+sleep 1
+echo $(hostname -i) > /root/.mounts
+/mnt/nfs/util/ntpdate 10.192.225.222
+/sbin/hwclock -w
+sleep 1
+start_test
