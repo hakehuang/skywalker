@@ -247,7 +247,7 @@ make_tools()
 update_rootfs()
 {	
  cd $SCRPTSDIR
- sudo cp vte ${TARGET_ROOTFS}/imx${1}_rootfs/etc/rc.d/init.d/vte 	
+ #sudo cp vte ${TARGET_ROOTFS}/imx${1}_rootfs/etc/rc.d/init.d/vte 	
  deploy_firmware $1
 }
 
