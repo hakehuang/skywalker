@@ -42,7 +42,7 @@ declare -a unit_test_configs;
 #(23 25 28 31 35 37 50 50  51 53 53 61)
 #SOC names
 #           0     1    2    3    4   5    6    7    8   9 10
-kernel_branch=("imx_v3.0_v2");
+kernel_branch=("imx_v3.0_v3");
 vte_branch=("master");
 plat_name=("IMX6DL");
 soc_name=("60");
@@ -63,7 +63,7 @@ branch_libs()
 {
   cd $ROOTDIR
   if [ ! -e $LIB_DIR ]; then
-   git clone git://sw-git.freescale.net/linux-2.6-testbuild.git
+   git clone git://sw-git.freescale.net/linux-lib.git
   fi
   cd $LIB_DIR
   git checkout master
@@ -286,7 +286,7 @@ if [ $all_one_branch = "n" ]; then
  old_kernel_config=""
  cd $ROOTDIR
  if [ ! -e ${KERNEL_DIR} ]; then
- git clone git://sw-git.freescale.net/linux-2.6-imx.git
+ git clone git://sw-git.freescale.net/linux-2.6-testbuild.git
  fi
  cd ${KERNEL_DIR}
  git add . 
