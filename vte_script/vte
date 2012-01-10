@@ -41,11 +41,11 @@ if [ ! -z "$test_flag" ]; then
  status=0
  while [ $status -eq 0 ]
  do
-  sleep 30
   status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
 	#if [ $status -eq 0 ]; then
 	#  need_reboot=1
 	#fi
+  sleep 1
  done
  #check the uboot
  release_flag=$(cat /proc/cmdline | grep release | wc -l)
