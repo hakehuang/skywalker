@@ -42,7 +42,7 @@ declare -a unit_test_configs;
 #(23 25 28 31 35 37 50 50  51 53 53 61)
 #SOC names
 #           0     1    2    3    4   5    6    7    8   9 10
-kernel_branch=("imx_v3.0_v3");
+kernel_branch=("imx_v3.0.y_v4");
 vte_branch=("master");
 plat_name=("IMX6DL");
 soc_name=("60");
