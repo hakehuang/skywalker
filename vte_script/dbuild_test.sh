@@ -4,7 +4,7 @@
 PLATFORM="IMX6DL"
 BUILD=y
 #kernel branch and vte branch need define all one branch
-KERNEL_BRH=imx_v3.0_v4
+KERNEL_BRH=imx_v3.0.y_v4
 #KERNEL_BRH=imx_2.6.38
 VTE_BRH=master
 UBOOT_BRH=imx_v2009.08
