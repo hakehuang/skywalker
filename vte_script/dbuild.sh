@@ -303,7 +303,9 @@ if [ $all_one_branch = "n" ]; then
  git add . 
  git commit -s -m"reset"
  git reset --hard HEAD~1
- git checkout -b temp  origin/$1 || git checkout temp
+ git checkout -b temp2 || git checkout temp2
+ git branch -D temp
+ git checkout -b temp  origin/$1
  git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
  git remote update
  git branch -D build
