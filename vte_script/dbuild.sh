@@ -170,8 +170,9 @@ cd $UBOOT_DIR
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- distclean
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- || return 2
-scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-${3}_d.bin || return 3
-scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-${3}_d.bin || return 3
+scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-${3}_d.bin
+scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-${3}_d.bin
+scp u-boot.bin ubuntu@10.192.244.7:/var/lib/tftpboot/u-boot-${3}_d.bin
 sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs/root/u-boot-${3}_d.bin || return 3
 make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 || return 3 
 return 0
@@ -187,6 +188,7 @@ if [ "$old_kernel_rc" -eq 0 ]; then
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
+scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_d
 fi
 return $old_kernel_rc
 fi
