@@ -1,0 +1,6 @@
+setenv bootargs_base 'setenv bootargs ${bootargs} vmalloc=256M'
+setenv netargs 'setenv bootargs console=/dev/ttymxc1,115200 root=/dev/nfs ip=dhcp nfsroot=10.192.224.218:/rootfs/imx6_rootfs_nano/rootfs,v3,tcp'
+setenv bootcmd_net 'run netargs bootargs_base; bootp 10.192.225.218:uImage_mx6_linaro;bootp 0x11ff0000 10.192.225.218:imx6q-sabrelite.dtb;bootm ${loadaddr} - 0x11ff0000'
+run bootcmd_net
+
+
