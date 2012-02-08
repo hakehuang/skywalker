@@ -5,7 +5,7 @@ netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
 kernel=uImage_mx61_d
-nfsroot=/rootfs/imx61_rootfs
+nfsroot=/rootfs/imx63_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode} ${lcd_mode}

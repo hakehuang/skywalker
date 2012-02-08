@@ -1,0 +1,42 @@
+bootdelay=3
+baudrate=115200
+uboot=u-boot.bin
+kernel=uImage_mx6_linaro
+dt=imx6q-sabrelite.dtb
+nfsroot=/rootfs/imx6_rootfs_nano/rootfs
+serverip=10.192.224.218
+tftpaddr=10.192.225.218
+bootargs_base=setenv bootargs ${bootargs} ${hdmi_mode} vmalloc=256M daily_test=imx6q_linaro
+nand=gpmi:nand
+bootcmd=run bootcmd_net
+ethaddr=00:04:9F:0A:03:4E
+lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
+hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
+update_cmd=bootp 10.192.225.218:mx61_asrc_daily.img;source
+bootcmd_mmc=mmc dev ${mmcdev};if mmc rescan ${mmcdev}; then if run loadbootscript; then run bootscript; else if run loaduimage; then run mmcboot; else run bootcmd_net; fi; fi; else run bootcmd_net; fi;
+bootscript=echo Running bootscript from mmc ...; source
+console=ttymxc3
+dnsip=10.211.0.3
+ethact=FEC
+fdt_high=0xffffffff
+fileaddr=10800000
+filesize=1A5F8E
+gatewayip=10.192.244.254
+initrd_high=0xffffffff
+loadaddr=0x10800000
+dtaddr=0x11ff0000
+loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};
+loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${kernel}
+mmcargs=setenv bootargs console=${console},${baudrate} root=${mmcroot}
+mmcboot=echo Booting from mmc ...; run mmcargs; bootm
+mmcdev=0
+mmcpart=2
+mmcroot=/dev/mmcblk0p2 rootwait rw
+netargs=setenv bootargs console=${console},${baudrate} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+bootcmd_net=run netargs bootargs_base; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootp ${dtaddr} ${tftpaddr}:${dt};bootm ${loadaddr} - ${dtaddr}
+netmask=255.255.255.0
+script=boot.scr
+stderr=serial
+stdin=serial
+stdout=serial
+
