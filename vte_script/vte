@@ -38,7 +38,7 @@ if [ ! -z "$test_flag" ]; then
  #enable watchdog here
  echo "start test in 30 seconds, or login then kill the test"
  sleep 30
- status=0
+ status=1
  while [ $status -eq 0 ]
  do
   status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
@@ -78,13 +78,14 @@ if [ ! -z "$test_flag" ]; then
  #  reboot
  #fi
  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
- if [ $platfm = "IMX6-SABREAUTO" ] || [ $platfm = "IMX6-SABREALITE" ] || [ $platfm = "IMX6ARM2" ]; then
+ if [ $platfm = "IMX6-SABREAUTO" ] || [ $platfm = "IMX6-SABREALITE" ] || [ $platfm = "IMX6ARM2" ] || [ $plafm = "IMX6DL-ARM2" ]; then
  insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
  else
  insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
  fi
  export CONTINUE=y
- tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+ #tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+ tstatus=1
  if [ $tstatus -gt 0 ]; then
   cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
   #test finished start a process to reset board at
