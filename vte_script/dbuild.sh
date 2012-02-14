@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6DL-ARM2"
+#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6DL-ARM2"
+PLATFORM="IMX6DL-ARM2"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -49,7 +50,7 @@ vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6DL-ARM2");
 soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63" "63" "63" "61");
-SOC_CNT=14
+SOC_CNT=15
 #default u-boot kernel configs for each platform
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" \
