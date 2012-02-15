@@ -1,6 +1,6 @@
-setenv bootargs_base 'setenv bootargs ${bootargs} vmalloc=256M'
-setenv netargs 'setenv bootargs console=/dev/ttymxc1,115200 root=/dev/nfs ip=dhcp nfsroot=10.192.224.218:/rootfs/imx6_rootfs_nano/rootfs,v3,tcp'
-setenv bootcmd_net 'run netargs bootargs_base; bootp 10.192.225.218:uImage_mx6_linaro;bootp 0x11ff0000 10.192.225.218:imx6q-sabrelite.dtb;bootm ${loadaddr} - 0x11ff0000'
-run bootcmd_net
-
+setenv initrd_high "0xffffffff"
+setenv fdt_high "0xffffffff"
+setenv bootargs "console=ttymxc1,115200n8 root=UUID=8ad9472c-03e9-40a5-8737-1aed9039153f rootwait ro vmalloc=192M video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24"
+setenv bootcmd "bootp 10.192.244.7:uImage_mx6_linaro;bootp 0x12000000 10.192.244.7:uInitrd_mx6;bootp 0x11ff0000 10.192.244.7:imx6q-sabrelite.dtb;bootm ${loadaddr}  0x12000000 0x11ff0000"
+boot
 
