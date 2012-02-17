@@ -288,7 +288,7 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
+ $TOOLSDIR/uclient 10.192.244.37 12500 ${1}_${2} 
 }
 
 
@@ -394,7 +394,7 @@ if [ $all_one_branch = "y" ]; then
 fi
  cd $ROOTDIR
  if [ ! -e $ROOTDIR/skywalker ]; then
-  git clone git://10.192.225.222/skywalker
+  git clone git://10.192.244.37/skywalker
   fi
   cd $ROOTDIR/skywalker
   git add . 

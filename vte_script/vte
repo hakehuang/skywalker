@@ -21,7 +21,7 @@
 # 
 ###################################################################################################
 
-TEST_SERVER=10.192.225.222
+TEST_SERVER=10.192.244.37
 
 start_test()
 {
@@ -41,7 +41,7 @@ if [ ! -z "$test_flag" ]; then
  status=1
  while [ $status -eq 0 ]
  do
-  status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+  status=$(/mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_HELLO | grep ACK | wc -l)
 	#if [ $status -eq 0 ]; then
 	#  need_reboot=1
 	#fi
@@ -77,7 +77,7 @@ if [ ! -z "$test_flag" ]; then
  #if [ $need_reboot -eq 1 ]; then
  #  reboot
  #fi
- /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_REGIST
+ /mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_REGIST
  if [ $platfm = "IMX6-SABREAUTO" ] || [ $platfm = "IMX6-SABREALITE" ] || [ $platfm = "IMX6ARM2" ] || [ $plafm = "IMX6DL-ARM2" ]; then
  insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
  else
@@ -90,7 +90,7 @@ if [ ! -z "$test_flag" ]; then
   cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
   #test finished start a process to reset board at
   if [ $? -eq 0 ]; then
-  /mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_TESTEND &
+  /mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_TESTEND &
   fi
  fi
  while true;
@@ -101,11 +101,11 @@ if [ ! -z "$test_flag" ]; then
  	if [ $release_flag -ne 0  ]; then
     echo "do not check for release"
 	else
-  	kver=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
+  	kver=$(/mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
 		kh=$(uname -r | cut -d - -f 1)
 		if [ $(uname -r) !=  $kh$kver ]; then
 #kernel changed restart test
-  		status=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+  		status=$(/mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_HELLO | grep ACK | wc -l)
 			if [ $status -eq 1 ];then
     		reboot
 			fi
@@ -131,7 +131,7 @@ if [ $? -ne 0 ]; then
 fi
 sleep 1
 echo $(hostname -i) > /root/.mounts
-/mnt/nfs/util/ntpdate 10.192.225.222
+/mnt/nfs/util/ntpdate ${TEST_SERVER}
 /sbin/hwclock -w
 sleep 1
 start_test
