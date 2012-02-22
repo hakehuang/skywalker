@@ -206,7 +206,7 @@ KERNEL_VER=$(./scripts/setlocalversion)
 sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs || return 3
-sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/include || return 5
+sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/ || return 5
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_d
 old_kernel_rc=0
@@ -229,7 +229,7 @@ old_vte_config=$1
 make distclean
 sudo rm -rf install
 source $1
-export KLINUX_SRCDIR=${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/include
+export KLINUX_SRCDIR=${TARGET_ROOTFS}/imx${2}_rootfs/usr/src/linux/
 export KERNEL_SRCDIR=${KERNEL_DIR}
 export KLINUX_BLTDIR=${KERNEL_DIR}
 export CROSS_COMPILER=arm-none-linux-gnueabi-
@@ -458,11 +458,11 @@ done
 echo $RC
 if [ "$RC" = "0" ]; then
 echo "VTE daily build with $RC" | mutt -s "VTE daily build OK" \
-b20222@shlx12.ap.freescale.net 
+b20222@freescale.com 
 echo build success!!
 else
 echo "VTE daily build with $RC" | mutt -s "VTE daily build Fail" \
-b20222@shlx12.ap.freescale.net
+b20222@freescale.com
 echo build Fail $RC!
 fi
 
