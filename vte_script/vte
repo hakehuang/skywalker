@@ -123,7 +123,7 @@ fi
 #enlarge the memory
 echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
 
-mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
+mount -t nfs -o nolock,tcp,rsize=2048,wsize=2048,timeo=14 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
 if [ $? -ne 0 ]; then
  echo "mount test nfs failure..."
