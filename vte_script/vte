@@ -21,7 +21,12 @@
 # 
 ###################################################################################################
 
+flag=$(cat /proc/cmdline | grep release | wc -l)
+if [ $flag -ne 0 ]; then
 TEST_SERVER=10.192.225.222
+else
+TEST_SERVER=10.192.244.61
+fi
 
 start_test()
 {
