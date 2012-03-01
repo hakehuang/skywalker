@@ -10,6 +10,7 @@ VTE_BRH=imx2.6.35.3
 UBOOT_BRH=imx_v2009.08
 #PLATFORM="5x"
 VTE_TARGET_PRE=/mnt/vte/
+VTE_TARGET_PRE2=/mnt/nfs/
 TARGET_ROOTFS=/mnt/nfs_root/
 ROOTDIR=/home/ltib2/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
@@ -222,6 +223,9 @@ if [ "$old_vte_config" = $1 ]; then
    sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_d/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
+   sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_d/
+   sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_d/testcases/bin/
+   sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_d/
  fi
 return $old_vte_rc
 fi
@@ -237,7 +241,7 @@ export CC=${CROSS_COMPILER}gcc
 autoreconf -f -i -Wall,no-obsolete
 ./armconfig
 make
-make vte || return 1
+make vte || exit 1
 make apps || ret=2
 make install
 #make ltp tests
@@ -247,6 +251,9 @@ make install
 sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
+sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_d/
+sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_d/testcases/bin/
+sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_d/
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
@@ -273,6 +280,7 @@ make_target_tools()
  make clean
  CROSS_COMPILER=arm-none-linux-gnueabi- make || return 10
  sudo cp uclient ${VTE_TARGET_PRE}/tools/
+ sudo cp uclient ${VTE_TARGET_PRE2}/tools/
  make clean
  cd $UCONFDIR
  make clean
@@ -280,6 +288,9 @@ make_target_tools()
  sudo cp u-config ${VTE_TARGET_PRE}/tools/
  sudo cp printenv ${VTE_TARGET_PRE}/tools/
  sudo cp setenv ${VTE_TARGET_PRE}/tools/
+ sudo cp u-config ${VTE_TARGET_PRE2}/tools/
+ sudo cp printenv ${VTE_TARGET_PRE2}/tools/
+ sudo cp setenv ${VTE_TARGET_PRE2}/tools/
  make clean
 }
 
@@ -288,7 +299,7 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- $TOOLSDIR/uclient 10.192.244.37 12500 ${1}_${2} 
+ $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
 }
 
 
@@ -394,7 +405,7 @@ if [ $all_one_branch = "y" ]; then
 fi
  cd $ROOTDIR
  if [ ! -e $ROOTDIR/skywalker ]; then
-  git clone git://10.192.244.37/skywalker
+  git clone git://10.192.225.222/skywalker
   fi
   cd $ROOTDIR/skywalker
   git add . 
