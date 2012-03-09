@@ -75,27 +75,38 @@ int main(int argc, char **argv)
 			socklen_t addr_len;
 			struct sockaddr_in c_addr;
 			char mesg[512];
-			addr_len = sizeof(c_addr);
+			fd_set socks;
+ 			struct timeval t;
+			FD_ZERO(&socks);
+			FD_SET(sock, &socks);
 			memset(mesg, 0, 512);
-			rlen = recvfrom(sock, mesg, sizeof(mesg) - 1, 0,
+			addr_len = sizeof(c_addr);
+ 			t.tv_sec = 5;
+ 			if (select(sock + 1, &socks, NULL, NULL, &t))
+			{	
+				rlen = recvfrom(sock, mesg, sizeof(mesg) - 1, 0,
 					(struct sockaddr *)&c_addr, &addr_len);
-			if (rlen < 0) {
-				perror("recvfrom");
-				exit(errno);
-			}
-			printf("receiver from server %s : %d\n", mesg,
+				if (rlen < 0) {
+					perror("recvfrom");
+					exit(errno);
+				}
+				printf("receiver from server %s : %d\n", mesg,
 			       strlen(mesg));
-			if (NULL != strstr(mesg, "INIT"))
-				ack = 0;
-			else
-				ack = 1;
-			if(count++ == 100)
-			{
+				if (NULL != strstr(mesg, "INIT"))
+					ack = 0;
+				else
+					ack = 1;
+				if(count++ == 100)
+				{
+					printf("receive message timeout\n");
+					break;
+				}
+				if (NULL != strstr(mesg, "FNT")) {
+					printf("receive end message\n");
+					break;
+				}
+			} else {
 				printf("receive message timeout\n");
-				break;
-			}
-			if (NULL != strstr(mesg, "FNT")) {
-				printf("receive end message\n");
 				break;
 			}
 		} else {
