@@ -23,6 +23,7 @@
 
 flag=$(cat /proc/cmdline | grep release | wc -l)
 SYNC_SERVER=10.192.225.222
+DSYNC_SERVER=10.192.244.61
 
 if [ $flag -ne 0 ]; then
 TEST_SERVER=10.192.225.222
@@ -97,7 +98,11 @@ if [ ! -z "$test_flag" ]; then
   cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
   #test finished start a process to reset board at
   if [ $? -eq 0 ]; then
-  /mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_TESTEND &
+ 	if [ $release_flag -ne 0  ]; then
+  	/mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_TESTEND &
+	else
+  	/mnt/nfs/tools/uclient ${DSYNC_SERVER} 12500 ${platfm}_TESTEND &
+	fi
   fi
  fi
  while true;
