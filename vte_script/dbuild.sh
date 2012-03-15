@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6DL-ARM2"
+PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6DL-ARM2 IMX6Solo-SABREAUTO"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -44,34 +44,36 @@ declare -a unit_test_configs;
 #SOC names
 #           0     1    2    3    4   5    6    7    8   9 10
 kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" \
-"imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15");
+"imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15");
 vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
-"imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" "master");
+"imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" "master" "master");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
-"IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6DL-ARM2");
-soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63" "63" "63" "61");
-SOC_CNT=15
+"IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
+"IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6DL-ARM2" "IMX6Solo-SABREAUTO");
+soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63" "63" "63" "61" "61");
+SOC_CNT=16
 #default u-boot kernel configs for each platform
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" \
 "mx50_rdp_config" "mx50_rd3_config"  "mx51_bbg_config" "mx53_smd_config" "mx53_loco_config" \
-"mx6q_sabreauto_config" "mx6q_sabrelite_config" "mx6q_arm2_config" "mx6dl_arm2_config");
+"mx6q_sabreauto_config" "mx6q_sabrelite_config" "mx6q_arm2_config" "mx6dl_arm2_config" "mx6solo_sabreauto");
 #default kernel configs for each platform
 kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" \
 "imx28evk_defconfig" "mx3_defconfig" "mx35_3stack_config" "mx3_defconfig" \
 "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" \
-"imx6_defconfig" "imx6_defconfig" "imx6_defconfig" "imx6_defconfig");
+"imx6_defconfig" "imx6_defconfig" "imx6_defconfig" "imx6_defconfig" "imx6_defconfig");
 #vte configs
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
 "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" \
-"mx5x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config");
+"mx5x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config");
 #unit_test_configs
 unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
-"IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6" "IMX6");
+"IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6");
 #linux_libs_platfm
-linux_libs_platfm=("NULL" "NULL" "NULL" "NULL" "NULL" "IMX37_3STACK" "NULL" "NULL" "IMX51" "IMX53" "IMX53" "IMX6Q" "IMX6Q" "IMX6Q" "IMX6DL");
-linux_libs_branch=("master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master" "master");
+linux_libs_platfm=("NULL" "NULL" "NULL" "NULL" "NULL" "IMX37_3STACK" "NULL" "NULL" "IMX51" "IMX53" "IMX53" "IMX6Q" "IMX6Q" "IMX6Q" "IMX6Q" "IMX6Q");
+linux_libs_branch=("master" "master" "master" "master" "master" "master" "master" \
+"master" "master" "master" "master" "master" "master" "master" "master" "master");
 
 branch_libs()
 {
