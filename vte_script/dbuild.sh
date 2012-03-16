@@ -128,11 +128,15 @@ make_unit_test()
  if [ $old_ut_plat = $2 ]; then
 	return $old_ut_rc
  fi
- ucs=$(cat autorun-suite.txt | grep -i FSL-UT | wc -l)
- if [ $ucs -ne 24 ];then
+ cat all-suite.txt | grep -v "#" | grep $1 > unit_test.txt
+ sed -i 's/:/\t/g' unit_test
+ ucs=$(cat unit_test | grep -i FSL-UT | wc -l)
+ if [ $ucs -ne 3 ];then
     echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs not 24" \
 		b20222@freescale.com 
  fi
+ sudo cp unit_test ${VTE_TARGET_PRE}/vte_mx${2}_d/runtest/
+ sudo cp unit_test ${VTE_TARGET_PRE2}/vte_mx${2}_d/runtest/
  old_ut_plat=$2
  old_ut_rc=0
  PLATFORM=$1
