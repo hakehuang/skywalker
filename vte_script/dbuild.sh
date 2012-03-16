@@ -56,7 +56,7 @@ SOC_CNT=16
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" \
 "mx50_rdp_config" "mx50_rd3_config"  "mx51_bbg_config" "mx53_smd_config" "mx53_loco_config" \
-"mx6q_sabreauto_config" "mx6q_sabrelite_config" "mx6q_arm2_config" "mx6dl_arm2_config" "mx6solo_sabreauto");
+"mx6q_sabreauto_config" "mx6q_sabrelite_config" "mx6q_arm2_config" "mx6dl_arm2_config" "mx6solo_sabreauto_config");
 #default kernel configs for each platform
 kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" \
 "imx28evk_defconfig" "mx3_defconfig" "mx35_3stack_config" "mx3_defconfig" \
