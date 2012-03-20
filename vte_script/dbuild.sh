@@ -129,10 +129,17 @@ make_unit_test()
 	return $old_ut_rc
  fi
  cat all-suite.txt | grep -v "#" | grep $1 > unit_test.txt
+ while read LINE; do
+  platform=$(cat $LINE | grep -v "#" |cud -d ":" -f 3)
+  if [ -z $platform ];then
+    echo $LINE >> unit_test.txt
+  fi
+ done < all-suite.txt
+
  sed -i 's/:/\t/g' unit_test
  ucs=$(cat unit_test | grep -i FSL-UT | wc -l)
  if [ $ucs -ne 3 ];then
-    echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs not 24" \
+    echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs changed" \
 		b20222@freescale.com 
  fi
  sudo cp unit_test ${VTE_TARGET_PRE}/vte_mx${2}_d/runtest/
