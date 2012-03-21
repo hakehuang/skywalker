@@ -44,6 +44,7 @@ if [ -z "$vte_apd" ]; then
 ltp_root=vte_${TARGET}_d
 else
 ltp_root=vte_${TARGET}_${vte_apd}
+SYNC_SERVER=10.192.225.222
 fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
