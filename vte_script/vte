@@ -39,7 +39,12 @@ platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
 fi
+vte_apd=$(cat /proc/cmdline | sed 's/vte=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+if [ -z "$vte_apd" ]; then
 ltp_root=vte_${TARGET}_d
+else
+ltp_root=vte_${TARGET}_${vte_apd}
+fi
 test_flag=$(cat /proc/cmdline | grep daily_test)
 test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ ! -z "$test_flag" ]; then
