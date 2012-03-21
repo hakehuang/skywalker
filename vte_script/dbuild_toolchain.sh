@@ -490,11 +490,11 @@ done
 
 echo $RC
 if [ "$RC" = "0" ]; then
-echo "VTE daily build with $RC" | mutt -s "VTE daily build OK" \
+echo "VTE new toolchian daily build with $RC" | mutt -s "VTE new tool chain daily build OK" \
 b20222@freescale.com 
 echo build success!!
 else
-echo "VTE daily build with $RC" | mutt -s "VTE daily build Fail" \
+echo "VTE new tool chain daily build with $RC" | mutt -s "VTE new tool chain daily build Fail" \
 b20222@freescale.com
 echo build Fail $RC!
 fi
