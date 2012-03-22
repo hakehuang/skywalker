@@ -130,7 +130,7 @@ make_unit_test()
  fi
  cat all-suite.txt | grep -v "#" | grep $1 > unit_test
  while read LINE; do
-  platform=$(cat $LINE | grep -v "#" |cud -d ":" -f 3)
+  platform=$(cat $LINE | grep -v "#" |cut -d ":" -f 3)
   if [ -z $platform ];then
     echo $LINE >> unit_test
   fi
