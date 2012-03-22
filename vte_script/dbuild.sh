@@ -232,7 +232,7 @@ make_vte()
 ret=0
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ]; then
- if [ $old_vte_rc -eq 0 ] && [ -e $VTE_DIR/install ]; then
+ if [ "$old_vte_rc" -eq 0 ] && [ -e $VTE_DIR/install ]; then
    sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_d/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_d/
@@ -461,6 +461,7 @@ do
      c_soc=${soc_name[${j}]}
      make_target_tools MX${c_soc} 
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat || RC=$(echo $RC uboot_$i)
+     exit 0
      branch_kernel ${kernel_branch[$j]}
      make_kernel ${kernel_configs[${j}]} $c_soc || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
