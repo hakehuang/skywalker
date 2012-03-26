@@ -39,7 +39,7 @@ platfm=$(/mnt/nfs/tools/platfm.sh)
 if [ -z "$TARGET" ]; then
 return 1
 fi
-vte_apd=$(cat /proc/cmdline | sed 's/vte=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+vte_apd=$(cat /proc/cmdline| grep "vte=" | sed 's/vte=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ -z "$vte_apd" ]; then
 ltp_root=vte_${TARGET}_d
 else
