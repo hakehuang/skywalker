@@ -13,7 +13,7 @@ UBOOT_BRH=imx_v2009.08
 VTE_TARGET_PRE=/mnt/vte/
 VTE_TARGET_PRE2=/mnt/nfs/
 TARGET_ROOTFS=/mnt/nfs_root/
-ROOTDIR=/home/ltib2/daily_build/tool_chain/
+ROOTDIR=/home/ltib2/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
@@ -74,9 +74,9 @@ kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" \
 #vte configs
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
-"mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" "mx5x_evk_config" \
-"mx5x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config" \
-"mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config" "mx6x_evk_config");
+"imx51" "imx51" "imx51" "imx51" \
+"imx51" "imx6q" "imx6q" "imx6q" \
+"imx6q" "imx6q" "imx6q" "imx6q");
 #unit_test_configs
 unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
 "IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6");
@@ -259,13 +259,17 @@ return $old_vte_rc
 fi
 old_vte_config=$1
 make distclean
+make clean
 sudo rm -rf install
-source $1
+. $1
 export KLINUX_SRCDIR=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/
 export KERNEL_SRCDIR=${KERNEL_DIR}
 export KLINUX_BLTDIR=${KERNEL_DIR}
 export CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi-
+export CROSS_COMPILER=${TOOL_CHAIN}arm-none-linux-gnueabi-
 export CC=${CROSS_COMPILE}gcc
+export ARCH_CPU=arm
+export ARCH_PLATFORM=$1
 autoreconf -f -i -Wall,no-obsolete
 aclocal -I m4
 autoconf
@@ -274,7 +278,7 @@ make autotools
 ./configure --host=arm-none-linux-gnueabi --prefix=$(pwd)/install CC=${CROSS_COMPILE}gcc
 make
 make vte || ret=1
-make apps || exit 1
+make apps || ret=2
 make install
 #make ltp tests
 #if [ $BUILD = "y" ]; then
