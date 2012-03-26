@@ -142,7 +142,7 @@ make_unit_test()
 
  sed -i 's/:/\t/g' unit_test
  ucs=$(cat unit_test | grep -i FSL-UT | wc -l)
- if [ $ucs -ne 4 ];then
+ if [ $ucs -ne 5 ];then
     echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs changed" \
 		b20222@freescale.com 
  fi
