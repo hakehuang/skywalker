@@ -116,7 +116,7 @@ make_libs()
   git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
   git checkout -b build_${2} build
   make clean
-  make PLATFORM=${2} CROSS_COMPILE=${${TOOL_CHAIN}}arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
+  make PLATFORM=${2} CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
   sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs${4} install -k || iRC=$(expr $iRC + 1)
   return $iRC
 }
@@ -335,7 +335,7 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- #$TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
+ $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
  $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} 
 }
 
