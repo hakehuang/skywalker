@@ -147,13 +147,15 @@ make_unit_test()
  while read LINE; do
   platform=$(cat $LINE | grep -v "#" |cut -d ":" -f 3)
   if [ -z $platform ];then
+    if [ ! -z $(cat $LINE | grep -v "#") ]; then
     echo $LINE >> unit_test
+    fi
   fi
  done < all-suite.txt
 
  sed -i 's/:/\t/g' unit_test
  ucs=$(cat unit_test | grep -i FSL-UT | wc -l)
- if [ $ucs -ne 5 ];then
+ if [ $ucs -ne 9 ];then
     echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs changed" \
 		b20222@freescale.com 
  fi
