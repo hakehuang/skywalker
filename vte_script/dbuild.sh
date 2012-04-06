@@ -156,7 +156,7 @@ make_unit_test()
  sed -i 's/:/\t/g' unit_test
  ucs=$(cat unit_test | grep -i FSL-UT | wc -l)
  if [ $ucs -ne 9 ];then
-    echo "VTE daily build found unit test change" | mutt -s "the unit test count is $ucs changed" \
+    echo "VTE daily build found $2 unit test change" | mutt -s "the unit test count is $ucs changed" \
 		b20222@freescale.com 
  fi
  sudo cp unit_test ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/runtest/
@@ -507,11 +507,11 @@ done
 
 echo $RC
 if [ "$RC" = "0" ]; then
-echo "VTE new toolchian daily build with $RC" | mutt -s "VTE new tool chain daily build OK" \
+echo "VTE daily build with $RC" | mutt -s "VTE new tool chain daily build OK" \
 b20222@freescale.com 
 echo build success!!
 else
-echo "VTE new tool chain daily build with $RC" | mutt -s "VTE new tool chain daily build Fail" \
+echo "VTE daily build with $RC" | mutt -s "VTE new tool chain daily build Fail" \
 b20222@freescale.com
 echo build Fail $RC!
 fi
