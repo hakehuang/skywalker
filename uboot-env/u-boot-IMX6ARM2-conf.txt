@@ -23,7 +23,8 @@ ethact=FEC0
 ethaddr=00:04:9F:01:03:63
 bootargs=console=ttymxc3,115200 daily_test=imx6q_arm2 vmalloc=256M
 lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
-lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
+lvds0=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
+lvds1=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
 hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
 HDMI_mode=video=mxcfb0:dev=sii902x_hdmi,1920x1080M@60,if=RGB24 disable_mipi_dsi
