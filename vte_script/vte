@@ -94,10 +94,12 @@ if [ ! -z "$test_flag" ]; then
  #  reboot
  #fi
  /mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_REGIST
- if [ $platfm = "IMX6-SABREAUTO" ] || [ $platfm = "IMX6-SABREALITE" ] || [ $platfm = "IMX6ARM2" ] || [ $plafm = "IMX6DL-ARM2" ]; then
- insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
+  if [ $platfm = "IMX50RDP" ] || [ $platfm = "IMX50-RDP3" ] \
+     || [ $platfm = "IMX53LOCO" ] || [ $plafm = "IMX51-BABBAGE" ] \
+     || [ $platfm = "IMX53SMD"  ]; then
+ 	insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
  else
- insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
+ 	insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
  fi
  export CONTINUE=y
  #tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
