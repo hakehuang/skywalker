@@ -75,9 +75,11 @@ if [ ! -z "$test_flag" ]; then
 		flash_eraseall /dev/mtd0
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mtd0 bs=512
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
-	 else
+   elif [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk1 bs=1024 seek=1 skip=1
+   else
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
-	 fi
+   fi
    #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
    /mnt/nfs/tools/setenv UVERSION ${crc2} 
 
