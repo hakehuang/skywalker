@@ -21,7 +21,7 @@ stdout=serial
 stderr=serial
 ethact=FEC0
 ethaddr=00:04:9F:01:03:63
-bootargs=console=ttymxc3,115200 daily_test=imx6q_SABRA_auto vmalloc=256M
+bootargs=console=ttymxc3,115200 daily_test=imx6q_AI_auto vmalloc=256M
 lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
 lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb1:dev=lcd,if=RGB565
