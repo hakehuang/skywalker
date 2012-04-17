@@ -1,8 +1,9 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
+#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
 BUILD=y
+PLATFORM="IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
 #KERNEL_BRH=imx_2.6.38
@@ -239,6 +240,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_roo
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
+scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
 old_kernel_rc=0
 return 0
 }
@@ -248,6 +250,10 @@ make_vte()
 ret=0
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ]; then
+ if [ $old_vte_soc = $2$3  ]; then
+  #no need to copy to the same folder again
+  return $old_vte_rc
+ fi
  if [ $old_vte_rc -eq 0 ] && [ -e $VTE_DIR/install ]; then
    sudo cp -a install/* ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/testcases/bin/
@@ -259,6 +265,7 @@ if [ "$old_vte_config" = $1 ]; then
 return $old_vte_rc
 fi
 old_vte_config=$1
+old_vte_soc=$2$3
 make distclean
 make clean
 sudo rm -rf install
