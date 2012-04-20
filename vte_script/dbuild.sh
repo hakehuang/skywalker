@@ -343,8 +343,8 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
- $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} 
+ $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} & 
+ $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} &
 }
 
 
