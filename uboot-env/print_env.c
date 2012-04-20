@@ -31,42 +31,50 @@ int main(int argc, char ** argv)
 {
   char device[512] = "/dev/mmcblk0";
   int i = 1,ct = argc - 1;
-	char * penv = NULL;
-	int bfd;
-	unsigned char * buf, * pstr;
+  char * penv = NULL;
+  int bfd;
+  unsigned char * buf, * pstr;
   uint32_t crcv;
-	int offset = 768 * 1024;
+  int offset = 768 * 1024;
+  if( argc == 2 && 0 == strcmp(argv[1], "-h")){	
+	printf("-f give a path and file name\n");
+	printf("-d give a device node\n");
+	exit(0);
+  }
   while(1)
   {
-   if(i > ct)
-     break;
-   if(0==strcmp(argv[i],"-d")){
+	  if(i > ct)
+		  break;
+	
+	  if(0==strcmp(argv[i],"-d"))
+	  {
+		  if(i == ct){
+			printf("-d give a device node\n");
+			return -1;
+			}
+			memset(device,0,sizeof(device));
+			sprintf(device,"%s",argv[++i]);
+			offset = 768 * 1024;
+			break;
+    	}else if( 0 == strcmp(argv[i], "-f")){
 		   if(i == ct)
 			 {
-				 printf("-d give a device node\n");
+				 printf("-f give a path and file name\n");
 				 return -1;
 			 }
-        memset(device,0,sizeof(device));
-        sprintf(device,"%s",argv[++i]);
-				offset = 768 * 1024;
-    }else if( 0 == strcmp(argv[i], "-f")){
-		   if(i == ct)
-			 {
-				 printf("-d give a path and file name\n");
-				 return -1;
-			 }
-        memset(device,0,sizeof(device));
-        sprintf(device,"%s",argv[++i]);
-				offset = 0;
+        	memset(device,0,sizeof(device));
+        	sprintf(device,"%s",argv[++i]);
+			offset = 0;
+			break;
 		}else if(argv[i] != NULL){
-      penv=argv[i];
-    }
-   i++;
+			penv=argv[i];
+		}
+   		i++;
   } 
   
 	bfd=open(device,O_RDONLY);
 	if(bfd < 0){
-			 perror("open");
+			 perror(device);
 			 return 1;
 	}
 	pstr = (unsigned char *)mmap(NULL,CONFIG_ENV_SIZE,PROT_READ,MAP_SHARED,bfd,offset);

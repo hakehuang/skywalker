@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
 	env_t envs;
 	char buf[MAX_BUF];
   
-	if(strcmp(argv[1],"-g") == 0 && argc == 3){
+	if(argc == 3 && strcmp(argv[1],"-g") == 0){
 		 int bfd;
 		 unsigned char * buf, * pstr;
 		 uint32_t crcv;
@@ -70,7 +70,7 @@ int main(int argc, char ** argv)
 		 return 0;
 	 }
 
-	 if(strcmp(argv[1], "-h") == 0 || argc < 4){
+	 if(argc < 4 || strcmp(argv[1], "-h") == 0){
 		 printf("%s -s <infile> <outfile> : to create the env binary\n", argv[0]);
 		 printf("%s -g /dev/<device node> : to get the env from device\n", argv[0]);
 		 printf("%s -g filename : to get the env from file\n", argv[0]);

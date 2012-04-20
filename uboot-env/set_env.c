@@ -39,6 +39,11 @@ int main(int argc, char ** argv)
 	int need_update = 0;
   char device[512] = "/dev/mmcblk0";
 	char env_name[256];
+  if( argc == 2 && 0 == strcmp(argv[1], "-h")){	
+	printf("-f give a device node\n");
+	printf("-d give a device node\n");
+	exit(0);
+  }
   while(1)
   {
    if(i > ct)
@@ -55,14 +60,14 @@ int main(int argc, char ** argv)
     }else if(0 == strcmp(argv[i],"-f")){
 			if(i == ct)
 			 {
-				 printf("-d give a device node\n");
+				 printf("-f give a device node\n");
 				 return -1;
 			 }
         memset(device,0,sizeof(device));
         sprintf(device,"%s",argv[++i]);
 				offset = 0;
 		}else if(argv[i] != NULL){
-      penv=argv[i];
+      		penv=argv[i];
 			sprintf(env_name, "%s=", penv);
 			printf("penv is set to %s\n", penv);
 			break;
