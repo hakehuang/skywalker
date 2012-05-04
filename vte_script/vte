@@ -68,7 +68,11 @@ if [ ! -z "$test_flag" ]; then
     echo "do not update uboot for release"
     ltp_root=vte_${TARGET}
  else
+   if [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
+   crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk1 | grep UVERSION | cut -d "=" -f 2)
+   else
    crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
+   fi
    crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
   if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
    echo "need update uboot"
