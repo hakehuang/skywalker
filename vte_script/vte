@@ -82,11 +82,12 @@ if [ ! -z "$test_flag" ]; then
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
    elif [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk1 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv -d /dev/mmcblk1 UVERSION ${crc2} 
    else
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv UVERSION ${crc2} 
    fi
    #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
-   /mnt/nfs/tools/setenv UVERSION ${crc2} 
 
 	 reboot
   fi
