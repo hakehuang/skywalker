@@ -221,6 +221,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_roo
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
+sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
 fi
 return $old_kernel_rc
 fi
@@ -240,6 +241,9 @@ sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_roo
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
+cd $KERNEL_DIR/tools/perf/
+make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- CFLAGS="-static -DGElf_Nhdr=Elf32_Nhdr"
+sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
 old_kernel_rc=0
 return 0
 }
