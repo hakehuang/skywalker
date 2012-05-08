@@ -22,6 +22,7 @@ SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
 UNITTEST_DIR=${ROOTDIR}/linux-test
 FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
 LIB_DIR=${ROOTDIR}/linux-lib
+GPU_DIR=$(ROOTDIR)/gpu-viv
 
 all_one_branch=n
 
@@ -40,6 +41,8 @@ declare -a kernel_configs;
 declare -a vte_configs;
 declare -a unit_test_configs;
 declare -a rootfs_apd;
+declare -a gpu_branch;
+declare -a gpu_configs;
 # As bash only support 1 dimension array below sequence is our assumption
 # 0   1  2  3  4  5  6  7  8  9  10 11
 #(23 25 28 31 35 37 50 50  51 53 53 61)
@@ -51,6 +54,8 @@ kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" 
 vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
 "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" \
 "master" "master" "master" "master");
+gpu_branch=("" "" "" "" "" "" "" "" "" "" "" "multicore" "multi-ore" "multicore" "multicore" \
+"multicore" "multicore" "multicore");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
 "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" \
@@ -88,6 +93,7 @@ linux_libs_branch=("master" "master" "master" "master" "master" "master" "master
 "master" "master");
 #rootfs and vte apendix
 rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
+gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1");
 
 branch_libs()
 {
@@ -210,6 +216,94 @@ make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 $4 |
 return 0
 }
 
+make_gpu()
+{
+if [ $1 -eq 0 ];then
+ return 0
+fi
+echo "make gpu driver $2 with $1"
+cd $GPU_DIR/driver
+if [ "$old_gpu_config" = $1 ];then
+if [ "$old_gpu_rc" -eq 0 ]; then
+sudo cp -a $GPU_DIR/build/sdk/driver/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+fi
+return $old_gpu_rc
+fi
+old_gpu_config=$1
+git branch -D build_${2}
+git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
+git checkout -b build_${2} build
+
+export ARCH=arm
+export AQROOT=`pwd`
+export AQARCH=$AQROOT/arch/XAQ2
+export AQVGARCH=$AQROOT/arch/GC350
+export SDK_DIR=$AQROOT/build/sdk
+export USE_355_VG=1
+export DFB_DIR=/mnt/nfs_root/imx{2}_rootfs${3}/usr
+export ARCH_TYPE=$ARCH
+export CPU_TYPE=cortex-a9
+export FIXED_ARCH_TYPE=arm
+
+export KERNEL_DIR=${KERNEL_DIR}
+export CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi-
+LD_OPTION_DEBUG=0
+BUILD_OPTION_ABI=0
+BUILD_OPTION_LINUX_OABI=0
+BUILD_OPTION_NO_DMA_COHERENT=0
+BUILD_OPTION_USE_VDK=1
+if [ -z $BUILD_OPTION_EGL_API_FB ]; then
+    BUILD_OPTION_EGL_API_FB=1
+fi
+BUILD_OPTION_gcdSTATIC_LINK=0
+BUILD_OPTION_CUSTOM_PIXMAP=0
+BUILD_OPTION_USE_3D_VG=1
+BUILD_OPTION_USE_OPENCL=1
+BUILD_OPTION_USE_FB_DOUBLE_BUFFER=0
+BUILD_OPTION_USE_PLATFORM_DRIVER=1
+BUILD_OPTION_ENABLE_GPU_CLOCK_BY_DRIVER=1
+BUILD_OPTION_CONFIG_DOVEXC5_BOARD=0
+BUILD_OPTION_FPGA_BUILD=0
+BUILD_OPTION_USE_PROFILER=0
+BUILD_OPTION_VIVANTE_ENABLE_VG=1
+BUILD_OPTION_USE_355_VG=1
+BUILD_OPTION_DIRECTFB_MAJOR_VERSION=1
+BUILD_OPTION_DIRECTFB_MINOR_VERSION=4
+BUILD_OPTION_DIRECTFB_MICRO_VERSION=0
+
+BUILD_OPTIONS="NO_DMA_COHERENT=$BUILD_OPTION_NO_DMA_COHERENT"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_VDK=$BUILD_OPTION_USE_VDK"
+BUILD_OPTIONS="$BUILD_OPTIONS EGL_API_FB=$BUILD_OPTION_EGL_API_FB"
+BUILD_OPTIONS="$BUILD_OPTIONS gcdSTATIC_LINK=$BUILD_OPTION_gcdSTATIC_LINK"
+BUILD_OPTIONS="$BUILD_OPTIONS ABI=$BUILD_OPTION_ABI"
+BUILD_OPTIONS="$BUILD_OPTIONS LINUX_OABI=$BUILD_OPTION_LINUX_OABI"
+BUILD_OPTIONS="$BUILD_OPTIONS DEBUG=$BUILD_OPTION_DEBUG"
+BUILD_OPTIONS="$BUILD_OPTIONS CUSTOM_PIXMAP=$BUILD_OPTION_CUSTOM_PIXMAP"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_3D_VG=$BUILD_OPTION_USE_3D_VG"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_OPENCL=$BUILD_OPTION_USE_OPENCL"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_FB_DOUBLE_BUFFER=$BUILD_OPTION_USE_FB_DOUBLE_BUFFER"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_PLATFORM_DRIVER=$BUILD_OPTION_USE_PLATFORM_DRIVER"
+BUILD_OPTIONS="$BUILD_OPTIONS ENABLE_GPU_CLOCK_BY_DRIVER=$BUILD_OPTION_ENABLE_GPU_CLOCK_BY_DRIVER"
+BUILD_OPTIONS="$BUILD_OPTIONS CONFIG_DOVEXC5_BOARD=$BUILD_OPTION_CONFIG_DOVEXC5_BOARD"
+BUILD_OPTIONS="$BUILD_OPTIONS FPGA_BUILD=$BUILD_OPTION_FPGA_BUILD"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_PROFILER=$BUILD_OPTION_USE_PROFILER"
+BUILD_OPTIONS="$BUILD_OPTIONS VIVANTE_ENABLE_VG=$BUILD_OPTION_VIVANTE_ENABLE_VG"
+BUILD_OPTIONS="$BUILD_OPTIONS USE_355_VG=$BUILD_OPTION_USE_355_VG"
+BUILD_OPTIONS="$BUILD_OPTIONS DIRECTFB_MAJOR_VERSION=$BUILD_OPTION_DIRECTFB_MAJOR_VERSION"
+BUILD_OPTIONS="$BUILD_OPTIONS DIRECTFB_MINOR_VERSION=$BUILD_OPTION_DIRECTFB_MINOR_VERSION"
+BUILD_OPTIONS="$BUILD_OPTIONS DIRECTFB_MICRO_VERSION=$BUILD_OPTION_DIRECTFB_MICRO_VERSION"
+
+export PATH=$TOOLCHAIN/bin:$PATH
+export AQVGARCH=$AQROOT/arch/GC350
+export VIVANTE_ENABLE_VG=1
+
+cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
+cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1
+sudo cp -a $GPU_DIR/driver/build/sdk/driver/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+old_gpu_rc=0
+return 0
+}
+
 make_kernel()
 {
 echo "make Platform $2 with $1"
@@ -234,7 +328,7 @@ echo "-daily"  > localversion
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 uImage|| return 2
 KERNEL_VER=$(./scripts/setlocalversion)
-sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/lib/modules/*-daily*
+#sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
@@ -379,6 +473,31 @@ fi
  return 0
 }
 
+branch_gpu()
+{
+ if [ -z "$1" ]; then
+   return 0
+ fi
+ old_gpu_branch=$1
+ old_gpu_config=""
+ cd $ROOTDIR
+ if [ ! -e ${GPU_DIR} ]; then
+ git clone ssh://b20222@sw-git.freescale.net/git/sw_git/private/gpu-viv.git
+ fi
+ cd ${GPU_DIR}
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
+ git checkout -b temp2 || git checkout temp2
+ git branch -D temp
+ git checkout -b temp  origin/$1
+ git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
+ git remote update
+ git branch -D build
+ git fetch origin +$1:build && git checkout build || return 1
+ return 0
+}
+
 branch_vte()
 {
 if [ $all_one_branch = "n" ]; then
@@ -505,6 +624,8 @@ do
      update_rootfs $c_soc ${rootfs_apd[${j}]}
      make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc ${rootfs_apd[${j}]}
      make_unit_test ${unit_test_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || RC=$(echo $RC unit_test_$i) 
+     branch_gpu  ${gpu_branch[$j]}
+     make_gpu  ${gpu_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || old_gpu_rc=$?
      #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
      #then
      	sync_server $i READY_KVER${KERNEL_VER}
