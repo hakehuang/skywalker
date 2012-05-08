@@ -40,6 +40,7 @@ if [ -z "$TARGET" ]; then
 return 1
 fi
 vte_apd=$(cat /proc/cmdline| grep "vte=" | sed 's/vte=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+STRESS_APD=$(cat /proc/cmdline| grep "stress=" | sed 's/stress=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
 if [ -z "$vte_apd" ]; then
 ltp_root=vte_${TARGET}_d
 else
@@ -67,7 +68,11 @@ if [ ! -z "$test_flag" ]; then
     echo "do not update uboot for release"
     ltp_root=vte_${TARGET}
  else
+   if [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
+   crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk1 | grep UVERSION | cut -d "=" -f 2)
+   else
    crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
+   fi
    crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
   if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
    echo "need update uboot"
@@ -77,11 +82,12 @@ if [ ! -z "$test_flag" ]; then
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
    elif [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk1 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv -d /dev/mmcblk1 UVERSION ${crc2} 
    else
    	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv UVERSION ${crc2} 
    fi
    #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
-   /mnt/nfs/tools/setenv UVERSION ${crc2} 
 
 	 reboot
   fi
@@ -105,7 +111,7 @@ if [ ! -z "$test_flag" ]; then
  #tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
  tstatus=1
  if [ $tstatus -gt 0 ]; then
-  cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file
+  cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file $STRESS_APD
   #test finished start a process to reset board at
   if [ $? -eq 0 ]; then
  	if [ $release_flag -ne 0  ]; then

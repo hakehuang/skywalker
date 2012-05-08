@@ -15,11 +15,11 @@ export CROSS_COMPILE=arm-none-linux-gnueabi-
 
 RC=0
 
-platfm_rootfs="imx50_rootfs imx53_rootfs ubuntu_10.04"
+platfm_rootfs="imx50_rootfs imx53_rootfs ubuntu_10.04 imx61_rootfs"
 declare -a platfm_rootfs_config;
 declare -a platfm_cflags;
 #rootfs can only has FB or XGL, otherwise will be taken as XGL
-platfm_rootfs_config=("FB" "FB" "XGL");
+platfm_rootfs_config=("FB" "FB" "XGL" "FB");
 #CFLAGS for different rootfs
 platfm_cflags=("-Wall -O2 -fsigned-char -march=armv7-a -mfpu=neon -mfloat-abi=softfp " \
 "-Wall -O2 -fsigned-char -march=armv7-a -mfpu=neon -mfloat-abi=softfp ")
@@ -32,7 +32,7 @@ declare -a apps_dir_FB;
 declare -a apps_dir_XGL;
 apps_cnt=4
 apps=("3DMarkMobile.git" "bbPinball.git" "openGLES.git" "openVG.git");
-apps_support=("imx53_rootfs ubuntu_10.04" "imx53_rootfs ubuntu_10.04" \
+apps_support=("imx53_rootfs ubuntu_10.04 imx61_rootfs" "imx53_rootfs ubuntu_10.04" \
 "imx53_rootfs ubuntu_10.04" "imx50_rootfs imx53_rootfs ubuntu_10.04");
 apps_configs_FB=("fsl_imx_linux" "master" "FB" "framebuffer_crosscompile");
 apps_configs_XGL=("fsl_egl_x" "xwindow" "master" "egl_x_crosscompile");

@@ -229,11 +229,13 @@ do
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx61
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_$2
   fi
   if [ $i == "MX63" ]
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx63
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_$2
   fi
 
 done
