@@ -75,7 +75,7 @@ tofile "<count>"
 tofile  $(cat $i | wc -l)
 tofile  "</count>"
 tofile  "<flink>"
-tofile  "http://shlx12.ap.freescale.net/test_reports/${2}_output/$(basename $i)"
+tofile  "http://10.192.244.61/test_reports/${2}_output/$(basename $i)"
 tofile  "</flink>"
 tofile  "<fdate>"
 tofile  $idate
@@ -84,7 +84,7 @@ tofile  "<total_cases>"
 tofile  ${total_case}
 tofile  "</total_cases>"
 tofile  "<runfile>"
-tofile  "http://shlx12.ap.freescale.net/test_reports/runtest_${PLATFORM}/${runfile}"
+tofile  "http://10.192.244.61/test_reports/runtest_${PLATFORM}/${runfile}"
 tofile  "</runfile>"
 tofile  "</fail_count>"
 done
