@@ -214,10 +214,10 @@ First we need a function to abstract the case id and its output, it works like:
             break
 '''
 
-failFp1=open("failTid",'w')
-failFp2=open("failLog",'w')
-timeoutFp1=open("toTid",'w')
-timeoutFp2=open("toLog",'w')
+failFp1=open(  os.environ['HOME'] +  "/failTid",'w')
+failFp2=open(  os.environ['HOME'] +  "/failLog",'w')
+timeoutFp1=open(  os.environ['HOME'] +  "/toTid",'w')
+timeoutFp2=open(  os.environ['HOME'] + "/toLog",'w')
 
 
 for line in outFp:
@@ -236,10 +236,10 @@ failFp1.close()
 failFp2.close()
 timeoutFp1.close()
 timeoutFp2.close()
-failFp1=open("failTid",'r')
-failFp2=open("failLog",'r')
-timeoutFp1=open("toTid",'r')
-timeoutFp2=open("toLog",'r')
+failFp1=open( os.environ['HOME'] + "/failTid",'r')
+failFp2=open( os.environ['HOME'] + "/failLog",'r')
+timeoutFp1=open( os.environ['HOME'] +  "/toTid",'r')
+timeoutFp2=open(  os.environ['HOME'] +  "/toLog",'r')
 
 htmlFp.write("<html>\n")
 topLink='''
@@ -309,8 +309,8 @@ failFp2.close()
 timeoutFp1.close()
 timeoutFp2.close()
 htmlFp.close()
-os.remove("failTid")
-os.remove("failLog")
-os.remove("toTid")
-os.remove("toLog")
+os.remove(os.environ['HOME'] + "/failTid")
+os.remove(os.environ['HOME'] +  "/failLog")
+os.remove(os.environ['HOME'] +  "/toTid")
+os.remove(os.environ['HOME'] + "/toLog")
 

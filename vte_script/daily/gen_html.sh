@@ -43,7 +43,7 @@ do
 	do
 	 log_lt=$(expr $log_lt + 1)
 	 if [ $log_lt -gt $tcnt ]; then
-     exit 0
+     		exit 0
 	 fi
 	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report | tail -1)
 	 ht=$(echo $log_name | cut -c 1)
@@ -68,8 +68,7 @@ do
         test_result=${LTPROOT}/results/$(basename $HTMLFILE .html)${TEST_LOGS_DIRECTORY}.txt
         test_output=$OUTPUT_DIRECTORY
         /rootfs/wb/aResult.py $test_plan $test_result $test_output
-        mv ${test_output}.html ${LTPROOT}/results/  
-
+        sudo mv ${test_output}.html ${LTPROOT}/results/
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
