@@ -31,5 +31,6 @@ nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
 mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
 mopts=nolock,wsize=8196,rsize=8196,timeo=14
 wait_mode=enable_wait_mode=off
+epdc_mode=epdc video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
 arm_freq=1000
 UVERSION=3

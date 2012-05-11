@@ -11,11 +11,11 @@ tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
-bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
+bootargs_mmc=setenv bootargs ${bootargs} root=/dev/mmcblk0p1 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; mmc dev 3; mmc read ${loadaddr} 0x800 0x2000; bootm
 nand=gpmi:nand
 spdif_on=spdif
-bootcmd=run bootcmd_net;bootm
+bootcmd=run bootcmd_mmc
 stdin=serial
 stdout=serial
 stderr=serial
