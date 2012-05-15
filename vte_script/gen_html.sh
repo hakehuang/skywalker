@@ -68,7 +68,6 @@ do
     test_output=$OUTPUT_DIRECTORY
     /rootfs/wb/aResult.py $test_plan $test_result $test_output
     mv ${test_output}.html ${LTPROOT}/results/  
-
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY

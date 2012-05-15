@@ -34,7 +34,7 @@ runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 totalcase_path=$(dirname $(dirname $i))/runtest/
 total_case=$(cat ${totalcase_path}${runfile} | grep -v '#' | wc -l)
-if [ $total_case -gt 0  ]; then
+if [ $total_case -gt $MAXcase  ]; then
 MAXcase=$total_case
 fi
 done
@@ -64,12 +64,13 @@ runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 mac=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 2 | sed 's/failed/txt/')
 resultpath=$(dirname $(dirname $i))/results/
+runpath=$(dirname $(dirname $i))/runtest/
 resultfile=$(ls $resultpath | grep $runfile | grep $mac | grep $idate)
-if [ ! -z "$resultfile" ]; then
-total_case=$(cat ${resultpath}${resultfile} | grep "TGE" | wc -l)
-else
-total_case=$MAXcase
-fi
+#if [ ! -z "$resultfile" ]; then
+#total_case=$(cat ${resultpath}${resultfile} | grep "TGE" | wc -l)
+#else
+total_case=$(cat ${runpath}${runfile} | grep "TGE" | wc -l)
+#fi
 tofile "<fail_count>"
 tofile "<count>"
 tofile  $(cat $i | wc -l)

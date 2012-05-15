@@ -17,12 +17,12 @@ declare -a VTE_PATH;
 declare -a ALL_PLAT;
 
 PRJ=$1
-
-PCNT=10
+PCNT=12
 ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE" "IMX6-SABREAUTO" "IMX6-SABRELITE" \
-"IMX6ARM2" "IMX6DL-ARM2" "IMX6Solo-SABREAUTO");
+"IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" "IMX6DL-Sabre-SD" "IMX6Solo-SABREAUTO");
 VTE_PATH=("vte_IMX50RDP"  "vte_IMX50-RDP3" "vte_IMX53LOCO" "vte_IMX53SMD" "vte_IMX51-BABBAGE" \
-"vte_IMX6-SABREAUTO" "vte_IMX6-SABRELITE" "vte_IMX6ARM2" "vte_IMX6DL-ARM2" "vte_IMX6Solo-SABREAUTO");
+"vte_IMX6-SABREAUTO" "vte_IMX6-SABRELITE" "vte_IMX6ARM2" "vte_IMX6Q-Sabre-SD" "vte_IMX6DL-ARM2" \
+"vte_IMX6DL-Sabre-SD"  "vte_IMX6Solo-SABREAUTO");
 
 for i in $PRJ
 do
@@ -60,6 +60,12 @@ do
 	. $LTPROOT/output/$log_name
 	OUTPUT_FILE=$(basename $OUTPUT_DIRECTORY)
 	export OUTPUT_DIRECTORY=${LTPROOT}/output/$OUTPUT_FILE
+	plan=$(echo $OUTPUT_FILE | sed "s/${i}_//" | sed "s/_log/^/" | cut -d '^' -f 1)	
+	test_plan=${LTPROOT}/runtest/${plan}
+    	test_result=${LTPROOT}/results/$(basename $HTMLFILE .html)${TEST_LOGS_DIRECTORY}.txt
+    	test_output=$OUTPUT_DIRECTORY
+    	/rootfs/wb/aResult.py $test_plan $test_result $test_output
+    	sudo mv ${test_output}.html ${LTPROOT}/results/  
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
@@ -101,7 +107,8 @@ do
 		fi
   cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   ${BASE}/gen_fail_log.sh $LTPROOT/output/ $i ${TARGET_OUTPUT_BASE}
-  cat "please see http://shlx12.ap.freescale.net/test_reports/" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  result_html=$(basename $test_output).html
+  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
 	fi
  fi	
