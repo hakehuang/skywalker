@@ -32,8 +32,8 @@ for i in $list
 do
 runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
-totalcase_path=$(dirname $(dirname $i))/runtest/
-total_case=$(cat ${totalcase_path}${runfile} | grep -v '#' | wc -l)
+runpath=$(dirname $(dirname $i))/runtest/
+total_case=$(cat ${runpath}${runfile} | grep "TGE" | wc -l)
 if [ $total_case -gt $MAXcase  ]; then
 MAXcase=$total_case
 fi
@@ -59,7 +59,7 @@ idatea=$(stat -c %y $i | awk '{print $1}')
 idatey=$(echo $idatea| cut -d '-' -f 1)
 idatem=$(echo $idatea| cut -d '-' -f 2)
 idated=$(echo $idatea| cut -d '-' -f 3)
-idate=${idatem}${idated}${idatey}
+idate=${idatey}${idatem}${idated}
 runfile_a=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 1)
 runfile=$(echo $runfile_a | sed 's/_/#/' | cut -d '#' -f 2)
 mac=$(basename $i | sed 's/LTP_RUN_ON-//' | sed 's/_log/#/' | cut -d '#' -f 2 | sed 's/failed/txt/')
