@@ -62,11 +62,10 @@ h1 { font-size: 1.5em; }
 					</text>
 					</a>
 					<rect x="{position()*20+2}" y="-{$tval*1}" height="{$tval*1}" width="2" style="fill:rgb(0,0,255);"/>
-					<xsl:variable name="fdt" select="fdate">	
+					<xsl:variable name="fdt" select="fdate"/>	
 				<text x="{position()*20}" y="10" classstyle="font-family:arial;text-anchor:right;baseline-shift:-5" font-size="3pt"
                                  class="ttip" onmouseover="showTip('ttip1',{$fdt})" onmouseout="hideTip('ttip1')" onmousemove="moveTip('ttip1')">
 						<xsl:value-of select="fdate"/>
-					</xsl:variable>
 					</text>	
 				</xsl:for-each>
 			</g>
