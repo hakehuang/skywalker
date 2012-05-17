@@ -235,7 +235,7 @@ git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git 
 git checkout -b build_${2} build
 
 export ARCH=arm
-export AQROOT=`pwd`
+export AQROOT=${GPU_DIR}/driver
 export AQARCH=$AQROOT/arch/XAQ2
 export AQVGARCH=$AQROOT/arch/GC350
 export SDK_DIR=$AQROOT/build/sdk
@@ -475,7 +475,7 @@ fi
 
 branch_gpu()
 {
- if [ -z "$1" ]; then
+ if [ $1 -eq 0 ]; then
    return 0
  fi
  old_gpu_branch=$1
