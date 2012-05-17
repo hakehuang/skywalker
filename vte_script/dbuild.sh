@@ -22,7 +22,7 @@ SCRPTSDIR=${ROOTDIR}/skywalker/vte_script
 UNITTEST_DIR=${ROOTDIR}/linux-test
 FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
 LIB_DIR=${ROOTDIR}/linux-lib
-GPU_DIR=$(ROOTDIR)/gpu-viv
+GPU_DIR=${ROOTDIR}/gpu-viv
 
 all_one_branch=n
 
