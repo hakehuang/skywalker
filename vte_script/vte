@@ -158,6 +158,9 @@ if [ "$1" != "start" ]; then
  exit
 fi
 
+#telnet
+telnetd
+
 #enlarge the memory
 echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
 
