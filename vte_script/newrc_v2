@@ -39,6 +39,7 @@ VTE_ORIGINAL_PATH=/rootfs/
 
 #tftpd server
 TFTP_SERVER=10.192.225.218
+TFTP_SERVER2=10.192.244.7
 
 #NFS server 
 #NFS_SERVER=10.192.224.170
@@ -57,18 +58,20 @@ MX25_ROOTFS=${NFS_PATH}imx25_rootfs_r/
 MX53_ROOTFS=${NFS_PATH}imx53_rootfs_r/
 MX50_ROOTFS=${NFS_PATH}imx50_rootfs_r/
 MX61_ROOTFS=${NFS_PATH}imx61_rootfs_r/
+MX60_ROOTFS=${NFS_PATH}imx60_rootfs_r/
 MX63_ROOTFS=${NFS_PATH}imx63_rootfs_r/
 
 MX51_ROOTFS_d=${NFS_PATH}imx51_rootfs/
 MX53_ROOTFS_d=${NFS_PATH}imx53_rootfs/
 MX50_ROOTFS_d=${NFS_PATH}imx50_rootfs/
 MX61_ROOTFS_d=${NFS_PATH}imx61_rootfs/
+MX60_ROOTFS_d=${NFS_PATH}imx60_rootfs/
 MX63_ROOTFS_d=${NFS_PATH}imx63_rootfs/
 
 echo "$(date +"%y%m%d")" >> .newrclog
 echo "$0 $@" >> .newrclog
 
-if [ $# -ne 1 ]
+if [ $# -lt 1 ]
 then
 echo "need released filename"
 echo "or"
@@ -88,6 +91,8 @@ then
   rm -rf ${NFS_PATH}imx53_rootfs_r
   rm -rf ${NFS_PATH}imx50_rootfs_r
   rm -rf ${NFS_PATH}imx61_rootfs_r
+  rm -rf ${NFS_PATH}imx63_rootfs_r
+  rm -rf ${NFS_PATH}imx60_rootfs_r
   exit 0
 fi
 
@@ -229,13 +234,25 @@ do
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx61
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_$2
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_${2}
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx61
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx61_${2}
   fi
   if [ $i == "MX63" ]
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx63
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_$2
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_${2}
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx63
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx63_${2}
+  fi
+  if [ $i == "MX60" ]
+  then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx60
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60_${2}
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx60
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx60_${2}
   fi
 
 done
@@ -477,6 +494,7 @@ do
  sync
  umount /mnt/tempfs 
  fi
+
  if [ $i == "MX63" ]
  then
  gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
@@ -493,6 +511,24 @@ do
  sync
  umount /mnt/tempfs 
  fi
+
+ if [ $i == "MX60" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs || exit -1
+ rm -rf ./last_week/imx60_rootfs_r
+ mv ${MX60_ROOTFS} ./last_week/
+ mkdir -p ${MX60_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX60_ROOTFS}/
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/u-boot-mx6*.bin ${MX60_ROOTFS}/root
+ sync
+ umount /mnt/tempfs 
+ fi
+
 done
 
 
@@ -552,6 +588,12 @@ do
   cp ${VTE_ORIGINAL_PATH}vte ${MX63_ROOTFS}/etc/rc.d/init.d/
   cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX63_ROOTFS}/etc/rc.d/init.d/
   fi
+  if [ $i == "MX60" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX60_ROOTFS}/etc/rc.d/init.d/
+  cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX60_ROOTFS}/etc/rc.d/init.d/
+  fi
+
 done
 
 echo "now modify the /etc/rc.d/rc.local & /etc/udev/rules.d/20-board.rules"
@@ -723,6 +765,18 @@ do
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX63_ROOTFS}etc/fstab
 		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
   fi
+  if [ $i == "MX60" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX60_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+  fi
+
 done
 
 echo "finish processing!"

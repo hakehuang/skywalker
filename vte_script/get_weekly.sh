@@ -34,8 +34,10 @@ export PLATFORM=MX50
 echo $passwd | ./newrc_v2 $1/L${KER_VER}_$2_images_MX5X.tar.gz || exit 1
 export PLATFORM=MX53
 echo $passwd | ./newrc_v2 $1/L${KER_VER}_$2_images_MX5X.tar.gz || exit 1
+export PLATFORM=MX63
+./newrc_v2 $1 $2 || exit 1
 export PLATFORM=MX61
 ./newrc_v2 $1 $2 || exit 1
 fi
-export PLATFORM=MX63
+export PLATFORM=MX60
 ./newrc_v2 $1 $2 || exit 1

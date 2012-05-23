@@ -1,0 +1,91 @@
+#!/bin/sh
+# Prerequisite /etc/rc.d/rc.local 
+# this script is run on NFS server for weekly test
+# init the root file system to run vte scripts
+# by Hake Huang
+# freescale copy right. all rights reserved
+
+
+HOST_SERVER=10.192.224.48
+
+PLATFORM="MX31 MX35 MX37 MX51 MX25 MX233 MX28" 
+#PLATFORM="MX28" 
+
+KERNEL_VER=3.0.15
+
+SDK_VER=12.01.01
+read -p "please input sdk version: " SDK_VER
+read -p "please input kernel version: " KERNEL_VER
+
+LINUX_KERNEL=linux-${KERNEL_VER}.tar.bz2
+PATCHES=linux-${KERNEL_VER}-imx_${SDK_VER}.bz2
+
+RELEASE_PACKAGE=$(basename $1)
+REL_P=${1}
+
+#release path in build server 
+if [ $HOST_SERVER == "10.192.224.48" ]                                        
+then                                                                          
+RELEASE_PATH="/pub1$(dirname $1)"
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/hive//g') 
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/10.192.224.48//g') 
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/(/\\(/g')                          
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/)/\\)/g')                          
+echo $RELEASE_PATH                                                            
+else                                                                          
+RELEASE_PATH="$(dirname $1)"                                                  
+fi                    
+
+
+VTE_ORIGINAL_PATH=/rootfs/ 
+#NFS server path
+NFS_PATH=/rootfs/
+
+
+RC=1
+
+if [ -e ${NFS_PATH}temp2 ]
+then
+  #rm -rf ${NFS_PATH}temp2
+  echo help
+fi
+sleep 1
+mkdir -p ${NFS_PATH}temp2
+
+echo "get the package"
+echo "$1 should be on scm server path"
+#cp /mnt/scmrelease/$1 ${NFS_PATH}temp2/ || cp /mnt/scmbuild/$1 ${NFS_PATH}temp2/
+#wget ${REL_P} -P ${NFS_PATH}temp2/
+#scp b20222@${HOST_SERVER}:${RELEASE_PATH}/${RELEASE_PACKAGE} ${NFS_PATH}temp2/ || exit 1  
+
+#scp ${NFS_PATH}/temp2/* 10.192.225.217:/home/ltib2/ltib_build/
+#scp ${NFS_PATH}/temp2/* ubuntu@10.192.225.32:/home/ltib2/ltib_build/
+
+echo "unzip the package"
+tar xzvf ${NFS_PATH}temp2/$RELEASE_PACKAGE -C ${NFS_PATH}temp2 || exit 2
+#RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
+RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
+
+cd ${NFS_PATH}temp2/${RELEASE_TARGET}/
+
+cp pkgs/${LINUX_KERNEL} .
+tar xjf ${LINUX_KERNEL} || exit $RC
+cp pkgs/${PATCHES} linux-${KERNEL_VER}
+
+cd linux-${KERNEL_VER}
+tar xjf ${PATCHES} || exit $RC
+rm -f ${PATCHES}
+
+./patches/patch-kernel.sh || exit $RC
+
+
+cd ..
+tar czvf linux-${KERNEL_VER}_wb.tar.gz linux-${KERNEL_VER}
+rm -f ${LINUX_KERNEL}
+#scp linux-${KERNEL_VER}_wb.tar.gz 10.192.225.217:/home/vobs/
+scp linux-${KERNEL_VER}_wb.tar.gz ubuntu@10.192.224.187:/home/vobs/
+sleep 120
+echo "kernel srouce deploy OK" | mutt -s "kernel source is OK" \
+b20222@freescale.com &
+
+echo "kernel deploy ok"
