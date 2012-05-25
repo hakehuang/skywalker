@@ -26,6 +26,7 @@ lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 nand_mode=mtdparts=gpmi-nand:20m(boot),20m(kernel),1024m(rootfs),-(user)
-epdc_mode=epdc video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
+epdc_mode=video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
+spdc_mode=video=mxcspdcfb:ERK_1_4_A01,bpp=16
 HDMI_mode=video=mxcfb0:dev=sii902x_hdmi,1920x1080M@60,if=RGB24 disable_mipi_dsi
 UVERSION=3
