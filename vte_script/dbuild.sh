@@ -225,7 +225,7 @@ echo "make gpu driver $2 with $1"
 cd $GPU_DIR/driver
 if [ "$old_gpu_config" = $1 ];then
 if [ "$old_gpu_rc" -eq 0 ]; then
-sudo cp -a $GPU_DIR/build/sdk/driver/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
 fi
 return $old_gpu_rc
 fi
@@ -236,11 +236,11 @@ git checkout -b build_${2} build
 
 export ARCH=arm
 export AQROOT=${GPU_DIR}/driver
-export AQARCH=$AQROOT/arch/XAQ2
-export AQVGARCH=$AQROOT/arch/GC350
-export SDK_DIR=$AQROOT/build/sdk
+export AQARCH=${AQROOT}/arch/XAQ2
+export AQVGARCH=${AQROOT}/arch/GC350
+export SDK_DIR=${AQROOT}/build/sdk
 export USE_355_VG=1
-export DFB_DIR=/mnt/nfs_root/imx{2}_rootfs${3}/usr
+export DFB_DIR=/mnt/nfs_root/imx${2}_rootfs${3}/usr
 export ARCH_TYPE=$ARCH
 export CPU_TYPE=cortex-a9
 export FIXED_ARCH_TYPE=arm
@@ -299,7 +299,7 @@ export VIVANTE_ENABLE_VG=1
 
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1
-sudo cp -a $GPU_DIR/driver/build/sdk/driver/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
 old_gpu_rc=0
 return 0
 }
