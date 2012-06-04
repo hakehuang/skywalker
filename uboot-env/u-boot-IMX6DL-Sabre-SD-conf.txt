@@ -4,8 +4,8 @@ loadaddr=0x10800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx63_d
-nfsroot=/rootfs/imx63_rootfs
+kernel=uImage_mx61_d
+nfsroot=/rootfs/imx61_rootfs
 serverip=10.192.224.218
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} ${lvds_mode}
@@ -20,10 +20,15 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
+<<<<<<< HEAD
+bootargs=console=ttymxc0,115200 daily_test=ada_6dl_auto vmalloc=256M
+lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
+=======
 bootargs=console=ttymxc0,115200 daily_test=imx61_SMD_auto vmalloc=256M
 lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
+>>>>>>> 5df6c953a2ce77faa7b91e8098f0a67c5148ce5f
 lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
-lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
+lcd_mode=video=mxcfb1:dev=lcd,if=RGB565 enable_lcd_ldb
 hdmi_mode=video=mxcfb0:dev=hdmi,1920x1080M@60,if=RGB24
 hdmi_720_mode=video=mxcfb0:dev=hdmi,1280x720M@60,if=RGB24
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
