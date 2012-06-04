@@ -20,13 +20,8 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-<<<<<<< HEAD
-bootargs=console=ttymxc0,115200 daily_test=ada_6dl_auto vmalloc=256M
-lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sin1
-=======
 bootargs=console=ttymxc0,115200 daily_test=imx61_SMD_auto vmalloc=256M
 lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
->>>>>>> 5df6c953a2ce77faa7b91e8098f0a67c5148ce5f
 lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb1:dev=lcd,if=RGB565 enable_lcd_ldb
 hdmi_mode=video=mxcfb0:dev=hdmi,1920x1080M@60,if=RGB24
