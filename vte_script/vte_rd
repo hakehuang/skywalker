@@ -1,0 +1,179 @@
+#!/bin/sh
+###################################################################################################
+#
+#    @file   vte
+#
+#    @brief  shell script to mount the vte test suite for different platform from nfs 
+#
+###################################################################################################
+#
+#   Copyright (C) 2004, Freescale Semiconductor, Inc. All Rights Reserved
+#   THIS SOURCE CODE IS CONFIDENTIAL AND PROPRIETARY AND MAY NOT
+#   BE USED OR DISTRIBUTED WITHOUT THE WRITTEN PERMISSION OF
+#   Freescale Semiconductor, Inc.
+#
+###################################################################################################
+#Revision History:
+#                            Modification     Tracking
+#Author                          Date          Number    Description of Changes
+#-------------------------   ------------    ----------  -------------------------------------------
+#Hake Huang/-----             20081007     N/A          Initial version
+# 
+###################################################################################################
+
+flag=$(cat /proc/cmdline | grep release | wc -l)
+SYNC_SERVER=10.192.225.222
+DSYNC_SERVER=10.192.242.9
+
+if [ $flag -ne 0 ]; then
+TEST_SERVER=10.192.225.222
+else
+TEST_SERVER=10.192.242.9
+fi
+
+start_test()
+{
+TARGET=$(/mnt/nfs/tools/platfm.sh)
+need_reboot=0
+platfm=$(/mnt/nfs/tools/platfm.sh)
+if [ -z "$TARGET" ]; then
+return 1
+fi
+vte_apd=$(cat /proc/cmdline| grep "vte=" | sed 's/vte=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+STRESS_APD=$(cat /proc/cmdline| grep "stress=" | sed 's/stress=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+GOVERNOR=$(cat /proc/cmdline | grep "gov=" | sed 's/gov=/^/' | cut -d '^' -f 2 | cut -d " " -f 1)
+
+if [ ! -z "$GOVERNOR"  ]; then
+echo $GOVERNOR > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+sleep 1
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq > /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+echo "cpu working at $GOVERNOR freq is:"
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+fi
+
+if [ -z "$vte_apd" ]; then
+ltp_root=vte_${TARGET}_d
+else
+ltp_root=vte_${TARGET}_${vte_apd}
+SYNC_SERVER=10.192.225.222
+fi
+test_flag=$(cat /proc/cmdline | grep daily_test)
+test_file=$(cat /proc/cmdline | sed 's/daily_test=/^/'| cut -d '^' -f 2 | cut -d " " -f 1)
+if [ ! -z "$test_flag" ]; then
+ #enable watchdog here
+ echo "start test in 30 seconds, or login then kill the test"
+ sleep 30
+ status=1
+ while [ $status -eq 0 ]
+ do
+  status=$(/mnt/nfs/tools/uclient ${TEST_SERVER} 12500 ${platfm}_HELLO | grep ACK | wc -l)
+	#if [ $status -eq 0 ]; then
+	#  need_reboot=1
+	#fi
+  sleep 1
+ done
+ #check the uboot
+ release_flag=$(cat /proc/cmdline | grep release | wc -l)
+ if [ $release_flag -ne 0 ]; then
+    echo "do not update uboot for release"
+    ltp_root=vte_${TARGET}
+ else
+   if [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
+   crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk1 | grep UVERSION | cut -d "=" -f 2)
+   else
+   crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk0 | grep UVERSION | cut -d "=" -f 2)
+   fi
+   crc2=$(/mnt/nfs/tools/u-config -g /root/u-boot-${platfm}-config.bin | grep UVERSION | cut -d "=" -f 2)
+  if [ "$crc1" != "$crc2" ] && [ ! -z $crc1 ] && [ ! -z $crc2 ];then
+   echo "need update uboot"
+   if [ $platfm = "IMX6-SABREALITE" ]; then
+		flash_eraseall /dev/mtd0
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mtd0 bs=512
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+   elif [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk1 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv -d /dev/mmcblk1 UVERSION ${crc2} 
+   else
+   	dd if=/root/u-boot-${platfm}_d.bin of=/dev/mmcblk0 bs=1024 seek=1 skip=1
+   /mnt/nfs/tools/setenv UVERSION ${crc2} 
+   fi
+   #dd if=/root/u-boot-${platfm}-config.bin of=/dev/mmcblk0 bs=1024 seek=768 count=256
+
+	 reboot
+  fi
+ fi
+ if [ ! -e /mnt/nfs/${ltp_root}/runtest/${test_file} ]; then
+    echo "test comand file does not exist, quit test environment"
+	exit 0;
+ fi
+ #if [ $need_reboot -eq 1 ]; then
+ #  reboot
+ #fi
+ /mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_REGIST
+  if [ $platfm = "IMX50RDP" ] || [ $platfm = "IMX50-RDP3" ] \
+     || [ $platfm = "IMX53LOCO" ] || [ $plafm = "IMX51-BABBAGE" ] \
+     || [ $platfm = "IMX53SMD"  ]; then
+ 	insmod /mnt/nfs/${ltp_root}/testcases/bin/mxc_wd_test.ko timer_margin=25
+ else
+ 	insmod /mnt/nfs/${ltp_root}/testcases/bin/imx2_wd_test.ko timer_margin=25
+ fi
+ export CONTINUE=y
+ #tstatus=$(/mnt/nfs/tools/uclient 10.192.225.222 12500 ${platfm}_HELLO | grep ACK | wc -l)
+ tstatus=1
+ if [ $tstatus -gt 0 ]; then
+  cd /mnt/nfs/${ltp_root} && /mnt/nfs/${ltp_root}/mytest $test_file $STRESS_APD
+  #test finished start a process to reset board at
+  if [ $? -eq 0 ]; then
+ 	if [ $release_flag -ne 0  ]; then
+  	/mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_TESTEND &
+	else
+  	/mnt/nfs/tools/uclient ${DSYNC_SERVER} 12500 ${platfm}_TESTEND &
+	fi
+  fi
+ fi
+ while true;
+ do
+  sleep 1800;
+#if no command can execute guess the rootfs is changed then reboot
+	ls / || reboot
+ 	if [ $release_flag -ne 0  ]; then
+    echo "do not check for release"
+	else
+  	kver=$(/mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_HELLO | grep KVER | cut -f 5 -d " ")
+		kh=$(uname -r | cut -d - -f 1)
+		if [ $(uname -r) !=  $kh$kver ]; then
+#kernel changed restart test
+  		status=$(/mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_HELLO | grep ACK | wc -l)
+			if [ $status -eq 1 ];then
+    		reboot
+			fi
+		fi
+	fi
+ done
+fi
+}
+
+if [ "$1" != "start" ]; then
+ echo "say goodby"
+ exit
+fi
+
+#telnet
+telnetd
+
+#enlarge the memory
+echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
+
+mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024,timeo=14 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
+#check time
+if [ $? -ne 0 ]; then
+ echo "mount test nfs failure..."
+ exit
+fi
+sleep 1
+echo $(hostname -i) > /root/.mounts
+/etc/rc.d/init.d/temp_sensor.sh &
+/mnt/nfs/util/ntpdate ${SYNC_SERVER}
+/sbin/hwclock -w
+sleep 1
+start_test
