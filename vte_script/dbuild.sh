@@ -11,7 +11,9 @@ UBOOT_BRH=imx_v2009.08
 #PLATFORM="5x"
 VTE_TARGET_PRE=/mnt/vte/
 VTE_TARGET_PRE2=/mnt/nfs/
+VTE_TARGET_PRE3=/mnt/nfs_rd/
 TARGET_ROOTFS=/mnt/nfs_root/
+TARGET_ROOTFS_RD=/mnt/nfs_root_rd/
 ROOTDIR=/home/ltib2/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
@@ -123,6 +125,7 @@ make_libs()
   make clean
   make PLATFORM=${2} CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- INCLUDE="-I${KERNEL_DIR}/include -I${KERNEL_DIR}/drivers/mxc/security/rng/include -I${KERNEL_DIR}/drivers/mxc/security/sahara2/include" -k || iRC=1
   sudo make DEST_DIR=${TARGET_ROOTFS}/imx${3}_rootfs${4} install -k || iRC=$(expr $iRC + 1)
+  sudo make DEST_DIR=${TARGET_ROOTFS_RD}/imx${3}_rootfs${4} install -k || iRC=$(expr $iRC + 1)
   return $iRC
 }
 
@@ -138,6 +141,8 @@ deploy_firmware()
   if [ -e ${FIRMWARE_DIR}/firmware ]; then
     sudo rm -rf ${TARGET_ROOTFS}/imx${1}_rootfs${2}/lib/firmware
     sudo cp -af ${FIRMWARE_DIR}/firmware ${TARGET_ROOTFS}/imx${1}_rootfs${2}/lib/ || return 1
+    sudo rm -rf ${TARGET_ROOTFS_RD}/imx${1}_rootfs${2}/lib/firmware
+    sudo cp -af ${FIRMWARE_DIR}/firmware ${TARGET_ROOTFS_RD}/imx${1}_rootfs${2}/lib/ || return 1
   fi 
   return 0
 }
@@ -166,6 +171,7 @@ make_unit_test()
  fi
  sudo cp unit_test ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/runtest/
  sudo cp unit_test ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/runtest/
+ sudo cp unit_test ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/runtest/
  old_ut_plat=$2
  old_ut_rc=0
  PLATFORM=$1
@@ -184,6 +190,9 @@ make_unit_test()
  CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- \
  DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} install -k || old_ut_rc=$(expr $old_ut_rc + 4)
  sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs${3}/unit_tests \
+ CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
+ DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} install -k || old_ut_rc=$(expr $old_ut_rc + 5)
+ sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/unit_tests \
  CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
  return $old_ut_rc
 }
@@ -226,6 +235,7 @@ cd $GPU_DIR/driver
 if [ "$old_gpu_config" = $1 ];then
 if [ "$old_gpu_rc" -eq 0 ]; then
 sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/lib/
 fi
 return $old_gpu_rc
 fi
@@ -300,6 +310,7 @@ export VIVANTE_ENABLE_VG=1
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/lib/
 old_gpu_rc=0
 return 0
 }
@@ -312,10 +323,12 @@ if [ "$old_kernel_config" = $1 ];then
 if [ "$old_kernel_rc" -eq 0 ]; then
 #sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
+sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
+sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
 fi
 return $old_kernel_rc
 fi
@@ -331,13 +344,16 @@ KERNEL_VER=$(./scripts/setlocalversion)
 #sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
+sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
+sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
 cd $KERNEL_DIR/tools/perf/
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- CFLAGS="-static -DGElf_Nhdr=Elf32_Nhdr"
 sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
+sudo cp  perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
 old_kernel_rc=0
 return 0
 }
@@ -358,6 +374,9 @@ if [ "$old_vte_config" = $1 ]; then
    sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
+   sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
+   sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
+   sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
  fi
 return $old_vte_rc
 fi
@@ -396,6 +415,9 @@ sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/
 sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
+sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
+sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
+sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
@@ -413,6 +435,7 @@ update_rootfs()
 {	
  cd $SCRPTSDIR
  sudo cp vte ${TARGET_ROOTFS}/imx${1}_rootfs${2}/etc/rc.d/init.d/vte 	
+ sudo cp vte_rd ${TARGET_ROOTFS_RD}/imx${1}_rootfs${2}/etc/rc.d/init.d/vte 	
  deploy_firmware $1 $2
 }
 
@@ -423,6 +446,7 @@ make_target_tools()
  CROSS_COMPILER=${TOOL_CHAIN}arm-none-linux-gnueabi- make || return 10
  sudo cp uclient ${VTE_TARGET_PRE}/tools/
  sudo cp uclient ${VTE_TARGET_PRE2}/tools/
+ sudo cp uclient ${VTE_TARGET_PRE3}/tools/
  make clean
  cd $UCONFDIR
  make clean
@@ -433,6 +457,9 @@ make_target_tools()
  sudo cp u-config ${VTE_TARGET_PRE2}/tools/
  sudo cp printenv ${VTE_TARGET_PRE2}/tools/
  sudo cp setenv ${VTE_TARGET_PRE2}/tools/
+ sudo cp u-config ${VTE_TARGET_PRE3}/tools/
+ sudo cp printenv ${VTE_TARGET_PRE3}/tools/
+ sudo cp setenv ${VTE_TARGET_PRE3}/tools/
  make clean
 }
 
