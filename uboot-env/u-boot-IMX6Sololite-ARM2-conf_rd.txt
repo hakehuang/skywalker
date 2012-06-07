@@ -1,13 +1,13 @@
 bootdelay=3
 baudrate=115200
-loadaddr=0x10800000
+loadaddr=0x80800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx61_d
-nfsroot=/rootfs/imx61_rootfs
-serverip=10.192.224.218
-tftpaddr=10.192.225.218
+kernel=uImage_mx60_s
+nfsroot=/mnt/nfs_root/imx60_rootfs
+serverip=10.192.242.9
+tftpaddr=10.192.244.7
 bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
@@ -20,15 +20,13 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=00:04:9F:01:03:61
-bootargs=console=ttymxc3,115200 daily_test=imx6q_arm2 vmalloc=256M
+ethaddr=10:04:9F:00:01:60
+bootargs=console=ttymxc0,115200 vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
-lvds0=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
-hdmi_mode=video=mxcfb0:dev=hdmi,1280x1024M@60,if=RGB24
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 nand_mode=mtdparts=gpmi-nand:20m(boot),20m(kernel),1024m(rootfs),-(user)
-mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
-epdc_mode=epdc video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
+epdc_mode=video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
+spdc_mode=video=mxcspdcfb:ERK_1_4_A01,bpp=16
 HDMI_mode=video=mxcfb0:dev=sii902x_hdmi,1920x1080M@60,if=RGB24 disable_mipi_dsi
 UVERSION=3

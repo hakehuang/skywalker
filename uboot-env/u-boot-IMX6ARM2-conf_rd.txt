@@ -4,31 +4,34 @@ loadaddr=0x10800000
 netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
-kernel=uImage_mx61_d
-nfsroot=/rootfs/imx61_rootfs
-serverip=10.192.224.218
+kernel=uImage_mx63_d
+nfsroot=/mnt/nfs_root/imx63_rootfs
+serverip=10.192.242.9
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
-bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p2 rootwait
+bootargs_mmc=setenv bootargs ${bootargs} root=/dev/mmcblk0p1 rootwait
 bootcmd_mmc=run bootargs_base bootargs_mmc; mmc dev 3; mmc read ${loadaddr} 0x800 0x2000; bootm
 nand=gpmi:nand
 spdif_on=spdif
-bootcmd=run bootcmd_net;bootm
+bootcmd=run bootcmd_mmc
 stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=00:04:9F:01:03:61
-bootargs=console=ttymxc3,115200 daily_test=imx6q_arm2 vmalloc=256M
-lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
+ethaddr=10:04:9F:01:03:63
+bootargs=console=ttymxc3,115200 daily_test=unit_test vmalloc=256M
+lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
 lvds0=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
+lvds1=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
-hdmi_mode=video=mxcfb0:dev=hdmi,1280x1024M@60,if=RGB24
-avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
-nand_mode=mtdparts=gpmi-nand:20m(boot),20m(kernel),1024m(rootfs),-(user)
-mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
-epdc_mode=epdc video=mxcepdcfb:E060SCM,bpp=16 max17135:pass=2,vcom=-2030000
+hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
 HDMI_mode=video=mxcfb0:dev=sii902x_hdmi,1920x1080M@60,if=RGB24 disable_mipi_dsi
+avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
+nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
+mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
+mopts=nolock,wsize=8196,rsize=8196,timeo=14
+wait_mode=enable_wait_mode=off
+arm_freq=1000
 UVERSION=3

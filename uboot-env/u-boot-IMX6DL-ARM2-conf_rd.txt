@@ -5,8 +5,8 @@ netdev=eth0
 ethprime=FEC0
 uboot=u-boot.bin
 kernel=uImage_mx61_d
-nfsroot=/rootfs/imx61_rootfs
-serverip=10.192.224.218
+nfsroot=/mnt/nfs_root/imx61_rootfs
+serverip=10.192.242.9
 tftpaddr=10.192.225.218
 bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode}
 bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
@@ -20,8 +20,8 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=00:04:9F:01:03:61
-bootargs=console=ttymxc3,115200 daily_test=imx6q_arm2 vmalloc=256M
+ethaddr=10:04:9F:01:03:61
+bootargs=console=ttymxc3,115200 daily_test=unit_test vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
 lvds0=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565

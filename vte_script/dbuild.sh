@@ -205,9 +205,12 @@ sed "/UVERSION/s/^.*/UVERSION=$2/g" u-boot-${1}-conf.txt > ${1}-config.txt
 make clean
 make  CC=gcc PLATFORM=MX$3
 $UCONFDIR/u-config -s ${1}-config.txt u-boot-${1}-config.bin
+$UCONFDIR/u-config -s ${1}-config_rd.txt u-boot-${1}-config_rd.bin
 #rm -f ${1}_config.txt
-sudo cp u-boot-${1}-config.bin /mnt/nfs_root/imx${3}_rootfs${4}/root/u-boot-${1}-config.bin || return 3
+sudo cp u-boot-${1}-config.bin ${TARGET_ROOTFS}/imx${3}_rootfs${4}/root/u-boot-${1}-config.bin || return 3
+sudo cp u-boot-${1}-config.bin ${TARGET_ROOTFS_RD}/imx${3}_rootfs${4}/root/u-boot-${1}-config_rd.bin || return 3
 rm -rf  u-boot-${1}-config.bin
+rm -rf  u-boot-${1}-config_rd.bin
 }
 
 make_uboot()

@@ -1,0 +1,32 @@
+bootdelay=3
+baudrate=115200
+loadaddr=0x10800000
+netdev=eth0
+ethprime=FEC0
+uboot=u-boot.bin
+kernel=uImage_mx63_d
+nfsroot=/mnt/nfs_root/imx63_rootfs
+serverip=10.192.242.9
+tftpaddr=10.192.225.218
+bootargs_base=setenv bootargs ${bootargs} fec_mac=${ethaddr} ${lvds_mode} ${lcd_mode}
+bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+bootcmd_net=run bootargs_base bootargs_nfs; bootp ${loadaddr} ${tftpaddr}:${kernel}; bootm
+bootargs_mmc=setenv bootargs ${bootargs} ip=dhcp root=/dev/mmcblk0p1 rootwait
+bootcmd_mmc=run bootargs_base bootargs_mmc; mmc dev 2; mmc read ${loadaddr} 0x800 0x2000; bootm
+nand=gpmi:nand
+spdif_on=spdif
+bootcmd=run bootcmd_net;bootm
+stdin=serial
+stdout=serial
+stderr=serial
+ethact=FEC0
+ethaddr=10:14:9F:01:03:63
+bootargs=console=ttymxc3,115200 daily_test=unit_test vmalloc=256M
+lvds_mode=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
+lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
+lcd_mode=video=mxcfb1:dev=lcd,if=RGB565
+hdmi_mode=video=mxcfb1:dev=hdmi,1280x1024M@60,if=RGB24
+avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
+nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
+mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
+UVERSION=3
