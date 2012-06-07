@@ -43,7 +43,7 @@ do
 	do
 	 log_lt=$(expr $log_lt + 1)
 	 if [ $log_lt -gt $tcnt ]; then
-     exit 0
+     break
 	 fi
 	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report | tail -1)
 	 ht=$(echo $log_name | cut -c 1)
@@ -56,7 +56,7 @@ do
 	 fi
 	 if [ ! -e $log_name ]; then
      #no valid log
-		 exit 1
+		 break
 	 fi
 	done
 	. $LTPROOT/output/$log_name
