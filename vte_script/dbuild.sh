@@ -216,6 +216,8 @@ make_unit_test()
  sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS}/imx${2}_rootfs${3}/unit_tests \
  CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
  if [ $deploy_target_rd -eq 1 ]; then
+ sudo make -C module_test -j1 LINUXPATH=$KERNELDIR KBUILD_OUTPUT=$KBUILD_OUTPUT \
+ CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- \
  DEPMOD=/bin/true INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} install -k || old_ut_rc=$(expr $old_ut_rc + 5)
  sudo  make PLATFORM=$PLATFORM DESTDIR=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/unit_tests \
  CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- install || old_ut_rc=$(expr $old_ut_rc + 8)
