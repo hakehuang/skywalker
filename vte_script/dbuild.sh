@@ -416,7 +416,7 @@ make_vte()
 {
 ret=0
 cd $VTE_DIR
-if [ "$old_vte_config" = $1 ]; then
+if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
  if [ $old_vte_soc = $2$3  ]; then
   #no need to copy to the same folder again
   return $old_vte_rc
@@ -438,6 +438,7 @@ return $old_vte_rc
 fi
 old_vte_config=$1
 old_vte_soc=$2$3
+old_soc=$2
 make distclean
 make clean
 sudo rm -rf install
