@@ -25,6 +25,7 @@ UNITTEST_DIR=${ROOTDIR}/linux-test
 FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
 LIB_DIR=${ROOTDIR}/linux-lib
 GPU_DIR=${ROOTDIR}/gpu-viv
+ATHDIR=$(ROOTDIR)/linux-atheros-wifi/3.1/AR6kSDK.build_3.1_RC.563/host
 
 all_one_branch=n
 
@@ -100,6 +101,33 @@ rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
 gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "0");
 target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
+
+branch_atheros()
+{
+  cd $ROOTDIR
+  if [ ! -e $ATHDIR ]; then
+   git clone git://sw-git.freescale.net/linux-lib.git
+  fi
+  cd $ATHDIR
+  git checkout master
+  git pull 
+}
+
+make_atheors()
+{
+ cd $ATHDIR
+ make WORKAREA=$(pwd) ATH_LINUXPATH=${KERNEL_DIR} ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- clean 
+ make WORKAREA=$(pwd) ATH_LINUXPATH=${KERNEL_DIR} ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- 
+}
+
+install_atheors()
+{
+ sudo mkdir ${1}/lib/modules/${2}/extra
+ sudo cp ${ATHDIR}/os/linux/ar6000.ko ${1}/lib/modules/${2}/extra/
+ cd ${1}
+ sudo depmod -b ${1} $2
+}
+
 
 branch_libs()
 {
@@ -408,6 +436,11 @@ sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
  if [ $deploy_target_rd -eq 1 ]; then
   sudo cp  perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
   fi 
+ make_atheors 
+ install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
+ if [ $deploy_target_rd -eq 1 ]; then
+    install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
+ fi 
 old_kernel_rc=0
 return 0
 }
@@ -688,6 +721,7 @@ fi
 make_tools || exit -5
 
 branch_libs
+branch_atheros
 
 for i in $PLATFORM;
 do
