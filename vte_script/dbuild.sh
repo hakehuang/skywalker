@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO IMX6Sololite-ARM2"
+#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO IMX6Sololite-ARM2"
+PLATFORM="IMX6Sololite-ARM2"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -25,7 +26,7 @@ UNITTEST_DIR=${ROOTDIR}/linux-test
 FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
 LIB_DIR=${ROOTDIR}/linux-lib
 GPU_DIR=${ROOTDIR}/gpu-viv
-ATHDIR=$(ROOTDIR)/linux-atheros-wifi/3.1/AR6kSDK.build_3.1_RC.563/host
+ATHDIR=${ROOTDIR}/linux-atheros-wifi/3.1/AR6kSDK.build_3.1_RC.563/host
 
 all_one_branch=n
 
@@ -106,7 +107,7 @@ branch_atheros()
 {
   cd $ROOTDIR
   if [ ! -e $ATHDIR ]; then
-   git clone git://sw-git.freescale.net/linux-lib.git
+   git clone git://sw-git.freescale.net/linux-atheros-wifi.git
   fi
   cd $ATHDIR
   git checkout master
@@ -116,16 +117,27 @@ branch_atheros()
 make_atheors()
 {
  cd $ATHDIR
+  git add . 
+  git commit -s -m"reset"
+  git reset --hard HEAD~1
+  git checkout -b temp  origin/master || git checkout temp
+  git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
+  git branch -D build
+  git fetch origin +master:build && git checkout build || return 1
+  git branch -D build
+  git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
+  git checkout -b build_target build
+
  make WORKAREA=$(pwd) ATH_LINUXPATH=${KERNEL_DIR} ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- clean 
  make WORKAREA=$(pwd) ATH_LINUXPATH=${KERNEL_DIR} ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- 
 }
 
 install_atheors()
 {
- sudo mkdir ${1}/lib/modules/${2}/extra
+ sudo mkdir -p ${1}/lib/modules/${2}/extra
  sudo cp ${ATHDIR}/os/linux/ar6000.ko ${1}/lib/modules/${2}/extra/
  cd ${1}
- sudo depmod -b ${1} $2
+ sudo depmod -b ${1} ${2}
 }
 
 
@@ -420,7 +432,7 @@ make distclean
 echo "-daily"  > localversion
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 uImage|| return 2
-KERNEL_VER=$(./scripts/setlocalversion)
+#KERNEL_VER=$(./scripts/setlocalversion)
 #sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/lib/modules/*-daily*
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
@@ -438,6 +450,8 @@ sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
  if [ $deploy_target_rd -eq 1 ]; then
   sudo cp  perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
   fi 
+  cd $KERNEL_DIR
+  KERNEL_VER=$(cat include/config/kernel.release 2>/dev/null)
  make_atheors 
  install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
  if [ $deploy_target_rd -eq 1 ]; then
@@ -724,6 +738,7 @@ make_tools || exit -5
 
 branch_libs
 branch_atheros
+
 
 for i in $PLATFORM;
 do
