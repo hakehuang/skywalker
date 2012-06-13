@@ -403,8 +403,10 @@ scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
+ install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
  if [ $deploy_target_rd -eq 1 ]; then
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
+ install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
   fi
 fi
 return $old_kernel_rc
