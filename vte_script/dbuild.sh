@@ -101,7 +101,7 @@ linux_libs_branch=("master" "master" "master" "master" "master" "master" "master
 "master" "master" "master");
 #rootfs and vte apendix
 rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
-xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10" "ubuntu_11.10" "ubuntu_11.10" "ubuntu_11.10" "ubuntu_11.10" "ubuntu_11.10" "ubuntu_11.10" "")
+xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "")
 gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "0");
 target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
@@ -324,7 +324,6 @@ git branch -D build_${2}
 git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
 git checkout -b build_${2} build
 
-
 export X11_ARM_DIR=${TARGET_ROOTFS}/${3}/usr
 export BUILD_OPTION_EGL_API_FB=0
 export ARCH=arm
@@ -508,6 +507,7 @@ if [ "$old_kernel_rc" -eq 0 ]; then
   fi
 #sudo rm -rf ${TARGET_ROOTFS}/imx${2}_rootfs/lib/modules/*-daily*
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
+sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/${4} || return 3
  if [ $deploy_target_rd -eq 1 ]; then
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
   fi
@@ -516,6 +516,7 @@ scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
  install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
+ install_atheors ${TARGET_ROOTFS}/${4} $KERNEL_VER 
  if [ $deploy_target_rd -eq 1 ]; then
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/bin/
  install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
@@ -537,6 +538,7 @@ make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 uImage|| r
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- -j 2 modules|| return 4
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3} || return 3
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
+sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/${4} || return 3
  if [ $deploy_target_rd -eq 1 ]; then
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
@@ -554,6 +556,7 @@ sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
   KERNEL_VER=$(cat include/config/kernel.release 2>/dev/null)
  make_atheors 
  install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
+ install_atheors ${4} $KERNEL_VER 
  if [ $deploy_target_rd -eq 1 ]; then
     install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
  fi 
@@ -855,7 +858,7 @@ do
      make_target_tools MX${c_soc} 
      make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat ${rootfs_apd[${j}]} || RC=$(echo $RC uboot_$i)
      branch_kernel ${kernel_branch[$j]}
-     make_kernel ${kernel_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || old_kernel_rc=$?
+     make_kernel ${kernel_configs[${j}]} $c_soc ${rootfs_apd[${j}]} ${xrootfs[${j}]} || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 	RC=$(echo $RC $i)
      fi
