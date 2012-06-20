@@ -753,6 +753,16 @@ do
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX61_ROOTFS}etc/fstab
 		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
+  	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX61_ROOTFS}etc/rc.d/init.d/syslog
+    cat >>${MX61_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+    if [ "\$1" = "start" -o "\$1" = "restart" ]
+        then
+        mac=\$(ifconfig | grep HWaddr | awk '{print $5}')
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+    fi
+
+EOF
+
   fi
   if [ $i == "MX63" ]
   then
@@ -764,6 +774,14 @@ do
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX63_ROOTFS}etc/fstab
 		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
+  	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX63_ROOTFS}etc/rc.d/init.d/syslog
+    cat >>${MX63_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+	if [ "\$1" = "start" -o "\$1" = "restart" ]
+	then
+        mac=\$(ifconfig | grep HWaddr | awk '{print $5}'}
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+	fi
+EOF
   fi
   if [ $i == "MX60" ]
   then
@@ -775,6 +793,16 @@ do
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX60_ROOTFS}etc/fstab
 		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+
+ 	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX60_ROOTFS}etc/rc.d/init.d/syslog
+    cat >>\${MX60_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+    if [ "\$1" = "start" -o "\$1" = "restart" ]
+        then
+        mac=\$(ifconfig | grep HWaddr | awk '{print $5}')
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+    fi
+EOF
+
   fi
 
 done
