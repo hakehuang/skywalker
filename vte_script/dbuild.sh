@@ -101,8 +101,8 @@ linux_libs_branch=("master" "master" "master" "master" "master" "master" "master
 "master" "master" "master");
 #rootfs and vte apendix
 rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
-xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "")
-gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "0");
+xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d")
+gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 
@@ -511,6 +511,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/${4} || ret
  if [ $deploy_target_rd -eq 1 ]; then
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
   fi
+md5sum arch/arm/boot/uImage
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
@@ -543,6 +544,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/${4} || ret
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
  fi
+md5sum arch/arm/boot/uImage
 scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
 scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
@@ -681,8 +683,8 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} & 
- $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} &
+ $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
+ $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2}
 }
 
 
