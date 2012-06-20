@@ -757,7 +757,7 @@ do
     cat >>${MX61_ROOTFS}etc/rc.d/init.d/syslog <<EOF
     if [ "\$1" = "start" -o "\$1" = "restart" ]
         then
-        mac=\$(ifconfig | grep HWaddr | awk '{print $5}')
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
         /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
     fi
 
@@ -778,7 +778,7 @@ EOF
     cat >>${MX63_ROOTFS}etc/rc.d/init.d/syslog <<EOF
 	if [ "\$1" = "start" -o "\$1" = "restart" ]
 	then
-        mac=\$(ifconfig | grep HWaddr | awk '{print $5}'}
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}'}
         /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
 	fi
 EOF
@@ -795,10 +795,10 @@ EOF
 		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
 
  	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX60_ROOTFS}etc/rc.d/init.d/syslog
-    cat >>\${MX60_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+    cat >> ${MX60_ROOTFS}etc/rc.d/init.d/syslog <<EOF
     if [ "\$1" = "start" -o "\$1" = "restart" ]
         then
-        mac=\$(ifconfig | grep HWaddr | awk '{print $5}')
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
         /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
     fi
 EOF
