@@ -758,7 +758,7 @@ do
     if [ "\$1" = "start" -o "\$1" = "restart" ]
         then
         mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
-        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 4 -b 99 -O /var/log/\${mac}.log
     fi
 
 EOF
@@ -779,7 +779,7 @@ EOF
 	if [ "\$1" = "start" -o "\$1" = "restart" ]
 	then
         mac=\$(ifconfig | grep HWaddr | awk '{print \$5}'}
-        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 4 -b 99 -O /var/log/\${mac}.log
 	fi
 EOF
   fi
@@ -799,7 +799,7 @@ EOF
     if [ "\$1" = "start" -o "\$1" = "restart" ]
         then
         mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
-        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 4 -b 99 -O /var/log/\${mac}.log
     fi
 EOF
 
