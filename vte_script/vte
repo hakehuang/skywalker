@@ -148,7 +148,7 @@ if [ ! -z "$test_flag" ]; then
 		if [ $(uname -r) !=  $kh$kver ]; then
 #kernel changed restart test
   		status=$(/mnt/nfs/tools/uclient ${SYNC_SERVER} 12500 ${platfm}_HELLO | grep ACK | wc -l)
-			if [ $status -eq 1 ];then
+			if [ $status -eq 1 ] && [ ! -z "$kver" ];then
     		reboot
 			fi
 		fi
