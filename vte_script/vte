@@ -78,7 +78,8 @@ if [ ! -z "$test_flag" ]; then
  done
  #check the uboot
  release_flag=$(cat /proc/cmdline | grep release | wc -l)
- if [ $release_flag -ne 0 ]; then
+ uflag=$(cat /proc/cmdline | grep ukeep | wc -l)
+ if [ $release_flag -ne 0 ] || [ $uflag -ne 0  ]; then
     echo "do not update uboot for release"
     ltp_root=vte_${TARGET}
  else
