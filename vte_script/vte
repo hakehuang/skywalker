@@ -79,9 +79,11 @@ if [ ! -z "$test_flag" ]; then
  #check the uboot
  release_flag=$(cat /proc/cmdline | grep release | wc -l)
  uflag=$(cat /proc/cmdline | grep ukeep | wc -l)
- if [ $release_flag -ne 0 ] || [ $uflag -ne 0  ]; then
+ if [ $release_flag -ne 0 ]; then
     echo "do not update uboot for release"
     ltp_root=vte_${TARGET}
+ elif [ $uflag -ne 0 ];then
+    echo "do not update uboot by request"
  else
    if [ $platfm = "IMX6Q-Sabre-SD"  ] || [ $platfm = "IMX6DL-Sabre-SD"  ]; then
    crc1=$(/mnt/nfs/tools/u-config -g /dev/mmcblk1 | grep UVERSION | cut -d "=" -f 2)
