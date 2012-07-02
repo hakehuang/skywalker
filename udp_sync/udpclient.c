@@ -51,6 +51,7 @@ int main(int argc, char **argv)
 	tv.tv_usec = 10000;
 	cmsg_len =sizeof(struct timeval); 
 	setsockopt( sock, SOL_SOCKET, SO_SNDTIMEO , &tv, cmsg_len ); 
+	setsockopt( sock, SOL_SOCKET, SO_RCVTIMEO , &tv, cmsg_len ); 
 	addr_len = sizeof(s_addr);
 	if (argv[3])
 		strcpy(buff, argv[3]);
