@@ -2,7 +2,6 @@
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
 PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO IMX6Sololite-ARM2"
-#PLATFORM="IMX6Sololite-ARM2"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -63,7 +62,7 @@ kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" 
 vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
 "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" \
 "master" "master" "master" "master" "master");
-gpu_branch=("" "" "" "" "" "" "" "" "" "" "" "multicore" "multi-ore" "multicore" "multicore" \
+gpu_branch=("" "" "" "" "" "" "" "" "" "" "" "multicore" "multicore" "multicore" "multicore" \
 "multicore" "multicore" "multicore" "multicore");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
@@ -221,7 +220,7 @@ make_unit_test()
  cat all-suite.txt | grep -v "#" | grep $1 > unit_test
  while read LINE; do
   platform=$(cat $LINE | grep -v "#" |cut -d ":" -f 3)
-  if [ -z $platform ];then
+  if [ -z "$platform" ];then
     if [ ! -z $(cat $LINE | grep -v "#") ]; then
     echo $LINE >> unit_test
     fi
@@ -596,7 +595,9 @@ old_soc=$2
 make distclean
 make clean
 sudo rm -rf install
+if [ -e $1 ];then
 . $1
+fi
 export KLINUX_SRCDIR=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/
 export KERNEL_SRCDIR=${KERNEL_DIR}
 export KLINUX_BLTDIR=${KERNEL_DIR}
@@ -683,8 +684,22 @@ sync_server()
  cd $TOOLSDIR
  make clean
  make CC=gcc || return 10
- $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} 
- $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2}
+ RETRY=3
+ while [ $RERTY -gt 0 ]; do
+  $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} && RETRY=0
+  if [ $? -ne 0 ]; then
+  	RETRY=$(expr $RETRY - 1)
+  fi 
+ done
+ RETRY=3
+ sleep 3
+ RETRY=3
+ while [ $RERTY -gt 0 ]; do
+  $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} && RETRY=0
+  if [ $? -ne 0 ]; then
+  	RETRY=$(expr $RETRY - 1)
+  fi 
+ done
 }
 
 
@@ -717,7 +732,7 @@ fi
 
 branch_gpu()
 {
- if [ $1 -eq 0 ]; then
+ if [ -z $1 ]; then
    return 0
  fi
  old_gpu_branch=$1
@@ -858,9 +873,9 @@ do
      deploy_vte_target_rd=${vte_target_configs[${j}]}
      c_soc=${soc_name[${j}]}
      make_target_tools MX${c_soc} 
-     make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat ${rootfs_apd[${j}]} || RC=$(echo $RC uboot_$i)
+     make_uboot ${u_boot_configs[${j}]} $c_soc $c_plat "${rootfs_apd[${j}]}" || RC=$(echo $RC uboot_$i)
      branch_kernel ${kernel_branch[$j]}
-     make_kernel ${kernel_configs[${j}]} $c_soc ${rootfs_apd[${j}]} ${xrootfs[${j}]} || old_kernel_rc=$?
+     make_kernel ${kernel_configs[${j}]} $c_soc "${rootfs_apd[${j}]}" ${xrootfs[${j}]} || old_kernel_rc=$?
      if [ $old_kernel_rc -ne 0 ]; then 
 	RC=$(echo $RC $i)
      fi
