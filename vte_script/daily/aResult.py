@@ -179,7 +179,9 @@ def htmlGen(fp1, fp2, tid, log):
         <p>
             <a name="%(TID)s">%(TID)s</a>
         </p>
-        <xmp>%(LOG)s</xmp>
+		<textarea name="comments" cols="40" rows="5">
+        %(LOG)s
+		</textarea>
         <p>
             <a href="#TOP">Return Top</a>
         </p>
