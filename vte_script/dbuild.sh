@@ -25,6 +25,7 @@ UNITTEST_DIR=${ROOTDIR}/linux-test
 FIRMWARE_DIR=${ROOTDIR}/linux-firmware-imx
 LIB_DIR=${ROOTDIR}/linux-lib
 GPU_DIR=${ROOTDIR}/gpu-viv
+EXA_DIR=${ROOTDIR}/linux-x-server-viv
 ATHDIR=${ROOTDIR}/linux-atheros-wifi/3.1/AR6kSDK.build_3.1_RC.563/host
 
 all_one_branch=n
@@ -46,6 +47,7 @@ declare -a unit_test_configs;
 declare -a rootfs_apd;
 declare -a rootfs;
 declare -a gpu_branch;
+declare -a exa_branch;
 declare -a gpu_configs;
 declare -a target_configs;
 declare -a vte_target_configs;
@@ -64,6 +66,8 @@ vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3
 "master" "master" "master" "master" "master");
 gpu_branch=("" "" "" "" "" "" "" "" "" "" "" "multicore" "multicore" "multicore" "multicore" \
 "multicore" "multicore" "multicore" "multicore");
+exa_branch=("" "" "" "" "" "" "" "" "" "" "" "master" "master" "master" "master" \
+"master" "master" "master" "master");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
 "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" \
@@ -300,6 +304,44 @@ make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 $4 |
 return 0
 }
 
+make_exa()
+{
+if [ $1 -eq 0 ];then
+ return 0
+fi
+echo "make exa driver $2 with $1"
+cd $EXA_DIR
+if [ "$old_exa_config" = $1 ];then
+if [ "$old_exa_rc" -eq 0 ]; then
+  if [ $old_exa_target = "${2}${3}" ]; then
+	echo "already deployed"
+	return $old_exa_rc
+  fi
+  sudo make install
+fi
+return $old_exa_rc
+fi
+old_exa_config=$1
+old_exa_target=${2}${3}
+git branch -D build_${2}
+git checkout build || git add . && git commit -s -m"build $(date +%m%d)" && git checkout build
+git checkout -b build_${2} build
+old_exa_rc=0
+export CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi-
+export ROOTFS=${TARGET_ROOTFS}/${3}
+export CFLAGS="-I${ROOTFS}/usr/include "
+export LDFLAGS="-L${ROOTFS}/usr/lib -Xlinker -rpath-link=${ROOTFS}/usr/lib  -lGAL -lpthread -lm -lX11"
+export PKG_CONFIG_PATH=${ROOTFS}/usr/share/pkgconfig
+export XORG_CFLAGS="-I${ROOTFS}/usr/include/xorg/ -I${ROOTFS}/usr/include/pixman-1"
+test -n "$srcdir" || srcdir=`dirname "$0"`
+test -n "$srcdir" || srcdir=.
+autoreconf --force --install --verbose "$srcdir"
+./configure --host=arm-none-linux-gnueabi --prefix=${ROOTFS}/usr --disable-static CC=${CROSS_COMPILE}gcc
+make || old_exa_rc=1
+sudo make install
+return $old_exa_rc
+}
+
 make_gpu_x()
 {
 if [ $1 -eq 0 ];then
@@ -388,10 +430,10 @@ export PATH=$TOOLCHAIN/bin:$PATH
 export AQVGARCH=$AQROOT/arch/GC350
 export VIVANTE_ENABLE_VG=1
 
-cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
-cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1
-sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
 old_gpu_rc=0
+cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
+cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1 || old_gpu_rc=gpux_${2}
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
 unset BUILD_OPTION_EGL_API_FB
 return 0
 }
@@ -485,13 +527,13 @@ export PATH=$TOOLCHAIN/bin:$PATH
 export AQVGARCH=$AQROOT/arch/GC350
 export VIVANTE_ENABLE_VG=1
 
+old_gpu_rc=0
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
-cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1
+cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1 || old_gpu_rc=gpu_${2}
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
  if [ $deploy_target_rd -eq 1 ]; then
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/lib/
  fi
-old_gpu_rc=0
 return 0
 }
 
@@ -730,6 +772,31 @@ fi
  return 0
 }
 
+branch_exa()
+{
+ if [ -z $1 ]; then
+   return 0
+ fi
+ old_exa_branch=$1
+ old_exa_config=""
+ cd $ROOTDIR
+ if [ ! -e ${EXA_DIR} ]; then
+ git clone ssh://b20222@sw-git.freescale.net/git/sw_git/repos/linux-x-server-viv.git
+ fi
+ cd ${EXA_DIR}
+ git add . 
+ git commit -s -m"reset"
+ git reset --hard HEAD~1
+ git checkout -b temp2 || git checkout temp2
+ git branch -D temp
+ git checkout -b temp  origin/$1
+ git add . && git commit -s -m"reset" && git reset --hard HEAD~1 
+ git remote update
+ git branch -D build
+ git fetch origin +$1:build && git checkout build || return 1
+ return 0
+}
+
 branch_gpu()
 {
  if [ -z $1 ]; then
@@ -888,8 +955,10 @@ do
      make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc ${rootfs_apd[${j}]}
      make_unit_test ${unit_test_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || RC=$(echo $RC unit_test_$i) 
      branch_gpu  ${gpu_branch[$j]}
+	 branch_exa  ${exa_branch[$j]}
      make_gpu  ${gpu_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || old_gpu_rc=$?
      make_gpu_x  ${gpu_configs[${j}]} $c_soc ${xrootfs[${j}]} || old_gpu_rc=$?
+	 make_exa ${gpu_configs[${j}]} $c_soc ${xrootfs[${j}]} || old_gpu_rc=$?
      #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
      #then
      	sync_server $i READY_KVER${KERNEL_VER}
