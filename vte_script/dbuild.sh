@@ -728,7 +728,7 @@ sync_server()
  make clean
  make CC=gcc || return 10
  RETRY=3
- while [ $RERTY -gt 0 ]; do
+ while [ $RETRY -gt 0 ]; do
   $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} && RETRY=0
   if [ $? -ne 0 ]; then
   	RETRY=$(expr $RETRY - 1)
