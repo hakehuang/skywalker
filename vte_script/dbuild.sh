@@ -339,6 +339,7 @@ autoreconf --force --install --verbose "$srcdir"
 ./configure --host=arm-none-linux-gnueabi --prefix=${ROOTFS}/usr --disable-static CC=${CROSS_COMPILE}gcc
 make || old_exa_rc=1
 sudo make install
+unset  CFLAGS LDFLAGS PKG_CONFIG_PATH XORG_CFLAGS
 return $old_exa_rc
 }
 
