@@ -104,7 +104,7 @@ linux_libs_branch=("master" "master" "master" "master" "master" "master" "master
 "master" "master" "master");
 #rootfs and vte apendix
 rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
-xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d")
+xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_sd")
 gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
@@ -339,6 +339,7 @@ autoreconf --force --install --verbose "$srcdir"
 ./configure --host=arm-none-linux-gnueabi --prefix=${ROOTFS}/usr --disable-static CC=${CROSS_COMPILE}gcc
 make || old_exa_rc=1
 sudo make install
+unset  CFLAGS LDFLAGS PKG_CONFIG_PATH XORG_CFLAGS
 return $old_exa_rc
 }
 
@@ -727,7 +728,7 @@ sync_server()
  make clean
  make CC=gcc || return 10
  RETRY=3
- while [ $RERTY -gt 0 ]; do
+ while [ $RETRY -gt 0 ]; do
   $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} && RETRY=0
   if [ $? -ne 0 ]; then
   	RETRY=$(expr $RETRY - 1)
