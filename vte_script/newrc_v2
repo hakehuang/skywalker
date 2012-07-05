@@ -582,6 +582,7 @@ do
   if [ $i == "MX61" ]
   then
   cp ${VTE_ORIGINAL_PATH}vte ${MX61_ROOTFS}/etc/rc.d/init.d/
+  cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX63_ROOTFS}/etc/rc.d/init.d/
   fi
   if [ $i == "MX63" ]
   then
