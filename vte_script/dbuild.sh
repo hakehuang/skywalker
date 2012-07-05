@@ -104,7 +104,7 @@ linux_libs_branch=("master" "master" "master" "master" "master" "master" "master
 "master" "master" "master");
 #rootfs and vte apendix
 rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
-xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d")
+xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_sd")
 gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
 vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
