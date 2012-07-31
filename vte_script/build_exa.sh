@@ -1,4 +1,8 @@
 #!/bin/sh
+# in native ubuntu 
+#sudo apt-get install xutils-dev
+#sudo apt-get install libx11-dev
+#sudo apt-get install xserver-xorg-dev libpixman-1-dev libdrm-dev
 
 export ROOTFS=/mnt/nfs_root/ubuntu_11.10_d
 export CFLAGS="-I${ROOTFS}/usr/include "
