@@ -59,8 +59,8 @@ declare -a xrootfs;
 #           0     1    2    3    4   5    6    7    8   9 10
 SOC_CNT=19
 kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" \
-"imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_3.0.15" "imx_3.0.15" \
-"imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15" "imx_3.0.15");
+"imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_3.0.35" "imx_3.0.35" \
+"imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35");
 vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
 "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" \
 "master" "master" "master" "master" "master");
