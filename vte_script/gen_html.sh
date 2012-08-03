@@ -107,10 +107,14 @@ do
 		else
 		/usr/bin/perl $LTPROOT/bin/genhtml.pl $LTPROOT/tools/html_report_header.txt test_start test_end test_output execution_status $OUTPUT_DIRECTORY  > $HTMLFILE
 		fi
-  cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   ${BASE}/gen_fail_log.sh $LTPROOT/output/ $i ${TARGET_OUTPUT_BASE}
   result_html=$(basename $test_output).html
+  result_txt=$(basename $test_output).txt
+  output_log=$(basename $OUTPUT_DIRECTORY)
   echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_txt}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
 	fi
  fi	
