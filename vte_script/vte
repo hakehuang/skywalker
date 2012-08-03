@@ -181,6 +181,6 @@ sleep 1
 echo $(hostname -i) > /root/.mounts
 /etc/rc.d/init.d/temp_sensor.sh &
 /mnt/nfs/util/ntpdate ${SYNC_SERVER}
-/sbin/hwclock -w
+#/sbin/hwclock -w
 sleep 1
 start_test
