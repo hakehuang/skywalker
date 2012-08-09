@@ -67,7 +67,7 @@ do
     test_result=${LTPROOT}/results/$(basename $HTMLFILE .html)${TEST_LOGS_DIRECTORY}.txt
     test_output=$OUTPUT_DIRECTORY
     /rootfs/wb/aResult.py $test_plan $test_result $test_output
-    mv ${test_output}.html ${LTPROOT}/results/  
+    sudo mv ${test_output}.html ${LTPROOT}/results/  
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
@@ -109,12 +109,12 @@ do
 		fi
   ${BASE}/gen_fail_log.sh $LTPROOT/output/ $i ${TARGET_OUTPUT_BASE}
   result_html=$(basename $test_output).html
-  result_txt=$(basename $test_output).txt
+  result_txt=$(basename $test_result)
   output_log=$(basename $OUTPUT_DIRECTORY)
-  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_txt}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed > ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://10.192.244.61/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://10.192.244.61/daily_test/${VTEPATH}/results/${result_txt}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://10.192.244.61/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
 	fi
  fi	
@@ -122,4 +122,4 @@ do
 done
 	done
 
-/rootfs/wb/gen_html_release.sh $1
+#/rootfs/wb/gen_html_release.sh $1
