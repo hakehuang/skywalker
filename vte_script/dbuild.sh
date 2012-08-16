@@ -1,7 +1,9 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO IMX6Sololite-ARM2"
+PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO \
+IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO \
+IMX6Sololite-ARM2 IMX6SL-EVK"
 BUILD=y
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -57,57 +59,57 @@ declare -a xrootfs;
 #(23 25 28 31 35 37 50 50  51 53 53 61)
 #SOC names
 #           0     1    2    3    4   5    6    7    8   9 10
-SOC_CNT=19
+SOC_CNT=20
 kernel_branch=("imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" \
 "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_2.6.35" "imx_3.0.35" "imx_3.0.35" \
-"imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35");
+"imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35" "imx_3.0.35"  "imx_3.0.35");
 vte_branch=("imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" \
 "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "imx2.6.35.3" "master" "master" "master" \
-"master" "master" "master" "master" "master");
+"master" "master" "master" "master" "master" "master");
 gpu_branch=("" "" "" "" "" "" "" "" "" "" "" "multicore" "multicore" "multicore" "multicore" \
-"multicore" "multicore" "multicore" "multicore");
+"multicore" "multicore" "multicore" "multicore" "multicore");
 exa_branch=("" "" "" "" "" "" "" "" "" "" "" "master" "master" "master" "master" \
-"master" "master" "master" "master");
+"master" "master" "master" "master" "master");
 plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
 "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" \
-"IMX6DL-Sabre-SD"  "IMX6Solo-SABREAUTO" "IMX6Sololite-ARM2");
+"IMX6DL-Sabre-SD"  "IMX6Solo-SABREAUTO" "IMX6Sololite-ARM2" "IMX6SL-EVK");
 soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63" "63" \
-"63" "63" "61" "61" "61" "60");
+"63" "63" "61" "61" "61" "60" "60");
 #default u-boot kernel configs for each platform
 u_boot_configs=("mx23_evk_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx31_3stack_config" \
 "mx50_rdp_config" "mx50_rd3_config"  "mx51_bbg_config" "mx53_smd_config" "mx53_loco_config" \
 "mx6q_sabreauto_config" "mx6q_sabrelite_config" "mx6q_arm2_config" "mx6q_sabresd_config"  \
-"mx6dl_arm2_config" "mx6dl_sabresd_config" "mx6solo_sabreauto_config" "mx6sl_arm2_config");
+"mx6dl_arm2_config" "mx6dl_sabresd_config" "mx6solo_sabreauto_config" "mx6sl_arm2_config" "mx6sl_evk_config");
 #default kernel configs for each platform
 kernel_configs=("imx23evk_defconfig" "imx25_3stack_defconfig" \
 "imx28evk_defconfig" "mx3_defconfig" "mx35_3stack_config" "mx3_defconfig" \
 "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" "imx5_defconfig" \
 "imx6_defconfig" "imx6_defconfig" "imx6_defconfig" "imx6_defconfig" "imx6_defconfig" \
-"imx6_defconfig" "imx6_defconfig" "imx6s_defconfig");
+"imx6_defconfig" "imx6_defconfig" "imx6s_defconfig" "imx6s_defconfig");
 #vte configs
 vte_configs=("mx233_armadillo_config" "mx25_3stack_config" "mx28_evk_config" \
 "mx31_3stack_config" "mx35_3stack_config" "mx37_3stack_config" \
 "imx51" "imx51" "imx51" "imx51" \
 "imx51" "imx6q" "imx6q" "imx6q" \
-"imx6q" "imx6q" "imx6q" "imx6q" "imx6q");
+"imx6q" "imx6q" "imx6q" "imx6q" "imx6q" "imx6q");
 #unit_test_configs
 unit_test_configs=("IMX233" "IMX25" "IMX28" "IMX3" "IMX3" "IMX3" "IMX5" \
-"IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6");
+"IMX5" "IMX5" "IMX51" "IMX53" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6" "IMX6");
 #linux_libs_platfm
 linux_libs_platfm=("NULL" "NULL" "NULL" "NULL" "NULL" "IMX37_3STACK" "NULL" \
 "NULL" "IMX51" "IMX53" "IMX53" "IMX6Q" "IMX6Q" "IMX6Q" "IMX6Q" "IMX6Q" \
-"IMX6Q" "IMX6Q" "IMX6Q");
+"IMX6Q" "IMX6Q" "IMX6Q" "IMX6Q");
 linux_libs_branch=("master" "master" "master" "master" "master" "master" "master" \
 "master" "master" "master" "master" "master" "master" "master" "master" "master" \
-"master" "master" "master");
+"master" "master" "master" "master");
 #rootfs and vte apendix
-rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
-xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_sd")
-gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
-target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
-vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1");
+rootfs_apd=("" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "");
+xrootfs=("" "" "" "" "" "" "" "" "" "" "" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_d" "ubuntu_11.10_sd" "ubuntu_11.10_sd")
+gpu_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1");
+target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1");
+vte_target_configs=("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1");
 
 branch_atheros()
 {
