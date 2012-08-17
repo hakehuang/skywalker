@@ -20,7 +20,6 @@ stdin=serial
 stdout=serial
 stderr=serial
 ethact=FEC0
-ethaddr=10:04:9F:00:01:60
 bootargs=console=ttymxc0,115200 vmalloc=256M
 lvds_mode=video=mxcfb0:dev=ldb,LDB-XGA,if=RGB666 ldb=sep1
 lcd_mode=video=mxcfb0:dev=lcd,if=RGB565
