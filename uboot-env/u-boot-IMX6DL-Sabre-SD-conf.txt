@@ -26,6 +26,9 @@ lvds0=video=mxcfb1:dev=ldb,LDB-XGA,if=RGB666
 lcd_mode=video=mxcfb1:dev=lcd,if=RGB565 enable_lcd_ldb
 hdmi_mode=video=mxcfb0:dev=hdmi,1920x1080M@60,if=RGB24
 hdmi_720_mode=video=mxcfb0:dev=hdmi,1280x720M@60,if=RGB24
+hdmi_480_mode=video=mxcfb0:dev=hdmi,720x480M@60,if=RGB24
+dual_1=video=mxcf1:dev=ldb,LDB-XGA,if=RGB666 video=mxcfb0:dev=hdmi,1920x1080M@60,if=RGB24 ldb=sep1
+dual_2=video=mxcf0:dev=ldb,LDB-XGA,if=RGB666 video=mxcf1:dev=ldb,LDB-XGA,if=RGB666 ldb=sep0
 avalib_ldbmod=spl0 spl1 dul0 dil1 sin0 sin1 sep
 nand_mode=mtdparts=gpmi-nfc:20m(boot),200m(test),-(user)
 mipi_mode=video=mxcfb0:dev=mipi_dsi,TRULY-WVGA,if=RGB24
