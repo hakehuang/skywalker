@@ -114,8 +114,8 @@ do
   echo "please see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  php ${BASE}/client_skywalker_cycle.php "http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/runtest/${plan}" /
-  "http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_txt}" /
+  php ${BASE}/client_skywalker_cycle.php "http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/runtest/${plan}" \
+  "http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_txt}" \
   "see http://shlx12.ap.freescale.net/daily_test/${VTEPATH}/results/${result_html}"
 	fi
  fi	
