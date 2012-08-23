@@ -54,6 +54,7 @@ declare -a gpu_configs;
 declare -a target_configs;
 declare -a vte_target_configs;
 declare -a xrootfs;
+declare -a test_plan;
 # As bash only support 1 dimension array below sequence is our assumption
 # 0   1  2  3  4  5  6  7  8  9  10 11
 #(23 25 28 31 35 37 50 50  51 53 53 61)
@@ -74,6 +75,8 @@ plat_name=("IMX23EVK" "IMX25-3STACK" "IMX28EVK" "IMX31-3STACK" "IMX35-3STACK" \
 "IMX37-3STACK" "IMX50RDP" "IMX50-RDP3"  "IMX51-BABBAGE" "IMX53SMD" "IMX53LOCO" \
 "IMX6-SABREAUTO" "IMX6-SABRELITE" "IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" \
 "IMX6DL-Sabre-SD"  "IMX6Solo-SABREAUTO" "IMX6Sololite-ARM2" "IMX6SL-EVK");
+test_plan=("_" "_" "_" "_" "_" "_" "_" "_" "_" "_" "_" "_AI_" "_lite_" \
+"_ARM2_" "_SMD_" "_ARM2_" "_SMD_" "_AI_" "_ARM2_" "_EVK_");
 soc_name=("233" "25" "28" "31" "35" "37" "50"  "50" "51" "53" "53" "63" "63" \
 "63" "63" "61" "61" "61" "60" "60");
 #default u-boot kernel configs for each platform
@@ -650,6 +653,7 @@ if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
    fi
+   sync_testcase $5 "imx${2}${4}auto" ${2} ${3} 
  fi
 return $old_vte_rc
 fi
@@ -691,12 +695,12 @@ sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/
 sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
-sync_testcase $4 "imx${2}_${4}_auto" ${2} ${3} 
 if [ $deploy_vte_target_rd -eq 1 ]; then
 sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 fi
+sync_testcase $5 "imx${2}${4}auto" ${2} ${3} 
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
@@ -970,7 +974,7 @@ do
 	RC=$(echo $RC $i)
      fi
      branch_vte ${vte_branch[$j]}
-     make_vte  ${vte_configs[${j}]} $c_soc ${rootfs_apd[${j}]} $c_plat || old_vte_rc=$?
+     make_vte  ${vte_configs[${j}]} $c_soc ${rootfs_apd[${j}]} ${test_plan[${j}]} $c_plat || old_vte_rc=$?
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
