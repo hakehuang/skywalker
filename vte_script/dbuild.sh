@@ -610,6 +610,25 @@ old_kernel_rc=0
 return 0
 }
 
+sync_testcase()
+{
+ php $ROOTDIR/skywalker/vte_script/client_skywalker_case.php $1 > ${ROOTDIR}/${2}
+ lines=$(cat $2 | wc -l)
+ if [ $line -gt 1 ]; then
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE}/vte_mx${3}_${4}d/runtest/  
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE}/vte_mx${3}/runtest/  
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE2}/vte_mx${3}_${4}d/runtest/  
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE2}/vte_mx${3}/runtest/  
+	if [ $deploy_vte_target_rd -eq 1 ]; then
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE3}/vte_mx${3}_${4}d/runtest/  
+	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE3}/vte_mx${3}/runtest/  
+	fi
+   return 0
+ else
+	return 1
+ fi
+}
+
 make_vte()
 {
 ret=0
@@ -672,6 +691,7 @@ sudo cp mytest ${VTE_TARGET_PRE}/vte_mx${2}_${3}d/
 sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}_${3}d/
+sync_testcase $4 "imx${2}_${4}_auto" ${2} ${3} 
 if [ $deploy_vte_target_rd -eq 1 ]; then
 sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
@@ -950,7 +970,7 @@ do
 	RC=$(echo $RC $i)
      fi
      branch_vte ${vte_branch[$j]}
-     make_vte  ${vte_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || old_vte_rc=$?
+     make_vte  ${vte_configs[${j}]} $c_soc ${rootfs_apd[${j}]} $c_plat || old_vte_rc=$?
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
