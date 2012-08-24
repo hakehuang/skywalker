@@ -653,7 +653,7 @@ if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
    fi
-   sync_testcase $5 "imx${2}${4}auto" ${2} ${3} 
+   sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
  fi
 return $old_vte_rc
 fi
@@ -700,7 +700,7 @@ sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 fi
-sync_testcase $5 "imx${2}${4}auto" ${2} ${3} 
+sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
@@ -974,18 +974,18 @@ do
 	RC=$(echo $RC $i)
      fi
      branch_vte ${vte_branch[$j]}
-     make_vte  ${vte_configs[${j}]} $c_soc ${rootfs_apd[${j}]} ${test_plan[${j}]} $c_plat || old_vte_rc=$?
+     make_vte  ${vte_configs[${j}]} $c_soc "${rootfs_apd[${j}]}" ${test_plan[${j}]} $c_plat || old_vte_rc=$?
      if [ $old_vte_rc -ne 0 ]; then
      	RC=$(echo $RC vte_$i)
      fi
      update_rootfs $c_soc ${rootfs_apd[${j}]}
-     make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc ${rootfs_apd[${j}]}
-     make_unit_test ${unit_test_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || RC=$(echo $RC unit_test_$i) 
+     make_libs ${linux_libs_branch[${j}]} ${linux_libs_platfm[${j}]} $c_soc "${rootfs_apd[${j}]}"
+     make_unit_test ${unit_test_configs[${j}]} $c_soc "${rootfs_apd[${j}]}" || RC=$(echo $RC unit_test_$i) 
      branch_gpu  ${gpu_branch[$j]}
 	 branch_exa  ${exa_branch[$j]}
-     make_gpu  ${gpu_configs[${j}]} $c_soc ${rootfs_apd[${j}]} || old_gpu_rc=$?
-     make_gpu_x  ${gpu_configs[${j}]} $c_soc ${xrootfs[${j}]} || old_gpu_rc=$?
-	 make_exa ${gpu_configs[${j}]} $c_soc ${xrootfs[${j}]} || old_gpu_rc=$?
+     make_gpu  ${gpu_configs[${j}]} $c_soc "${rootfs_apd[${j}]}" || old_gpu_rc=$?
+     make_gpu_x  ${gpu_configs[${j}]} $c_soc "${xrootfs[${j}]}" || old_gpu_rc=$?
+	 make_exa ${gpu_configs[${j}]} $c_soc "${xrootfs[${j}]}" || old_gpu_rc=$?
      #if [ $old_kernel_rc -eq 0 ] && [ $old_vte_rc -eq 0 ] && [ $(echo $RC | grep uboot_$i | wc -l) -eq 0 ]
      #then
      	sync_server $i READY_KVER${KERNEL_VER}
