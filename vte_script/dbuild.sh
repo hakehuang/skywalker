@@ -338,8 +338,7 @@ export CFLAGS="-I${ROOTFS}/usr/include "
 export LDFLAGS="-L${ROOTFS}/usr/lib -Xlinker -rpath-link=${ROOTFS}/usr/lib  -lGAL -lpthread -lm -lX11"
 export PKG_CONFIG_PATH=${ROOTFS}/usr/share/pkgconfig
 export XORG_CFLAGS="-I${ROOTFS}/usr/include/xorg/ -I${ROOTFS}/usr/include/pixman-1"
-test -n "$srcdir" || srcdir=`dirname "$0"`
-test -n "$srcdir" || srcdir=.
+srcdir=${EXA_DIR}
 autoreconf --force --install --verbose "$srcdir"
 ./configure --host=arm-none-linux-gnueabi --prefix=${ROOTFS}/usr --disable-static CC=${CROSS_COMPILE}gcc
 make || old_exa_rc=1
