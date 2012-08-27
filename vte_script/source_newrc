@@ -11,7 +11,7 @@ HOST_SERVER=10.192.224.48
 PLATFORM="MX31 MX35 MX37 MX51 MX25 MX233 MX28" 
 #PLATFORM="MX28" 
 
-KERNEL_VER=3.0.15
+KERNEL_VER=3.0.35
 
 SDK_VER=12.01.01
 read -p "please input sdk version: " SDK_VER
@@ -64,8 +64,10 @@ echo "$1 should be on scm server path"
 echo "unzip the package"
 tar xzvf ${NFS_PATH}temp2/$RELEASE_PACKAGE -C ${NFS_PATH}temp2 || exit 2
 #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
-RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
 
+#RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
+RELEASE_TARGET_t=$(basename ${RELEASE_PACKAGE} .gz)
+RELEASE_TARGET=$(basename ${RELEASE_TARGET_t} .tar)
 cd ${NFS_PATH}temp2/${RELEASE_TARGET}/
 
 cp pkgs/${LINUX_KERNEL} .
@@ -76,8 +78,7 @@ cd linux-${KERNEL_VER}
 tar xjf ${PATCHES} || exit $RC
 rm -f ${PATCHES}
 
-./patches/patch-kernel.sh || exit $RC
-
+#./patches/patch-kernel.sh || exit $RC
 
 cd ..
 tar czvf linux-${KERNEL_VER}_wb.tar.gz linux-${KERNEL_VER}
