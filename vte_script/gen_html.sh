@@ -118,7 +118,7 @@ do
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   php ${BASE}/client_skywalker_cycle.php "http://10.192.244.61/daily_test/${VTEPATH}/runtest/${plan}" \
   "http://10.192.244.61/daily_test/${VTEPATH}/results/${result_txt}" \
-   "see http://10.192.244.61/daily_test/${VTEPATH}/results/${result_html}"
+   "http://10.192.244.61/daily_test/${VTEPATH}/results/${result_html}"
 	fi
  fi	
  pj=$(expr $pj + 1)
