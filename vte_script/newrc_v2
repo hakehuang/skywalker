@@ -786,7 +786,7 @@ EOF
     cat >>${MX63_ROOTFS}etc/rc.d/init.d/syslog <<EOF
 	if [ "\$1" = "start" -o "\$1" = "restart" ]
 	then
-        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}'}
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
 		/sbin/klogd \$KLOGD_OPTIONS
         /sbin/syslogd \$SYSLOGD_OPTIONS -l 4 -b 99 -O /var/log/\${mac}.log
 	fi
