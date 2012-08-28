@@ -754,8 +754,8 @@ do
      sed -i "s/gtk2//g" ${MX61_ROOTFS}/etc/rc.d/rc.conf 
      sed -i "s/fslgnome//g" ${MX61_ROOTFS}/etc/rc.d/rc.conf 
 	 #add syslog
-	 sed -i "/cfg_services=/s/\"$/ syslog\"/" rc.conf
-	 sed -i "/cfg_services_r=/s/\"/\"syslog /" rc.conf
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX61_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX61_ROOTFS}/etc/rc.d/rc.conf
 		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX61_ROOTFS}etc/fstab
@@ -779,8 +779,8 @@ EOF
      sed -i "s/gtk2//g" ${MX63_ROOTFS}/etc/rc.d/rc.conf 
      sed -i "s/fslgnome//g" ${MX63_ROOTFS}/etc/rc.d/rc.conf 
 	 #add syslog
-	 sed -i "/cfg_services=/s/\"$/ syslog\"/" rc.conf
-	 sed -i "/cfg_services_r=/s/\"/\"syslog /" rc.conf
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX63_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX63_ROOTFS}/etc/rc.d/rc.conf
 		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX63_ROOTFS}etc/fstab
@@ -789,7 +789,7 @@ EOF
     cat >>${MX63_ROOTFS}etc/rc.d/init.d/syslog <<EOF
 	if [ "\$1" = "start" -o "\$1" = "restart" ]
 	then
-        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}'}
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
 		/sbin/klogd \$KLOGD_OPTIONS
         /sbin/syslogd \$SYSLOGD_OPTIONS -l 4 -b 99 -O /var/log/\${mac}.log
 	fi
@@ -802,8 +802,8 @@ EOF
      sed -i "s/gtk2//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
      sed -i "s/fslgnome//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
 	 #add syslog
-	 sed -i "/cfg_services=/s/\"$/ syslog\"/" rc.conf
-	 sed -i "/cfg_services_r=/s/\"/\"syslog /" rc.conf
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX60_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX60_ROOTFS}/etc/rc.d/rc.conf
 		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
 		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
 		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX60_ROOTFS}etc/fstab

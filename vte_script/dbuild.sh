@@ -634,6 +634,7 @@ sync_testcase()
 make_vte()
 {
 ret=0
+sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
  if [ $old_vte_soc = $2$3  ]; then
@@ -652,7 +653,6 @@ if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
    fi
-   sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
  fi
 return $old_vte_rc
 fi
@@ -699,7 +699,6 @@ sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}_${3}d/
 fi
-sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
