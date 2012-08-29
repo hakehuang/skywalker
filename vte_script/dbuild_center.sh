@@ -16,7 +16,7 @@ VTE_TARGET_PRE2=/rootfs/wb
 #VTE_TARGET_PRE3=/mnt/nfs_rd/
 TARGET_ROOTFS=/rootfs/
 #TARGET_ROOTFS_RD=/mnt/nfs_root_rd/
-ROOTDIR=/home/ltib2/daily_build/
+ROOTDIR=/home/ubuntu/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
 VTE_DIR=${ROOTDIR}/vte
@@ -882,7 +882,7 @@ old_lib_platfm=0
 if [ $BUILD = "y" ]; then
  cd $ROOTDIR
  if [ ! -e ${UBOOT_DIR} ]; then
- git clone git://sw-git01-tx30/uboot-imx.git
+ git clone git://sw-git.freescale.net/uboot-imx.git
  fi
  cd ${UBOOT_DIR}
  git add . 
