@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 # Prerequisite /etc/rc.d/rc.local 
 # this script is run on NFS server for weekly test
 # init the root file system to run vte scripts
@@ -119,8 +119,10 @@ else
  #wget ${PACKAGE_LINK} -P ${NFS_PATH}temp/ || exit 1
  echo "unzip the package"
  tar xzvf ${NFS_PATH}temp/$RELEASE_PACKAGE -C ${NFS_PATH}temp || exit 2
+  RELEASE_TARGET_t=$(basename ${RELEASE_PACKAGE} .gz)
+  RELEASE_TARGET=$(basename ${RELEASE_TARGET_t} .tar)
  #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
- RELEASE_TARGET=$(ls -l ${NFS_PATH}temp | grep ^d | awk '{print $9}')
+ #RELEASE_TARGET=$(ls -l ${NFS_PATH}temp | grep ^d | awk '{print $9}')
 fi
 
 if [ $isBL == 1 ]; then
@@ -132,8 +134,9 @@ if [ $isBL == 1 ]; then
 
   echo "unzip the package"
   tar xzvf ${NFS_PATH}temp2/$RELEASE_PACKAGE -C ${NFS_PATH}temp2 || exit 2
- #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
-  RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
+  RELEASE_TARGET_t=$(basename ${RELEASE_PACKAGE} .gz)
+  RELEASE_TARGET=$(basename ${RELEASE_TARGET_t} .tar)
+  #RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
   cd ${NFS_PATH}temp2/${RELEASE_TARGET}/
   RBDIR=$(ls redboot*)
   echo unzip $RBDIR
