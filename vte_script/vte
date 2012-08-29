@@ -171,6 +171,9 @@ telnetd
 #enlarge the memory
 echo 1 1 > /proc/sys/vm/lowmem_reserve_ratio
 
+#more debug inform
+echo 8 > /proc/sys/kernel/printk
+
 mount -t nfs -o nolock,tcp,rsize=1024,wsize=1024,timeo=14 ${TEST_SERVER}:/rootfs/wb /mnt/nfs
 #check time
 if [ $? -ne 0 ]; then
