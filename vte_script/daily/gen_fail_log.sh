@@ -4,7 +4,7 @@
 echo $* >> /rootfs/wb/.log.txt
 
 PLATFORM=$2
-
+SERVERIP=10.192.244.6
 path=$3
 
 #list=$(ls ${1}/*.failed -lrt | awk '{print $8}')
@@ -75,7 +75,7 @@ tofile "<count>"
 tofile  $(cat $i | wc -l)
 tofile  "</count>"
 tofile  "<flink>"
-tofile  "http://10.192.244.61/test_reports/${2}_output/$(basename $i)"
+tofile  "http://${SERVERIP}/test_reports/${2}_output/$(basename $i)"
 tofile  "</flink>"
 tofile  "<fdate>"
 tofile  $idate
@@ -84,7 +84,7 @@ tofile  "<total_cases>"
 tofile  ${total_case}
 tofile  "</total_cases>"
 tofile  "<runfile>"
-tofile  "http://10.192.244.61/test_reports/runtest_${PLATFORM}/${runfile}"
+tofile  "http://${SERVERIP}/test_reports/runtest_${PLATFORM}/${runfile}"
 tofile  "</runfile>"
 tofile  "</fail_count>"
 done

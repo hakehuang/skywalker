@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-#PLATFORM="233 25 28 31 35 37 25 50 51 53"
+#PLATFORM="IMX6SL-EVK"
 PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO \
 IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO \
 IMX6Sololite-ARM2 IMX6SL-EVK"
@@ -10,12 +10,10 @@ KERNEL_BRH=imx_2.6.35
 #KERNEL_BRH=imx_2.6.38
 VTE_BRH=imx2.6.35.3
 UBOOT_BRH=imx_v2009.08
-#PLATFORM="5x"
-#VTE_TARGET_PRE=/mnt/vte/
+
+CENTER_SERVER=10.192.244.6
 VTE_TARGET_PRE2=/rootfs/wb
-#VTE_TARGET_PRE3=/mnt/nfs_rd/
 TARGET_ROOTFS=/rootfs/
-#TARGET_ROOTFS_RD=/mnt/nfs_root_rd/
 ROOTDIR=/home/ubuntu/daily_build/
 KERNEL_DIR=${ROOTDIR}/linux-2.6-imx/
 UBOOT_DIR=${ROOTDIR}/uboot-imx
@@ -255,7 +253,7 @@ make_unit_test()
  INCLUDE="-I${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/include \
  -I${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/src/linux/include \
  -I./include/"
- LIB="-L/mnt/nfs_root/imx${2}_rootfs${3}/usr/lib"
+ LIB="-L${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib"
  make distclean
  make -C module_test KBUILD_OUTPUT=$KBUILD_OUTPUT LINUXPATH=$KERNELDIR  CC=${TOOL_CHAIN}arm-none-linux-gnueabi-gcc \
  CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- || old_ut_rc=1
@@ -301,10 +299,8 @@ cd $UBOOT_DIR
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- distclean
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- $1 || return 1
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- || return 2
-scp u-boot.bin root@10.192.225.218:/tftpboot/u-boot-${3}_d.bin
-scp u-boot.bin root@10.192.225.218:/var/ftp/u-boot-${3}_d.bin
-scp u-boot.bin ubuntu@10.192.244.7:/var/lib/tftpboot/u-boot-${3}_d.bin
-sudo cp u-boot.bin /mnt/nfs_root/imx${2}_rootfs${4}/root/u-boot-${3}_d.bin || return 3
+sudo cp  u-boot.bin /tftpboot/u-boot-${3}_d.bin
+sudo cp u-boot.bin ${TARGET_ROOTFS}/imx${2}_rootfs${4}/root/u-boot-${3}_d.bin || return 3
 make_uboot_config $3 $(git log | head -1 | cut -d " " -f 2 | cut -c 1-6) $2 $4 || return 3 
 return 0
 }
@@ -475,7 +471,7 @@ export AQARCH=${AQROOT}/arch/XAQ2
 export AQVGARCH=${AQROOT}/arch/GC350
 export SDK_DIR=${AQROOT}/build/sdk
 export USE_355_VG=1
-export DFB_DIR=/mnt/nfs_root/imx${2}_rootfs${3}/usr
+export DFB_DIR=${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr
 export ARCH_TYPE=$ARCH
 export CPU_TYPE=cortex-a9
 export FIXED_ARCH_TYPE=arm
@@ -558,9 +554,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS}/${4} || ret
 sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3} || return 3
   fi
 md5sum arch/arm/boot/uImage
-scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
-scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
-scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
+sudo cp  arch/arm/boot/uImage /tftpboot/uImage_mx${2}_${3}d
 sudo cp $KERNEL_DIR/tools/perf/perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
  install_atheors ${TARGET_ROOTFS}/imx${2}_rootfs${3} $KERNEL_VER 
  install_atheors ${TARGET_ROOTFS}/${4} $KERNEL_VER 
@@ -591,9 +585,7 @@ sudo make ARCH=arm modules_install INSTALL_MOD_PATH=${TARGET_ROOTFS_RD}/imx${2}_
 sudo make ARCH=arm headers_install INSTALL_HDR_PATH=${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/src/linux/ || return 5
  fi
 md5sum arch/arm/boot/uImage
-scp arch/arm/boot/uImage root@10.192.225.218:/tftpboot/uImage_mx${2}_${3}d
-scp arch/arm/boot/uImage root@10.192.225.218:/var/ftp/uImage_mx${2}_${3}d
-scp arch/arm/boot/uImage ubuntu@10.192.244.7:/var/lib/tftpboot/uImage_mx${2}_${3}d
+sudo cp arch/arm/boot/uImage /tftpboot/uImage_mx${2}_${3}d
 cd $KERNEL_DIR/tools/perf/
 make ARCH=arm CROSS_COMPILE=${TOOL_CHAIN}arm-none-linux-gnueabi- CFLAGS="-static -DGElf_Nhdr=Elf32_Nhdr"
 sudo cp  perf ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/bin/
@@ -749,16 +741,7 @@ sync_server()
  make CC=gcc || return 10
  RETRY=3
  while [ $RETRY -gt 0 ]; do
-  $TOOLSDIR/uclient 10.192.225.222 12500 ${1}_${2} && RETRY=0
-  if [ $? -ne 0 ]; then
-  	RETRY=$(expr $RETRY - 1)
-  fi 
- done
- RETRY=3
- sleep 3
- RETRY=3
- while [ $RERTY -gt 0 ]; do
-  $TOOLSDIR/uclient 10.192.244.61 12500 ${1}_${2} && RETRY=0
+  $TOOLSDIR/uclient ${CENTER_SERVER} 12500 ${1}_${2} && RETRY=0
   if [ $? -ne 0 ]; then
   	RETRY=$(expr $RETRY - 1)
   fi 
