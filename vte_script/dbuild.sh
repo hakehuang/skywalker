@@ -615,7 +615,7 @@ return 0
 sync_testcase()
 {
  php $ROOTDIR/skywalker/vte_script/client_skywalker_case.php $1 > ${ROOTDIR}/${2}
- lines=$(cat $2 | wc -l)
+ lines=$(cat ${ROOTDIR}/$2 | wc -l)
  if [ $line -gt 1 ]; then
 	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE}/vte_mx${3}_${4}d/runtest/  
 	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE}/vte_mx${3}/runtest/  

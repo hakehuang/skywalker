@@ -1,10 +1,12 @@
 #!/bin/bash -x
 
 #PLATFORM="233 25 28 31 35 37 25 50 51 53"
-#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD IMX6-SABREAUTO \
-#IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO \
+#PLATFORM="IMX50RDP IMX50-RDP3 IMX53LOCO IMX51-BABBAGE IMX53SMD \
+#IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 \
+#IMX6DL-Sabre-SD IMX6Solo-SABREAUTO \
 #IMX6Sololite-ARM2 IMX6SL-EVK"
-PLATFORM="IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
+PLATFORM="IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD \
+IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
 BUILD=n
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -108,7 +110,7 @@ return 0
 sync_testcase()
 {
  php $ROOTDIR/skywalker/vte_script/client_skywalker_case.php $1 > ${ROOTDIR}/${2}
- lines=$(cat $2 | wc -l)
+ lines=$(cat ${ROOTDIR}/$2 | wc -l)
  if [ $line -gt 1 ]; then
 	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE2}/vte_mx${3}/runtest/  
    return 0
@@ -120,6 +122,7 @@ sync_testcase()
 make_vte()
 {
 ret=0
+sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
 cd $VTE_DIR
 if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
  if [ $old_vte_soc = $2$3  ]; then
@@ -133,7 +136,6 @@ if [ "$old_vte_config" = $1 ] && [ $old_soc = $2 ]; then
    sudo cp -a install/* ${VTE_TARGET_PRE2}/vte_mx${2}/
    sudo cp -a testcases/bin/* ${VTE_TARGET_PRE2}/vte_mx${2}/testcases/bin/
    sudo cp mytest ${VTE_TARGET_PRE2}/vte_mx${2}/
-   sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
  fi
 return $old_vte_rc
 fi
@@ -180,7 +182,6 @@ sudo cp -a install/* ${VTE_TARGET_PRE3}/vte_mx${2}/
 sudo cp -a testcases/bin/* ${VTE_TARGET_PRE3}/vte_mx${2}/testcases/bin/
 sudo cp mytest ${VTE_TARGET_PRE3}/vte_mx${2}/
 fi
-sync_testcase $5 "imx${2}${4}auto" ${2} "${3}" 
 #sudo scp -r testcases/bin/* b17931@survivor:/rootfs/wb/vte_mx${2}_d/testcases/bin
 old_vte_rc=0
 return $ret
