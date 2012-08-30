@@ -349,6 +349,7 @@ return $old_exa_rc
 
 make_gpu_x()
 {
+#apt-get install xorg-dev x11proto-gl-dev mesa-common-dev
 if [ $1 -eq 0 ];then
  return 0
 fi
@@ -434,11 +435,18 @@ BUILD_OPTIONS="$BUILD_OPTIONS DIRECTFB_MICRO_VERSION=$BUILD_OPTION_DIRECTFB_MICR
 export PATH=$TOOLCHAIN/bin:$PATH
 export AQVGARCH=$AQROOT/arch/GC350
 export VIVANTE_ENABLE_VG=1
-
+export ROOTFS_USR=${X11_ARM_DIR}
 old_gpu_rc=0
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1 || old_gpu_rc=gpux_${2}
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
+sudo cp ${GPU_DIR}/driver/openGL/libGL2/script/xorg.conf ${TARGET_ROOTFS}/${3}/etc/
+sudo mkdir  ${TARGET_ROOTFS}/${3}/usr/lib/dri
+sudo cp  $GPU_DIR/driver/build/sdk/drivers/vivante_dri.so  ${TARGET_ROOTFS}/${3}/usr/lib/dri/
+sudo cp $GPU_DIR/driver/build/sdk/drivers/libGL.so.1.2 ${TARGET_ROOTFS}/${3}/usr/lib/
+cd ${TARGET_ROOTFS}/${3}/usr/lib/
+sudo rm -rf libGL.so 
+sudo ln -s libGL.so.1.2 libGL.so
 unset BUILD_OPTION_EGL_API_FB
 return 0
 }
