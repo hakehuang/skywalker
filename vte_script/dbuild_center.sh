@@ -357,6 +357,7 @@ if [ "$old_gpu_rc" -eq 0 ]; then
 	return $old_gpu_rc
   fi
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/include/* ${TARGET_ROOTFS}/${3}/usr/include/
 fi
 return $old_gpu_rc
 fi
@@ -435,6 +436,7 @@ old_gpu_rc=0
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS clean
 cd $AQROOT; make -j1 -f makefile.linux $BUILD_OPTIONS install 2>&1 || old_gpu_rc=gpux_${2}
 sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/include/* ${TARGET_ROOTFS}/${3}/usr/include/
 sudo cp ${GPU_DIR}/driver/openGL/libGL2/script/xorg.conf ${TARGET_ROOTFS}/${3}/etc/
 sudo mkdir  ${TARGET_ROOTFS}/${3}/usr/lib/dri
 sudo cp  $GPU_DIR/driver/build/sdk/drivers/vivante_dri.so  ${TARGET_ROOTFS}/${3}/usr/lib/dri/
