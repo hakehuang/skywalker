@@ -361,7 +361,7 @@ if [ "$old_gpu_rc" -eq 0 ]; then
 	echo "already deployed"
 	return $old_gpu_rc
   fi
-sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/${3}/usr/lib/
 fi
 return $old_gpu_rc
 fi
@@ -464,9 +464,9 @@ if [ "$old_gpu_rc" -eq 0 ]; then
 	echo "already deployed"
 	return $old_gpu_rc
   fi
-sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS}/imx${2}_rootfs${3}/usr/lib/
  if [ $deploy_target_rd -eq 1 ]; then
-sudo cp -a $GPU_DIR/build/sdk/drivers/* ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/lib/
+sudo cp -a $GPU_DIR/driver/build/sdk/drivers/* ${TARGET_ROOTFS_RD}/imx${2}_rootfs${3}/usr/lib/
   fi
 fi
 return $old_gpu_rc
