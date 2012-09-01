@@ -1,0 +1,811 @@
+#!/bin/bash -x
+# Prerequisite /etc/rc.d/rc.local 
+# this script is run on NFS server for weekly test
+# init the root file system to run vte scripts
+# by Hake Huang
+# freescale copy right. all rights reserved
+
+
+#HOST_SERVER=10.192.225.222
+
+HOST_SERVER=10.192.224.48
+
+#PLATFORM="MX31 MX35 MX37 MX51 MX25 MX233 MX53"
+#PLATFORM="MX233"
+#PLATFORM="MX35 MX25 MX51 MX233"
+#PLATFORM="BL"
+#PLATFORM="MX35"
+
+#released package name
+RELEASE_PACKAGE=$(basename $1)
+PACKAGE_LINK=$1
+
+#release path in build server
+if [ $HOST_SERVER == "10.192.224.48" ]
+then
+RELEASE_PATH="/pub1$(dirname $1)"
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/hive//g')
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/10.192.224.48//g')
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/(/\\(/g')
+RELEASE_PATH=$(echo $RELEASE_PATH | sed 's/)/\\)/g')
+echo $RELEASE_PATH
+else
+RELEASE_PATH="$(dirname $1)"
+fi
+
+
+#path for test script
+VTE_ORIGINAL_PATH=/rootfs/
+
+#tftpd server
+TFTP_SERVER=10.192.244.6
+TFTP_SERVER2=10.192.244.6
+
+#NFS server 
+#NFS_SERVER=10.192.224.170
+
+#NFS server path
+NFS_PATH=/rootfs/
+
+#rootfs path
+MX233_ROOTFS=${NFS_PATH}imx233_rootfs_r/
+MX28_ROOTFS=${NFS_PATH}imx28_rootfs_r/
+MX31_ROOTFS=${NFS_PATH}imx31_rootfs_r/
+MX35_ROOTFS=${NFS_PATH}imx35_rootfs_r/
+MX37_ROOTFS=${NFS_PATH}imx37_rootfs_r/
+MX51_ROOTFS=${NFS_PATH}imx51_rootfs_r/
+MX25_ROOTFS=${NFS_PATH}imx25_rootfs_r/
+MX53_ROOTFS=${NFS_PATH}imx53_rootfs_r/
+MX50_ROOTFS=${NFS_PATH}imx50_rootfs_r/
+MX61_ROOTFS=${NFS_PATH}imx61_rootfs_r/
+MX60_ROOTFS=${NFS_PATH}imx60_rootfs_r/
+MX63_ROOTFS=${NFS_PATH}imx63_rootfs_r/
+
+MX51_ROOTFS_d=${NFS_PATH}imx51_rootfs/
+MX53_ROOTFS_d=${NFS_PATH}imx53_rootfs/
+MX50_ROOTFS_d=${NFS_PATH}imx50_rootfs/
+MX61_ROOTFS_d=${NFS_PATH}imx61_rootfs/
+MX60_ROOTFS_d=${NFS_PATH}imx60_rootfs/
+MX63_ROOTFS_d=${NFS_PATH}imx63_rootfs/
+
+echo "$(date +"%y%m%d")" >> .newrclog
+echo "$0 $@" >> .newrclog
+
+if [ $# -lt 1 ]
+then
+echo "need released filename"
+echo "or"
+echo "./newrc clean"
+echo "to clean all folders"
+exit 0
+fi
+
+if [ $1 == "clean" ]
+then
+  rm -rf ${NFS_PATH}imx31_rootfs_r
+  rm -rf ${NFS_PATH}imx35_rootfs_r
+  rm -rf ${NFS_PATH}imx37_rootfs_r
+  rm -rf ${NFS_PATH}imx51_rootfs_r
+  rm -rf ${NFS_PATH}imx25_rootfs_r
+  rm -rf ${NFS_PATH}imx28_rootfs_r
+  rm -rf ${NFS_PATH}imx53_rootfs_r
+  rm -rf ${NFS_PATH}imx50_rootfs_r
+  rm -rf ${NFS_PATH}imx61_rootfs_r
+  rm -rf ${NFS_PATH}imx63_rootfs_r
+  rm -rf ${NFS_PATH}imx60_rootfs_r
+  exit 0
+fi
+
+isBL=$(echo $PLATFORM | grep "BL" | wc -l)
+if [ $isBL == "1" ] 
+then
+ if [ -e ${NFS_PATH}temp2 ]
+ then
+  rm -rf ${NFS_PATH}temp2
+ fi
+ sleep 1
+ mkdir -p ${NFS_PATH}temp2
+else
+ if [ -e ${NFS_PATH}temp ]
+ then
+  #rm -rf ${NFS_PATH}temp
+  echo "help"
+ fi
+  sleep 1
+ mkdir ${NFS_PATH}temp
+ echo "get the package"
+ #scp b20222@${HOST_SERVER}:${RELEASE_PATH}/${RELEASE_PACKAGE} ${NFS_PATH}temp/ || exit 1  
+ #cp ${PACKAGE_LINK} -P ${NFS_PATH}temp/ || exit 1  
+ #wget ${PACKAGE_LINK} -P ${NFS_PATH}temp/ || exit 1
+ echo "unzip the package"
+ tar xzvf ${NFS_PATH}temp/$RELEASE_PACKAGE -C ${NFS_PATH}temp || exit 2
+ #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
+ RELEASE_TARGET=$(ls -l ${NFS_PATH}temp | grep ^d | awk '{print $9}' | grep $2)
+fi
+
+if [ $isBL == 1 ]; then
+ if [ $PLATFORM == "BL" ]
+ then
+  echo "upload boot loader"
+  echo "get the package"
+  scp b20222@${HOST_SERVER}:${RELEASE_PATH}/${RELEASE_PACKAGE} ${NFS_PATH}temp2/ || exit 1  
+
+  echo "unzip the package"
+  tar xzvf ${NFS_PATH}temp2/$RELEASE_PACKAGE -C ${NFS_PATH}temp2 || exit 2
+ #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
+  RELEASE_TARGET=$(ls -l ${NFS_PATH}temp2 | grep ^d | awk '{print $9}')
+  cd ${NFS_PATH}temp2/${RELEASE_TARGET}/
+  RBDIR=$(ls redboot*)
+  echo unzip $RBDIR
+  unzip $RBDIR
+  RBDIR=$(ls | grep redboot)
+  for i in $RBDIR
+  do
+   if [ -d $i ]
+   then
+     echo "copy boot loader"
+     scp ${i}/bin/mx31_3stack_redboot.bin  ${TFTP_SERVER}:/tftpboot/
+     scp ${i}/bin/mx35_3stack_redboot.bin  ${TFTP_SERVER}:/tftpboot/
+     scp ${i}/bin/mx37_3stack_redboot.bin  ${TFTP_SERVER}:/tftpboot/
+     scp ${i}/bin/mx51_3stack_redboot.bin  ${TFTP_SERVER}:/tftpboot/
+     scp ${i}/bin/mx25_3stack_redboot.bin  ${TFTP_SERVER}:/tftpboot/
+     echo "finish transfer bootloader"
+   fi
+  done
+  exit 0
+ fi
+fi
+
+echo "now copy the kernel Images"
+for i in $PLATFORM
+do
+ echo "${i} process.."
+ if [ $i == "MX31" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx31
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx31
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx31_rootfs.jffs2
+ fi
+ if [ $i == "MX35" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx35 
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx35 
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx35_rootfs.jffs2
+ fi
+ if [ $i == "MX37" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx37
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx37
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx37_rootfs.jffs2
+ fi
+ if [ $i == "MX37_24" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx37_24
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx37_24
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx37_24_rootfs.jffs2
+ fi
+ if [ $i == "MX51" ]
+ then
+  FS=$(ls ${NFS_PATH}temp/${RELEASE_TARGET} | grep imx51 )
+  scp  ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx51
+  scp  ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${NFS_PATH}/ubuntu_9.10/zImage
+  scp  ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx51
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx51_rootfs.jffs2
+ fi
+ if [ $i == "MX51_28" ]
+ then
+  FS=$(ls ${NFS_PATH}temp/${RELEASE_TARGET} | grep imx51 )
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx51_babbage
+  cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${NFS_PATH}/ubuntu_9.10/zImage
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx51_babbage
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx51_rootfs_babbage.jffs2
+ fi
+ if [ $i == "MX25" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx25
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx25
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx25_rootfs.jffs2
+ fi
+ if [ $i == "MX233" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx233
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx233
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx233_rootfs.jffs2
+ fi
+ if [ $i == "MX28" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx28
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx28
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx28_rootfs.jffs2
+ fi
+ if [ $i == "MX53" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx53
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx53
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx53_rootfs.jffs2
+ fi
+ if [ $i == "MX50" ]
+ then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx50
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx50
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.jffs2 ${TFTP_SERVER}:/tftpboot/mx50_rootfs.jffs2
+  fi
+  if [ $i == "MX61" ]
+  then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx61
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_${2}
+  fi
+  if [ $i == "MX63" ]
+  then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx63
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_${2}
+  fi
+  if [ $i == "MX60" ]
+  then
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx60
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60
+  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60_${2}
+  fi
+
+done
+
+
+echo "now copy the rootfs"
+mkdir -p /mnt/tempfs
+
+
+for i in $PLATFORM
+do
+ LOOP_AVAIL=$(losetup -f)
+ if [ $? -ne 0 ]
+ then
+   echo "no loop device available"
+   echo "using losetup -f to check"
+   echo "using losetup -d /dev/loop? to delete"
+   exit 1
+  fi
+ if [ $i == "MX31" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz 
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ #rm -rf ${MX31_ROOTFS}
+ rm -rf ./last_week/imx31_rootfs
+ mv ${MX31_ROOTFS} ./last_week/
+ mkdir -p ${MX31_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX31_ROOTFS}/
+ sync
+ umount /mnt/tempfs 
+ fi 
+ sleep 1
+
+ if [ $i == "MX35" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ ls /mnt/tempfs
+ #rm -rf ${MX35_ROOTFS}
+ rm -rf ./last_week/imx35_rootfs
+ mv ${MX35_ROOTFS} ./last_week/
+ mkdir -p ${MX35_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX35_ROOTFS}/
+ sync
+ umount /mnt/tempfs 
+ fi 
+
+ if [ $i == "MX37" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/imx37_rootfs
+ mv ${MX37_ROOTFS} ./last_week/
+ mkdir -p ${MX37_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX37_ROOTFS}/
+ sync
+ umount /mnt/tempfs 
+ fi 
+
+ if [ $i == "MX37_24" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ${MX37_ROOTFS_24}
+ mkdir -p ${MX37_ROOTFS_24}
+ cp -a /mnt/tempfs/* ${MX37_ROOTFS_24}/
+ sync
+ umount /mnt/tempfs 
+ fi 
+
+ if [ $i == "MX51" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/imx51_rootfs
+ mv ${MX51_ROOTFS} ./last_week/
+ mkdir -p ${MX51_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX51_ROOTFS}/
+ sync
+ umount /mnt/tempfs 
+ fi
+
+ if [ $i == "MX233" ]
+ then
+ mkdir -p ${MX233_ROOTFS}
+ rm -rf ./last_week/imx233_rootfs
+ cp ${MX233_ROOTFS} ./last_week/ -a
+ cd ${MX233_ROOTFS}
+ rm -f rootfs.ext2
+ rm -rf rootfs.ext2.gz
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/imx23_uboot.sb .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/imx23_linux.sb .
+ gunzip rootfs.ext2.gz
+ mount -o loop rootfs.ext2 /mnt/tempfs 
+ rm -rf ${MX233_ROOTFS}/rootfs
+ mkdir -p ${MX233_ROOTFS}/rootfs
+ cp -a /mnt/tempfs/* ${MX233_ROOTFS}/rootfs/
+ sync
+ umount /mnt/tempfs 
+ rm -rf zImage
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage .
+ rm -rf uImage
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage .
+ #./elftosb2 -z -c stmp378x_linux_sb.db -o stmp378x_linux.sb
+ rm -rf mmc_boot_partition.raw
+ dd if=/dev/zero of=mmc_boot_partition.raw bs=512 count=4
+ dd if=imx23_linux.sb of=mmc_boot_partition.raw ibs=512 seek=4 conv=sync,notrunc
+ fi
+ if [ $i == "MX28" ]
+ then
+ mkdir -p ${MX28_ROOTFS}
+ rm -rf ./last_week/imx28_rootfs
+ cp ${MX28_ROOTFS} ./last_week/ -a
+ cd ${MX28_ROOTFS}
+ rm -f rootfs.ext2
+ rm -rf rootfs.ext2.gz
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/imx28_uboot.sb .
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/imx28_linux.sb .
+ gunzip rootfs.ext2.gz
+ mount -o loop rootfs.ext2 /mnt/tempfs 
+ rm -rf ${MX28_ROOTFS}/rootfs
+ mkdir -p ${MX28_ROOTFS}/rootfs
+ cp -a /mnt/tempfs/* ${MX28_ROOTFS}/rootfs/
+ sync
+ umount /mnt/tempfs 
+ rm -rf zImage
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage .
+ rm -rf uImage
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage .
+ #./elftosb2 -z -c stmp378x_linux_sb.db -o stmp378x_linux.sb
+ rm -rf mmc_boot_partition.raw
+ dd if=/dev/zero of=mmc_boot_partition.raw bs=512 count=4
+ dd if=imx28_linux.sb of=mmc_boot_partition.raw ibs=512 seek=4 conv=sync,notrunc
+ fi
+
+ if [ $i == "MX51_28" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/${MX51_ROOTFS_28}
+ mv ${MX51_ROOTFS_28} ./last_week/
+ mkdir -p ${MX51_ROOTFS_28}
+ cp -a /mnt/tempfs/* ${MX51_ROOTFS_28}/
+ sync
+ umount /mnt/tempfs 
+ fi
+
+ if [ $i == "MX25" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/imx25_rootfs
+ mv ${MX25_ROOTFS} ./last_week/
+ mkdir -p ${MX25_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX25_ROOTFS}/
+ sync
+ umount /mnt/tempfs 
+ fi
+
+ if [ $i == "MX53" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/imx53_rootfs
+ mv ${MX53_ROOTFS} ./last_week/
+ mkdir -p ${MX53_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX53_ROOTFS}/
+ sync
+ umount /mnt/tempfs
+#copy debain packages
+ mkdir -p ${NFS_PATH}debains
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/*.deb ${NFS_PATH}debains/
+ fi
+ if [ $i == "MX50" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs
+ rm -rf ./last_week/imx50_rootfs
+ mv ${MX50_ROOTFS} ./last_week/
+ mkdir -p ${MX50_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX50_ROOTFS}/
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/u-boot-mx50-*.bin ${MX50_ROOTFS}/root
+ sync
+ umount /mnt/tempfs 
+ fi
+ if [ $i == "MX61" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs || exit -1
+ rm -rf ./last_week/imx61_rootfs_r
+ mv ${MX61_ROOTFS} ./last_week/
+ mkdir -p ${MX61_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX61_ROOTFS}/
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/u-boot-mx6*.bin ${MX61_ROOTFS}/root
+ sync
+ umount /mnt/tempfs 
+ fi
+
+ if [ $i == "MX63" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs || exit -1
+ rm -rf ./last_week/imx63_rootfs_r
+ mv ${MX63_ROOTFS} ./last_week/
+ mkdir -p ${MX63_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX63_ROOTFS}/
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/u-boot-mx6*.bin ${MX63_ROOTFS}/root
+ sync
+ umount /mnt/tempfs 
+ fi
+
+ if [ $i == "MX60" ]
+ then
+ gzip -d ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz
+ if [ $? -ne 0 ]
+ then
+  mv ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2.gz ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2
+ fi 
+ mount -o loop ${NFS_PATH}temp/${RELEASE_TARGET}/rootfs.ext2 /mnt/tempfs || exit -1
+ rm -rf ./last_week/imx60_rootfs_r
+ mv ${MX60_ROOTFS} ./last_week/
+ mkdir -p ${MX60_ROOTFS}
+ cp -a /mnt/tempfs/* ${MX60_ROOTFS}/
+ cp ${NFS_PATH}temp/${RELEASE_TARGET}/u-boot-mx6*.bin ${MX60_ROOTFS}/root
+ sync
+ umount /mnt/tempfs 
+ fi
+
+done
+
+
+echo "now copy the vte script to /etc/rc.d/init.d/"
+for i in $PLATFORM
+do
+  if [ $i == "MX31" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX31_ROOTFS}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX35" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX35_ROOTFS}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX37" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX37_ROOTFS}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX37_24" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX37_ROOTFS_24}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX51" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX51_ROOTFS}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX51_28" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX51_ROOTFS_28}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX25" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX25_ROOTFS}etc/rc.d/init.d/
+  fi
+  if [ $i == "MX233" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX233_ROOTFS}/rootfs/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX28" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX28_ROOTFS}/rootfs/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX53" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX53_ROOTFS}/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX50" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX50_ROOTFS}/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX61" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX61_ROOTFS}/etc/rc.d/init.d/
+  cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX63_ROOTFS}/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX63" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX63_ROOTFS}/etc/rc.d/init.d/
+  cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX63_ROOTFS}/etc/rc.d/init.d/
+  fi
+  if [ $i == "MX60" ]
+  then
+  cp ${VTE_ORIGINAL_PATH}vte ${MX60_ROOTFS}/etc/rc.d/init.d/
+  cp ${VTE_ORIGINAL_PATH}temp_sensor.sh ${MX60_ROOTFS}/etc/rc.d/init.d/
+  fi
+
+done
+
+echo "now modify the /etc/rc.d/rc.local & /etc/udev/rules.d/20-board.rules"
+for i in $PLATFORM
+do
+  if [ $i == "MX31" ]
+  then
+     #pango gtk2    fslgnome
+     sed -i '/sd-show-icon/s/^/#/g' ${MX31_ROOTFS}etc/udev/rules.d/20-board.rules 
+     sed -i "4s/fslgui//" ${MX31_ROOTFS}etc/rc.d/rc.conf 
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX31_ROOTFS}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX31_ROOTFS}etc/securetty
+     sed -i "s/pango//g" ${MX31_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX31_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX31_ROOTFS}etc/rc.d/rc.conf
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+
+  fi
+  if [ $i == "MX35" ]
+  then
+     sed -i '/sd-show-icon/s/^/#/g' ${MX35_ROOTFS}etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX35_ROOTFS}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX35_ROOTFS}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX35_ROOTFS}etc/securetty
+     sed -i "s/pango//g" ${MX35_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX35_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX35_ROOTFS}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX37" ]
+  then
+     sed -i '/sd-show-icon/s/^/#/g' ${MX37_ROOTFS}/etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX37_ROOTFS}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX37_ROOTFS}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX37_ROOTFS}etc/securetty
+     sed -i "s/pango//g" ${MX37_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX37_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX37_ROOTFS}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX37_24" ]
+  then
+     sed -i '/sd-show-icon/s/^/#/g' ${MX37_ROOTFS_24}/etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX37_ROOTFS_24}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX37_ROOTFS_24}etc/rc.d/rc.local
+     echo "/dev/ttygs0" >> ${MX37_ROOTFS_24}etc/securetty
+     sed -i "s/pango//g" ${MX37_ROOTFS_24}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX37_ROOTFS_24}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX37_ROOTFS_24}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX51" ]
+  then
+     sed -i '/sd-show-icon.sh/s/^/#/g' ${MX51_ROOTFS}/etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX51_ROOTFS}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX51_ROOTFS}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX51_ROOTFS}etc/securetty
+     sed -i "s/pango//g" ${MX51_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX51_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX51_ROOTFS}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX51_28" ]
+  then
+     sed -i '/sd-show-icon.sh/s/^/#/g' ${MX51_ROOTFS_28}/etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX51_ROOTFS_28}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX51_ROOTFS_28}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX51_ROOTFS_28}etc/securetty
+     sed -i "s/pango//g" ${MX51_ROOTFS_28}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX51_ROOTFS_28}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX51_ROOTFS_28}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX25" ]
+  then
+     sed -i '/sd-show-icon.sh/s/^/#/g' ${MX25_ROOTFS}/etc/udev/rules.d/20-board.rules
+     sed -i "4s/fslgui//" ${MX25_ROOTFS}etc/rc.d/rc.conf
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX25_ROOTFS}etc/rc.d/rc.local
+     echo "/dev/ttyGS0" >> ${MX25_ROOTFS}etc/securetty
+     sed -i "s/pango//g" ${MX25_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX25_ROOTFS}etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX25_ROOTFS}etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX233" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX233_ROOTFS}/rootfs/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX233_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX233_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX233_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX28" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX28_ROOTFS}/rootfs/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX28_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX28_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX28_ROOTFS}/rootfs/etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX53" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX53_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX53_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX53_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX53_ROOTFS}/etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX50" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1  &" >> ${MX50_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX50_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX50_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX50_ROOTFS}/etc/rc.d/rc.conf 
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX31_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX31_ROOTFS}etc/fstab
+  fi
+  if [ $i == "MX61" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX61_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX61_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX61_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX61_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX61_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX61_ROOTFS}/etc/rc.d/rc.conf
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX61_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX61_ROOTFS}etc/fstab
+  	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX61_ROOTFS}etc/rc.d/init.d/syslog
+    cat >>${MX61_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+    if [ "\$1" = "start" -o "\$1" = "restart" ]
+        then
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+    fi
+
+EOF
+
+  fi
+  if [ $i == "MX63" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX63_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX63_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX63_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX63_ROOTFS}/etc/rc.d/rc.conf
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX63_ROOTFS}/etc/rc.d/rc.conf
+	sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX63_ROOTFS}/etc/rc.d/rc.conf
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX63_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX63_ROOTFS}etc/fstab
+  	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX63_ROOTFS}etc/rc.d/init.d/syslog
+    cat >>${MX63_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+	if [ "\$1" = "start" -o "\$1" = "restart" ]
+	then
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+	fi
+EOF
+  fi
+  if [ $i == "MX60" ]
+  then
+     echo "/etc/rc.d/init.d/vte \$1 &" >> ${MX60_ROOTFS}/etc/rc.d/rc.local || exit 1
+     sed -i "s/pango//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/gtk2//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+     sed -i "s/fslgnome//g" ${MX60_ROOTFS}/etc/rc.d/rc.conf 
+	 sed -i "/cfg_services=/s/\"$/ syslog\"/" ${MX60_ROOTFS}/etc/rc.d/rc.conf
+	  sed -i "/cfg_services_r=/s/\"/\"syslog /" ${MX60_ROOTFS}/etc/rc.d/rc.conf
+		 echo "/dev/mmcblk0p1  /mnt/mmcblk0p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/mmcblk1p1  /mnt/mmcblk1p1  ext3  noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/sda1       /mnt/sda1  ext3   noauto         0       0" >> ${MX60_ROOTFS}etc/fstab
+		 echo "/dev/sdb1       /mnt/sdb1  ext3   noauto          0       0" >> ${MX60_ROOTFS}etc/fstab
+
+ 	sed -i "/KLOGD_OPTIONS/s/^.*//g"  ${MX60_ROOTFS}etc/rc.d/init.d/syslog
+    cat >> ${MX60_ROOTFS}etc/rc.d/init.d/syslog <<EOF
+    if [ "\$1" = "start" -o "\$1" = "restart" ]
+        then
+        mac=\$(ifconfig | grep HWaddr | awk '{print \$5}')
+        /sbin/syslogd \$SYSLOGD_OPTIONS -l 5 -b 99 -O /var/log/\${mac}.log
+    fi
+EOF
+
+  fi
+
+done
+
+echo "finish processing!"
