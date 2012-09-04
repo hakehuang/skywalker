@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/bash -x
 # Prerequisite /etc/rc.d/rc.local 
 # this script is run on NFS server for weekly test
 # init the root file system to run vte scripts
