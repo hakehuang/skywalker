@@ -77,11 +77,12 @@ cd linux-${KERNEL_VER}
 tar xjf ${PATCHES} || exit $RC
 rm -f ${PATCHES}
 
-#./patches/patch-kernel.sh || exit $RC
+./patches/patch-kernel.sh
 
 
 cd ..
 
+rm -rf  ~/release_build/linux-${KERNEL_VER}
 cp -a  linux-${KERNEL_VER} ~/release_build/
 
 echo "kernel deploy ok"
