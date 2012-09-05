@@ -39,5 +39,5 @@ export PLATFORM=MX60
 export PLATFORM=MX63
 ./newrc_v2 $1 $2 || exit 1
 fi
-export PLATFORM=MX61
+export PLATFORM=MX60
 ./newrc_v2 $1 $2 || exit 1
