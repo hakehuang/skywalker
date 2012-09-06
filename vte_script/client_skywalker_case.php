@@ -19,10 +19,7 @@ try{
     $result = $soapclient->startResponse($params);
     print_r($result); // return the cycle id
     if (empty($result)){ // fail
-        print_r("Fail to create the cycle.");
-    }
-    else{
-        print_r("Success to create the cycle, cycle_id=$result");
+        print_r("Fail to create the test plan.");
     }
 }catch(SoapFault $e){
 //print_r($e);
