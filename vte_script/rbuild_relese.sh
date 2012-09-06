@@ -5,8 +5,7 @@
 #IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD IMX6DL-ARM2 \
 #IMX6DL-Sabre-SD IMX6Solo-SABREAUTO \
 #IMX6Sololite-ARM2 IMX6SL-EVK"
-PLATFORM="IMX6-SABREAUTO IMX6-SABRELITE IMX6ARM2 IMX6Q-Sabre-SD \
-IMX6DL-ARM2 IMX6DL-Sabre-SD IMX6Solo-SABREAUTO"
+PLATFORM="IMX6SL-EVK"
 BUILD=n
 #kernel branch and vte branch need define all one branch
 KERNEL_BRH=imx_2.6.35
@@ -111,7 +110,7 @@ sync_testcase()
 {
  php $ROOTDIR/skywalker/vte_script/client_skywalker_case.php $1 > ${ROOTDIR}/${2}
  lines=$(cat ${ROOTDIR}/$2 | wc -l)
- if [ $line -gt 1 ]; then
+ if [ $lines -gt 1 ]; then
 	sudo cp ${ROOTDIR}/${2} ${VTE_TARGET_PRE2}/vte_mx${3}/runtest/  
    return 0
  else

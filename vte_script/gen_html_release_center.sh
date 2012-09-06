@@ -2,10 +2,9 @@
 
 echo $@ >> /rootfs/wb/.log.txt
 
-SERVERIP=10.192.244.6
 BASE=/rootfs/wb
 TARGET_OUTPUT_BASE=${BASE}/daily_reports/skywalker
-
+CENTER_HOST=10.192.244.6
 #PRJ="vte_mx50"
 MAX_CASES=50
 pj=0
@@ -18,14 +17,12 @@ declare -a VTE_PATH;
 declare -a ALL_PLAT;
 
 PRJ=$1
-
 PCNT=14
 ALL_PLAT=("IMX50RDP" "IMX50-RDP3" "IMX53LOCO" "IMX53SMD" "IMX51-BABBAGE" "IMX6-SABREAUTO" "IMX6-SABRELITE" \
 "IMX6ARM2" "IMX6Q-Sabre-SD" "IMX6DL-ARM2" "IMX6DL-Sabre-SD" "IMX6Solo-SABREAUTO" "IMX6Sololite-ARM2" "IMX6SL-EVK");
-VTE_PATH=("vte_IMX50RDP_d"  "vte_IMX50-RDP3_d" "vte_IMX53LOCO_d" "vte_IMX53SMD_d" "vte_IMX51-BABBAGE_d" \
-"vte_IMX6-SABREAUTO_d" "vte_IMX6-SABRELITE_d" "vte_IMX6ARM2_d" "vte_IMX6Q-Sabre-SD_d" "vte_IMX6DL-ARM2_d" \
-"vte_IMX6DL-Sabre-SD_d"  "vte_IMX6Solo-SABREAUTO_d" "vte_IMX6Sololite-ARM2_d" "vte_IMX6SL-EVK_d");
-
+VTE_PATH=("vte_IMX50RDP"  "vte_IMX50-RDP3" "vte_IMX53LOCO" "vte_IMX53SMD" "vte_IMX51-BABBAGE" \
+"vte_IMX6-SABREAUTO" "vte_IMX6-SABRELITE" "vte_IMX6ARM2" "vte_IMX6Q-Sabre-SD" "vte_IMX6DL-ARM2" \
+"vte_IMX6DL-Sabre-SD"  "vte_IMX6Solo-SABREAUTO" "vte_IMX6Sololite-ARM2" "vte_IMX6SL-EVK");
 
 for i in $PRJ
 do
@@ -44,7 +41,7 @@ do
 	do
 	 log_lt=$(expr $log_lt + 1)
 	 if [ $log_lt -gt $tcnt ]; then
-     break
+     exit 0
 	 fi
 	 log_name=$(head -$log_lt $LTPROOT/output/latest_test_report | tail -1)
 	 ht=$(echo $log_name | cut -c 1)
@@ -57,7 +54,7 @@ do
 	 fi
 	 if [ ! -e $log_name ]; then
      #no valid log
-		 break
+		 exit 1
 	 fi
 	done
 	. $LTPROOT/output/$log_name
@@ -65,10 +62,10 @@ do
 	export OUTPUT_DIRECTORY=${LTPROOT}/output/$OUTPUT_FILE
 	plan=$(echo $OUTPUT_FILE | sed "s/${i}_//" | sed "s/_log/^/" | cut -d '^' -f 1)	
 	test_plan=${LTPROOT}/runtest/${plan}
-    test_result=${LTPROOT}/results/$(basename $HTMLFILE .html)${TEST_LOGS_DIRECTORY}.txt
-    test_output=$OUTPUT_DIRECTORY
-    /rootfs/wb/aResult.py $test_plan $test_result $test_output
-    sudo mv ${test_output}.html ${LTPROOT}/results/  
+    	test_result=${LTPROOT}/results/$(basename $HTMLFILE .html)${TEST_LOGS_DIRECTORY}.txt
+    	test_output=$OUTPUT_DIRECTORY
+    	/rootfs/wb/aResult.py $test_plan $test_result $test_output
+    	sudo mv ${test_output}.html ${LTPROOT}/results/  
 	export LOGS_DIRECTORY="${LTPROOT}/results"
 	export TEST_OUTPUT_DIRECTORY="${LTPROOT}/output"
 	export TEST_LOGS_DIRECTORY=${LTPROOT}/$TEST_LOGS_DIRECTORY
@@ -112,18 +109,16 @@ do
   result_html=$(basename $test_output).html
   result_txt=$(basename $test_result)
   output_log=$(basename $OUTPUT_DIRECTORY)
-  echo "please see http://${SERVERIP}/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  echo "please see http://${SERVERIP}/daily_test/${VTEPATH}/results/${result_txt}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  echo "please see http://${SERVERIP}/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://${CENTER_HOST}/daily_test/${VTEPATH}/results/${result_html}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://${CENTER_HOST}/daily_test/${VTEPATH}/results/${result_txt}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
+  echo "please see http://${CENTER_HOST}/daily_test/${VTEPATH}/output/${output_log}" >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   cat $LTPROOT/output/LTP_RUN_ON-${OUTPUT_FILE}.failed >> ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
   mutt -s "mx$i ${OUTPUT_FILE} board test result" lbgtest@lists.shlx12.ap.freescale.net BSPTEST@freescale.com < ${OUT_BASE}/LTP_RUN_ON-${OUTPUT_FILE}.failed
-  php ${BASE}/client_skywalker_cycle.php "http://${SERVERIP}/daily_test/${VTEPATH}/runtest/${plan}" \
-  "http://${SERVERIP}/daily_test/${VTEPATH}/results/${result_txt}" \
-   "http://${SERVERIP}/daily_test/${VTEPATH}/results/${result_html}"
+  php ${BASE}/client_skywalker_cycle.php "http://${CENTER_HOST}/daily_test/${VTEPATH}/runtest/${plan}" \
+  "http://${CENTER_HOST}/daily_test/${VTEPATH}/results/${result_txt}" \
+  "http://${CENTER_HOST}/daily_test/${VTEPATH}/results/${result_html}"
 	fi
  fi	
  pj=$(expr $pj + 1)
 done
 	done
-
-/rootfs/wb/gen_html_release_center.sh $1

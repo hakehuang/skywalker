@@ -38,8 +38,8 @@ fi
 VTE_ORIGINAL_PATH=/rootfs/
 
 #tftpd server
-TFTP_SERVER=10.192.225.218
-TFTP_SERVER2=10.192.244.7
+TFTP_SERVER=10.192.244.6
+TFTP_SERVER2=10.192.244.6
 
 #NFS server 
 #NFS_SERVER=10.192.224.170
@@ -235,24 +235,18 @@ do
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx61
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_${2}
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx61
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx61_${2}
   fi
   if [ $i == "MX63" ]
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx63
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_${2}
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx63
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx63_${2}
   fi
   if [ $i == "MX60" ]
   then
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx60
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60
   scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60_${2}
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx60
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ubuntu@${TFTP_SERVER2}:/var/lib/tftpboot/uImage_mx60_${2}
   fi
 
 done
