@@ -38,8 +38,8 @@ fi
 VTE_ORIGINAL_PATH=/rootfs/
 
 #tftpd server
-TFTP_SERVER=10.192.244.6
-TFTP_SERVER2=10.192.244.6
+TFTP_SERVER=10.192.225.218
+TFTP_SERVER2=10.192.244.7
 
 #NFS server 
 #NFS_SERVER=10.192.224.170
@@ -119,8 +119,9 @@ else
  #wget ${PACKAGE_LINK} -P ${NFS_PATH}temp/ || exit 1
  echo "unzip the package"
  tar xzvf ${NFS_PATH}temp/$RELEASE_PACKAGE -C ${NFS_PATH}temp || exit 2
- #RELEASE_TARGET=$(basename ${RELEASE_PACKAGE} .tar.gz)
- RELEASE_TARGET=$(ls -l ${NFS_PATH}temp | grep ^d | awk '{print $9}' | grep $2)
+ RELEASE_TARGET_T=$(basename ${RELEASE_PACKAGE} .gz)
+ RELEASE_TARGET=$(basename ${RELEASE_TARGET_T} .tar)
+ #RELEASE_TARGET=$(ls -l ${NFS_PATH}temp | grep ^d | awk '{print $9}' | grep $2)
 fi
 
 if [ $isBL == 1 ]; then
@@ -232,21 +233,21 @@ do
   fi
   if [ $i == "MX61" ]
   then
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx61
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx61_${2}
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage /tftpboot/zImage_mx61
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx61
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx61_${2}
   fi
   if [ $i == "MX63" ]
   then
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx63
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx63_${2}
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage /tftpboot/zImage_mx63
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx63
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx63_${2}
   fi
   if [ $i == "MX60" ]
   then
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage ${TFTP_SERVER}:/tftpboot/zImage_mx60
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60
-  scp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage ${TFTP_SERVER}:/tftpboot/uImage_mx60_${2}
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/zImage /tftpboot/zImage_mx60
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx60
+  sudo cp ${NFS_PATH}temp/${RELEASE_TARGET}/uImage /tftpboot/uImage_mx60_${2}
   fi
 
 done
